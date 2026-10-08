@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 
 async function onboard(page: Page) {
-  await page.goto('/');
+  await page.goto('./');
   await expect(page.getByRole('heading', { name: 'Welkom bij Planora' })).toBeVisible();
   for (let i = 0; i < 3; i++) await page.getByRole('button', { name: 'Volgende' }).click();
   await page.getByRole('button', { name: 'Beginnen' }).click();

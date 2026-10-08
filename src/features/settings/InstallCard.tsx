@@ -1,0 +1,24 @@
+import { useFormat } from '../../lib/format';
+import { RELEASES_URL, WEB_APP_URL } from '../../lib/links';
+import { Icon } from '../../components/Icon';
+
+/** How to put Planora on other devices, or share it with friends. */
+export function InstallCard() {
+  const { t } = useFormat();
+  const link = (href: string, label: string) => (
+    <a className="font-medium text-brand-600 underline dark:text-brand-200" href={href} target="_blank" rel="noreferrer noopener">{label}</a>
+  );
+  return (
+    <div className="card mb-4">
+      <h3 className="mb-1 flex items-center gap-2 font-semibold"><Icon name="download" className="h-5 w-5" />{t('install.title')}</h3>
+      <p className="mb-3 text-sm text-slate-600 dark:text-slate-300">{t('install.intro')}</p>
+      <ul className="space-y-2 text-sm">
+        <li><span className="font-medium">{t('install.web')}</span> {link(WEB_APP_URL, WEB_APP_URL.replace('https://', ''))}</li>
+        <li><span className="font-medium">iPhone / iPad:</span> {t('install.iphone')}</li>
+        <li><span className="font-medium">Android:</span> {t('install.android')} {link(RELEASES_URL, t('install.downloads'))}</li>
+        <li><span className="font-medium">Windows:</span> {t('install.windows')} {link(RELEASES_URL, t('install.downloads'))}</li>
+      </ul>
+      <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">{t('install.ownData')}</p>
+    </div>
+  );
+}

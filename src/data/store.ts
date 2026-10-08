@@ -349,12 +349,17 @@ export const actions = {
       await replanNow();
     }),
 
-  /** Replace all busy blocks of one external source (a sync result, or [] on disconnect). */
-  replaceBusySource: (source: BusyBlock['source'], blocks: BusyBlock[]) =>
+  /**
+   * Replace all busy blocks of one external source (a sync result, or [] on disconnect).
+   * With `importId`, only the blocks of that imported .ics file are replaced.
+   */
+  replaceBusySource: (source: BusyBlock['source'], blocks: BusyBlock[], importId?: string) =>
     serial(async () => {
-      await repo.deleteBusyBySource(source);
+      const replaced = (b: BusyBlock) => b.source === source && (importId === undefined || b.importId === importId);
+      if (importId === undefined) await repo.deleteBusyBySource(source);
+      else await repo.deleteBusy(get().busy.filter(replaced).map((b) => b.id));
       await repo.putBusy(blocks);
-      set({ busy: [...get().busy.filter((b) => b.source !== source), ...blocks] });
+      set({ busy: [...get().busy.filter((b) => !replaced(b)), ...blocks] });
       await replanNow();
     }),
 

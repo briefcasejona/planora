@@ -25,10 +25,26 @@ export interface GoogleSettings {
   lastSync?: string;
 }
 
+export interface IcsImport {
+  id: string;
+  name: string;
+  importedAt: string;
+  count: number;
+}
+
+export interface IcsExportSettings {
+  generic: boolean;
+  deadlines: boolean;
+  reminderMin: number;
+  /** UIDs of the last full export, so events that disappeared can be cancelled next time. */
+  lastUids: string[];
+}
+
 export interface IntegrationSettings {
   microsoft: MicrosoftSettings;
   google: GoogleSettings;
-  icsImportedAt?: string;
+  icsImports: IcsImport[];
+  icsExport: IcsExportSettings;
 }
 
 export const DEFAULT_INTEGRATIONS: IntegrationSettings = {
@@ -44,6 +60,8 @@ export const DEFAULT_INTEGRATIONS: IntegrationSettings = {
     staySignedIn: false,
   },
   google: { connected: false },
+  icsImports: [],
+  icsExport: { generic: true, deadlines: true, reminderMin: 10, lastUids: [] },
 };
 
 export const useIntegrations = create<IntegrationSettings>(() => DEFAULT_INTEGRATIONS);
@@ -55,6 +73,8 @@ export async function loadIntegrations(): Promise<void> {
     ...stored,
     microsoft: { ...DEFAULT_INTEGRATIONS.microsoft, ...stored.microsoft },
     google: { ...DEFAULT_INTEGRATIONS.google, ...stored.google },
+    icsImports: stored.icsImports ?? [],
+    icsExport: { ...DEFAULT_INTEGRATIONS.icsExport, ...stored.icsExport },
   });
 }
 

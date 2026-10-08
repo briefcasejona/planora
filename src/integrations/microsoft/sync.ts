@@ -1,7 +1,7 @@
 import { addDays } from 'date-fns';
 import { actions, useStore } from '../../data/store';
 import { repo } from '../../data/repo';
-import { MS_SCOPES, msToken } from './auth';
+import { MS_SCOPES, msHandleRedirect, msToken, type MsPending } from './auth';
 import { createEvent, deleteEvent, fetchBusy, updateEvent, type OutlookEventInput } from './graph';
 import { patchMicrosoft, useIntegrations } from '../settings';
 
@@ -40,9 +40,23 @@ function scopesFor(): string[] {
   ];
 }
 
-export async function microsoftToken(interactive = false, extra: readonly string[] = []): Promise<string> {
+export async function microsoftToken(interactive = false, extra: readonly string[] = [], pending?: MsPending): Promise<string> {
   const s = useIntegrations.getState().microsoft;
-  return msToken([...new Set([...scopesFor(), ...extra])], s.staySignedIn, interactive);
+  return msToken([...new Set([...scopesFor(), ...extra])], s.staySignedIn, interactive, pending);
+}
+
+/** Native app: finish a sign-in or consent that went through a redirect. */
+export async function completeMsRedirect(): Promise<void> {
+  const result = await msHandleRedirect(useIntegrations.getState().microsoft.staySignedIn);
+  if (!result) return;
+  const { pending, account } = result;
+  if (pending?.kind === 'connect' || !useIntegrations.getState().microsoft.connected) {
+    await patchMicrosoft({ connected: true, accountLabel: account.username });
+    await repo.addLog({ provider: 'microsoft', action: 'connect', count: 0, ok: true });
+  }
+  if (pending?.kind === 'feature') await patchMicrosoft({ [pending.key]: true });
+  await pullMicrosoftBusy();
+  await pushMicrosoftSessions();
 }
 
 /** Pull busy time from Outlook into the local planner (times only unless titles are enabled). */

@@ -5,6 +5,7 @@ import { useFormat } from '../lib/format';
 import { Chips } from '../components/ui';
 import { Icon } from '../components/Icon';
 import i18n from '../i18n';
+import { asset } from '../lib/platform';
 
 export function Onboarding() {
   const { t } = useFormat();
@@ -61,7 +62,7 @@ export function Onboarding() {
     <div className="flex min-h-full items-center justify-center p-4">
       <div className="card w-full max-w-md p-6">
         <div className="mb-6 flex items-center gap-2">
-          <img src="/icon.svg" alt="" className="h-9 w-9" />
+          <img src={asset('icon.svg')} alt="" className="h-9 w-9" />
           <span className="text-lg font-bold">Planora</span>
           <span className="ml-auto text-xs text-slate-500">{step + 1} / {steps.length}</span>
         </div>

@@ -10,6 +10,7 @@ import { Icon } from '../../components/Icon';
 import { useIntegrations, saveIntegrations, DEFAULT_INTEGRATIONS } from '../../integrations/settings';
 import { msSignOut } from '../../integrations/microsoft/auth';
 import { googleDisconnect } from '../../integrations/google';
+import { BASE } from '../../lib/platform';
 
 export function PrivacyCenter() {
   const { t } = useFormat();
@@ -202,7 +203,7 @@ function DeleteAll() {
     await actions.wipeAll();
     await saveIntegrations(DEFAULT_INTEGRATIONS);
     await repo.wipeAll();
-    window.location.href = '/';
+    window.location.href = BASE;
   };
   return (
     <div className="card mb-4 border-rose-200 dark:border-rose-900">

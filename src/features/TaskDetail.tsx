@@ -54,6 +54,12 @@ export function TaskDetail({ taskId, onClose }: { taskId: string; onClose: () =>
           <Icon name="trash" className="h-4 w-4" />
           {t('common.delete')}
         </button>
+        {open && planned > 0 && (
+          <button className="btn-secondary" onClick={() => void import('../integrations/calendarFiles').then((m) => m.exportTask(task.id))} title={t('detail.addToCalendarHint')}>
+            <Icon name="calendar" className="h-4 w-4" />
+            {t('detail.addToCalendar')}
+          </button>
+        )}
         <button className="btn-secondary" onClick={() => setMode('edit')}>{t('common.edit')}</button>
         {open ? (
           <button className="btn-primary" onClick={complete}>

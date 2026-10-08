@@ -1,6 +1,7 @@
 import { lazy, Suspense, useState } from 'react';
 import { NavLink, Navigate, Route, Routes } from 'react-router-dom';
 import { useStore } from './data/store';
+import { asset } from './lib/platform';
 import { useFormat } from './lib/format';
 import { Icon, type IconName } from './components/Icon';
 import { TodayPage } from './features/TodayPage';
@@ -32,7 +33,7 @@ export function Shell() {
     <div className="flex min-h-full">
       <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-slate-200 bg-white p-4 md:flex dark:border-slate-800 dark:bg-slate-900">
         <div className="mb-6 flex items-center gap-2 px-2">
-          <img src="/icon.svg" alt="" className="h-8 w-8" />
+          <img src={asset('icon.svg')} alt="" className="h-8 w-8" />
           <span className="text-lg font-bold">Planora</span>
         </div>
         <button className="btn-primary mb-4" onClick={() => setAdding(true)}>

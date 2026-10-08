@@ -4,9 +4,10 @@ import type { BusyBlock, Task, WorkSession } from '../domain/types';
 
 /**
  * Parse an .ics file entirely on this device into busy blocks. Recurring
- * events are expanded within a window around today.
+ * events are expanded within a window around today. `importId` groups the
+ * blocks of one imported file so it can be replaced or removed on its own.
  */
-export function parseIcs(text: string, now = new Date()): BusyBlock[] {
+export function parseIcs(text: string, now = new Date(), importId?: string): BusyBlock[] {
   const from = addDays(now, -14);
   const to = addDays(now, 180);
   const root = new ICAL.Component(ICAL.parse(text));
@@ -15,11 +16,13 @@ export function parseIcs(text: string, now = new Date()): BusyBlock[] {
     const event = new ICAL.Event(vevent);
     const transp = vevent.getFirstPropertyValue('transp');
     if (transp === 'TRANSPARENT') continue; // marked as "free"
+    if (vevent.getFirstPropertyValue('status') === 'CANCELLED') continue;
     const push = (start: Date, end: Date, allDay: boolean) => {
       if (end <= from || start >= to) return;
       out.push({
-        id: 'ics:' + event.uid + ':' + start.toISOString(),
+        id: 'ics:' + (importId ? importId + ':' : '') + event.uid + ':' + start.toISOString(),
         source: 'ics',
+        importId,
         title: event.summary || undefined,
         start: start.toISOString(),
         end: end.toISOString(),
@@ -44,45 +47,94 @@ export function parseIcs(text: string, now = new Date()): BusyBlock[] {
   return out;
 }
 
+/** A stable id for an imported file, so importing the same file again replaces it. */
+export function importIdFor(fileName: string): string {
+  return fileName.toLowerCase().replace(/\.ics$/, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'calendar';
+}
+
 const icsDate = (iso: string) => new Date(iso).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
 const escapeText = (s: string) => s.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
 
-/** Export planned sessions (and optionally deadlines) as an .ics file for any calendar app. */
-export function buildIcs(sessions: WorkSession[], tasks: Task[], opts: { generic: boolean; deadlines: boolean }): string {
+export interface IcsExportOptions {
+  /** "Planora focus" instead of task names. */
+  generic: boolean;
+  deadlines: boolean;
+  /** Minutes before each block for a reminder; 0 = none. */
+  reminderMin?: number;
+  /** Only these tasks (e.g. "add this task to my calendar"). */
+  taskIds?: string[];
+  /** UIDs exported earlier that are no longer planned; sent as cancelled so calendars remove them. */
+  cancelUids?: string[];
+  now?: Date;
+}
+
+export interface IcsExport {
+  text: string;
+  uids: string[];
+}
+
+/**
+ * Export planned sessions (and optionally deadlines) for Apple Calendar or any
+ * other calendar app. UIDs are stable per task and block number, so importing
+ * a newer export updates the same events instead of adding duplicates.
+ */
+export function buildIcs(sessions: WorkSession[], tasks: Task[], opts: IcsExportOptions): IcsExport {
+  const now = opts.now ?? new Date();
+  const stamp = icsDate(now.toISOString());
+  const sequence = Math.floor(now.getTime() / 1000);
+  const wanted = (id: string) => !opts.taskIds || opts.taskIds.includes(id);
   const byId = new Map(tasks.map((t) => [t.id, t]));
-  const stamp = icsDate(new Date().toISOString());
-  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Planora//Planora//NL', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH'];
-  for (const s of sessions) {
-    const task = byId.get(s.taskId);
-    if (!task || s.status !== 'planned') continue;
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Planora//Planora//NL',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'X-WR-CALNAME:Planora',
+  ];
+  const uids: string[] = [];
+  const event = (uid: string, start: string, end: string, summary: string, opaque: boolean, alarm: boolean) => {
+    uids.push(uid);
     lines.push(
       'BEGIN:VEVENT',
-      'UID:' + s.id + '@planora.local',
+      'UID:' + uid,
       'DTSTAMP:' + stamp,
-      'DTSTART:' + icsDate(s.start),
-      'DTEND:' + icsDate(s.end),
-      'SUMMARY:' + escapeText(opts.generic ? 'Planora focus' : 'Planora: ' + task.title),
+      'SEQUENCE:' + sequence,
+      'DTSTART:' + icsDate(start),
+      'DTEND:' + icsDate(end),
+      'SUMMARY:' + escapeText(summary),
       'CLASS:PRIVATE',
-      'TRANSP:OPAQUE',
-      'END:VEVENT',
+      'TRANSP:' + (opaque ? 'OPAQUE' : 'TRANSPARENT'),
     );
+    if (alarm && opts.reminderMin) {
+      lines.push('BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + escapeText(summary), 'TRIGGER:-PT' + opts.reminderMin + 'M', 'END:VALARM');
+    }
+    lines.push('END:VEVENT');
+  };
+
+  const perTask = new Map<string, WorkSession[]>();
+  for (const s of sessions) {
+    if (s.status !== 'planned' || !byId.has(s.taskId) || !wanted(s.taskId)) continue;
+    perTask.set(s.taskId, [...(perTask.get(s.taskId) ?? []), s]);
+  }
+  for (const [taskId, list] of perTask) {
+    const task = byId.get(taskId)!;
+    list.sort((a, b) => a.start.localeCompare(b.start));
+    list.forEach((s, i) => {
+      event('planora-' + taskId + '-' + (i + 1) + '@planora.local', s.start, s.end, opts.generic ? 'Planora focus' : 'Planora: ' + task.title, true, true);
+    });
   }
   if (opts.deadlines) {
     for (const t of tasks) {
-      if (t.status !== 'open') continue;
-      lines.push(
-        'BEGIN:VEVENT',
-        'UID:deadline-' + t.id + '@planora.local',
-        'DTSTAMP:' + stamp,
-        'DTSTART:' + icsDate(t.deadline),
-        'DTEND:' + icsDate(t.deadline),
-        'SUMMARY:' + escapeText(opts.generic ? 'Deadline' : 'Deadline: ' + t.title),
-        'CLASS:PRIVATE',
-        'TRANSP:TRANSPARENT',
-        'END:VEVENT',
-      );
+      if (t.status !== 'open' || !wanted(t.id)) continue;
+      event('planora-deadline-' + t.id + '@planora.local', t.deadline, t.deadline, opts.generic ? 'Deadline' : 'Deadline: ' + t.title, false, false);
     }
   }
+  const current = new Set(uids);
+  for (const uid of opts.cancelUids ?? []) {
+    if (current.has(uid)) continue;
+    lines.push('BEGIN:VEVENT', 'UID:' + uid, 'DTSTAMP:' + stamp, 'SEQUENCE:' + sequence, 'DTSTART:' + stamp, 'DTEND:' + stamp, 'SUMMARY:Planora', 'STATUS:CANCELLED', 'END:VEVENT');
+  }
   lines.push('END:VCALENDAR');
-  return lines.join('\r\n') + '\r\n';
+  return { text: lines.join('\r\n') + '\r\n', uids };
 }

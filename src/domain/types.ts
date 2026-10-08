@@ -75,6 +75,8 @@ export interface BusyBlock {
   /** Only stored for local/ics events, or Microsoft when the user opts in. */
   title?: string;
   source: BusySource;
+  /** Groups blocks of one imported .ics file. */
+  importId?: string;
   allDay?: boolean;
   /** Local recurring events: repeat weekly on these weekdays (0 = Sunday) until `repeatUntil`. */
   repeatWeekdays?: number[];

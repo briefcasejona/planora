@@ -1,7 +1,7 @@
 {
   "name": "planora",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,12 +12,18 @@
     "e2e": "playwright test",
     "typecheck": "tsc -b --noEmit",
     "cap:sync": "npm run build && cap sync",
-    "android": "cap open android"
+    "android": "cap open android",
+    "icons": "node scripts/icons.mjs",
+    "desktop": "npm run build && electron .",
+    "dist:win": "npm run build && electron-builder --win --publish never",
+    "e2e:desktop": "npm run build && playwright test -c playwright.desktop.config.ts"
   },
   "dependencies": {
     "@azure/msal-browser": "^5.25.0",
     "@capacitor/core": "^8.5.3",
+    "@capacitor/filesystem": "^8.1.4",
     "@capacitor/local-notifications": "^8.3.1",
+    "@capacitor/share": "^8.0.3",
     "@fullcalendar/core": "^6.1.21",
     "@fullcalendar/daygrid": "^6.1.21",
     "@fullcalendar/interaction": "^6.1.21",
@@ -41,11 +47,73 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
+    "electron": "^44.7.0",
+    "electron-builder": "^26.15.3",
     "fake-indexeddb": "^6.2.5",
+    "sharp": "^0.35.5",
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2",
     "vite": "^8.3.4",
     "vite-plugin-pwa": "^2.0.0",
     "vitest": "^5.0.3"
+  },
+  "allowScripts": {
+    "sharp": false,
+    "electron-winstaller": false,
+    "electron@44.7.0": true
+  },
+  "description": "Privacy-first planning app for students and teachers",
+  "author": "Jonathan",
+  "main": "electron/main.cjs",
+  "build": {
+    "appId": "app.planora",
+    "productName": "Planora",
+    "files": [
+      "dist/**",
+      "electron/**",
+      "csp.cjs",
+      "build/icon.png",
+      "package.json",
+      "!node_modules/**/*"
+    ],
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "Planora-Setup-${version}.exe"
+    },
+    "portable": {
+      "artifactName": "Planora-${version}-portable.exe"
+    },
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.productivity",
+      "artifactName": "Planora-${version}.dmg"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Office",
+      "artifactName": "Planora-${version}.AppImage"
+    },
+    "fileAssociations": [
+      {
+        "ext": "ics",
+        "name": "iCalendar",
+        "description": "Calendar file",
+        "role": "Viewer"
+      }
+    ],
+    "electronDist": "node_modules/electron/dist"
   }
 }

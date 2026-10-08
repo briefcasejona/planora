@@ -4,6 +4,8 @@ import type { Preferences, WeeklyMoment } from '../../domain/types';
 import { useFormat } from '../../lib/format';
 import { Chips, Field } from '../../components/ui';
 import { requestWebNotificationPermission, notificationsSupported } from '../../notifications';
+import { DesktopCard } from './DesktopCard';
+import { InstallCard } from './InstallCard';
 
 const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0];
 
@@ -105,6 +107,9 @@ export function PlanningSettings() {
         )}
         {notif === 'granted' && <p className="text-sm text-emerald-600">{t('settings.notificationsOn')}</p>}
       </div>
+
+      <DesktopCard />
+      <InstallCard />
 
       <div className="sticky bottom-20 z-10 flex items-center justify-end gap-3 md:bottom-4">
         {saved && !dirty && <span className="text-sm text-emerald-600">{t('settings.saved')}</span>}

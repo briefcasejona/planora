@@ -3,6 +3,7 @@ import { LocalNotifications } from '@capacitor/local-notifications';
 import type { Preferences } from '../domain/types';
 import { nextOccurrence } from '../data/moments';
 import { parseHM } from '../domain/time';
+import { asset } from '../lib/platform';
 
 export interface NotificationTexts {
   planTitle: string;
@@ -49,7 +50,7 @@ export async function scheduleWeeklyReminders(prefs: Preferences, texts: Notific
     [review, texts.reviewTitle, texts.reviewBody],
   ] as const) {
     const delay = when.getTime() - now.getTime();
-    if (delay > 0 && delay < day) webTimers.push(setTimeout(() => new Notification(title, { body, icon: '/icon.svg' }), delay));
+    if (delay > 0 && delay < day) webTimers.push(setTimeout(() => new Notification(title, { body, icon: asset('icon.svg') }), delay));
   }
 }
 

@@ -1,28 +1,15 @@
+import { copyFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import CSP from './csp.cjs';
 
-/**
- * Strict Content-Security-Policy for production builds. The app may only talk
- * to itself and, when the user links them, Microsoft and Google directly.
- * No analytics, CDNs or other third parties are allowed.
- */
-export const CSP = [
-  "default-src 'self'",
-  "script-src 'self'",
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
-  "font-src 'self' data:",
-  "connect-src 'self' https://login.microsoftonline.com https://graph.microsoft.com https://www.googleapis.com https://oauth2.googleapis.com",
-  'frame-src https://login.microsoftonline.com',
-  "worker-src 'self'",
-  "manifest-src 'self'",
-  "object-src 'none'",
-  "base-uri 'self'",
-  "form-action 'self'",
-].join('; ');
+/** "/" for local, desktop and Android builds; "/planora/" for GitHub Pages. */
+const base = process.env.VITE_BASE || '/';
 
+/** Strict Content-Security-Policy in every built page (see csp.cjs). */
 function cspPlugin(): Plugin {
   return {
     name: 'planora-csp',
@@ -33,14 +20,27 @@ function cspPlugin(): Plugin {
   };
 }
 
+/** GitHub Pages has no SPA routing: serve the app for unknown paths via 404.html. */
+function spaFallbackPlugin(): Plugin {
+  return {
+    name: 'planora-404',
+    apply: 'build',
+    closeBundle() {
+      copyFileSync(resolve('dist/index.html'), resolve('dist/404.html'));
+    },
+  };
+}
+
 export default defineConfig({
+  base,
   plugins: [
     react(),
     tailwindcss(),
     cspPlugin(),
+    spaFallbackPlugin(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icon.svg'],
+      includeAssets: ['icon.svg', 'apple-touch-icon.png'],
       manifest: {
         name: 'Planora',
         short_name: 'Planora',
@@ -48,10 +48,20 @@ export default defineConfig({
         theme_color: '#4f46e5',
         background_color: '#ffffff',
         display: 'standalone',
-        start_url: '/',
-        icons: [{ src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' }],
+        start_url: base,
+        scope: base,
+        icons: [
+          { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
+          { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
+          { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: 'icon.svg', sizes: 'any', type: 'image/svg+xml' },
+        ],
       },
-      workbox: { navigateFallback: '/index.html', navigateFallbackDenylist: [/auth-redirect/], globPatterns: ['**/*.{js,css,html,svg,woff2}'] },
+      workbox: {
+        navigateFallback: base + 'index.html',
+        navigateFallbackDenylist: [/auth-redirect/],
+        globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+      },
     }),
   ],
   build: {

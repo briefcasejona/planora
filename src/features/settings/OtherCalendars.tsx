@@ -1,11 +1,12 @@
 import { useRef, useState } from 'react';
-import { actions, useStore } from '../../data/store';
+import { actions } from '../../data/store';
 import { repo } from '../../data/repo';
-import { downloadBlob } from '../../data/backup';
 import { useFormat } from '../../lib/format';
 import { googleConfigured, googleDisconnect, googleSignIn, pullGoogleBusy } from '../../integrations/google';
-import { buildIcs, parseIcs } from '../../integrations/ics';
+import { exportPlan, importCalendarFile, removeCalendarImport } from '../../integrations/calendarFiles';
+import { Chips } from '../../components/ui';
 import { patchGoogle, saveIntegrations, useIntegrations } from '../../integrations/settings';
+import { isNativeApp, platform } from '../../lib/platform';
 import { Toggle } from './Toggle';
 
 export function GoogleCard() {
@@ -42,7 +43,9 @@ export function GoogleCard() {
     <div className="card mb-4">
       <h3 className="font-semibold">{t('integrations.google')}</h3>
       <p className="mb-3 text-sm text-slate-600 dark:text-slate-300">{t('integrations.googleIntro')}</p>
-      {!googleConfigured ? (
+      {isNativeApp() ? (
+        <p className="rounded-xl bg-slate-50 p-3 text-sm text-slate-600 dark:bg-slate-800/60 dark:text-slate-300">{t('integrations.googleNative')}</p>
+      ) : !googleConfigured ? (
         <p className="rounded-xl bg-slate-50 p-3 text-sm text-slate-600 dark:bg-slate-800/60 dark:text-slate-300">{t('integrations.notConfigured')}</p>
       ) : g.connected ? (
         <div className="flex flex-wrap items-center gap-2">
@@ -61,53 +64,72 @@ export function GoogleCard() {
   );
 }
 
+/** Apple Calendar (and any other calendar app) through .ics files: no account or password needed. */
 export function IcsCard() {
   const { t, date } = useFormat();
-  const { tasks, sessions, busy } = useStore();
-  const importedAt = useIntegrations((s) => s.icsImportedAt);
+  const imports = useIntegrations((s) => s.icsImports);
+  const exp = useIntegrations((s) => s.icsExport);
   const fileRef = useRef<HTMLInputElement>(null);
-  const [generic, setGeneric] = useState(true);
-  const [deadlines, setDeadlines] = useState(true);
   const [msg, setMsg] = useState('');
-  const count = busy.filter((b) => b.source === 'ics').length;
+  const setExport = (patch: Partial<typeof exp>) => saveIntegrations({ icsExport: { ...exp, ...patch } });
 
   const onFile = async (file: File) => {
     try {
-      const blocks = parseIcs(await file.text());
-      await actions.replaceBusySource('ics', blocks);
-      await saveIntegrations({ icsImportedAt: new Date().toISOString() });
-      await repo.addLog({ provider: 'ics', action: 'import-file', count: blocks.length, ok: true });
-      setMsg(t('ics.imported', { count: blocks.length }));
+      setMsg(t('ics.imported', { count: await importCalendarFile(file.name, await file.text()) }));
     } catch {
       setMsg(t('ics.invalid'));
     }
   };
-  const clear = async () => {
-    await actions.replaceBusySource('ics', []);
-    await saveIntegrations({ icsImportedAt: undefined });
-    setMsg('');
-  };
-  const exportIcs = () => {
-    const text = buildIcs(sessions, tasks, { generic, deadlines });
-    downloadBlob(new Blob([text], { type: 'text/calendar' }), 'planora.ics');
+  const doExport = async () => {
+    try {
+      await exportPlan();
+      setMsg(t('ics.exported'));
+    } catch (e) {
+      if ((e as Error).name !== 'AbortError') setMsg(t('integrations.error', { msg: String((e as Error).message ?? e) }));
+    }
   };
 
   return (
     <div className="card mb-4">
       <h3 className="font-semibold">{t('ics.title')}</h3>
-      <p className="mb-3 text-sm text-slate-600 dark:text-slate-300">{t('ics.intro')}</p>
-      <div className="flex flex-wrap items-center gap-2">
-        <input ref={fileRef} type="file" accept=".ics,text/calendar" className="hidden" onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])} />
-        <button className="btn-secondary" onClick={() => fileRef.current?.click()}>{t('ics.import')}</button>
-        {count > 0 && <button className="btn-ghost" onClick={clear}>{t('ics.clear')}</button>}
+      <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">{t('ics.intro')}</p>
+
+      <h4 className="mb-1 text-sm font-semibold">{t('ics.toPlanora')}</h4>
+      <ul className="mb-3 list-disc space-y-1 pl-5 text-sm text-slate-600 dark:text-slate-300">
+        <li>{t('ics.howMac')}</li>
+        <li>{t('ics.howIphone')}</li>
+        <li>{t('ics.howOther')}</li>
+      </ul>
+      <input ref={fileRef} type="file" accept=".ics,text/calendar" className="hidden"
+        onChange={(e) => { const f = e.target.files?.[0]; if (f) void onFile(f); e.target.value = ''; }} />
+      <button className="btn-secondary" onClick={() => fileRef.current?.click()}>{t('ics.import')}</button>
+      {imports.length > 0 && (
+        <ul className="mt-3 divide-y divide-slate-100 text-sm dark:divide-slate-800">
+          {imports.map((i) => (
+            <li key={i.id} className="flex items-center gap-2 py-1.5">
+              <span className="min-w-0 flex-1 truncate font-medium">{i.name}</span>
+              <span className="text-xs text-slate-500">{t('ics.status', { count: i.count, when: date(i.importedAt, 'd MMM HH:mm') })}</span>
+              <button className="btn-ghost px-2 py-1 text-rose-600" onClick={() => removeCalendarImport(i.id)}>{t('common.remove')}</button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <h4 className="mt-5 mb-1 border-t border-slate-100 pt-4 text-sm font-semibold dark:border-slate-800">{t('ics.fromPlanora')}</h4>
+      <ul className="mb-2 list-disc space-y-1 pl-5 text-sm text-slate-600 dark:text-slate-300">
+        <li>{platform() === 'android' ? t('ics.exportAndroid') : t('ics.exportIphone')}</li>
+        <li>{t('ics.exportMac')}</li>
+        <li>{t('ics.exportRefresh')}</li>
+      </ul>
+      <Toggle checked={exp.generic} onChange={(v) => setExport({ generic: v })} label={t('integrations.genericTitles')} description={t('ics.genericHint')} />
+      <Toggle checked={exp.deadlines} onChange={(v) => setExport({ deadlines: v })} label={t('ics.includeDeadlines')} />
+      <div className="my-2">
+        <span className="label">{t('ics.reminder')}</span>
+        <Chips label={t('ics.reminder')} value={exp.reminderMin} onChange={(v) => setExport({ reminderMin: v })}
+          options={[0, 10, 30].map((m) => ({ value: m, label: m ? t('ics.reminderMin', { n: m }) : t('ics.noReminder') }))} />
       </div>
-      {count > 0 && importedAt && <p className="mt-2 text-xs text-slate-500">{t('ics.status', { count, when: date(importedAt, 'd MMM HH:mm') })}</p>}
+      <button className="btn-primary mt-2" onClick={doExport}>{t('ics.export')}</button>
       {msg && <p className="mt-2 text-sm">{msg}</p>}
-      <div className="mt-4 border-t border-slate-100 pt-3 dark:border-slate-800">
-        <Toggle checked={generic} onChange={setGeneric} label={t('integrations.genericTitles')} description={t('ics.genericHint')} />
-        <Toggle checked={deadlines} onChange={setDeadlines} label={t('ics.includeDeadlines')} />
-        <button className="btn-secondary mt-2" onClick={exportIcs}>{t('ics.export')}</button>
-      </div>
     </div>
   );
 }

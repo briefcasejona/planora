@@ -1,4 +1,5 @@
 import { InteractionRequiredAuthError, PublicClientApplication, type AccountInfo } from '@azure/msal-browser';
+import { appUrl, isNativeApp } from '../../lib/platform';
 
 const clientId = import.meta.env.VITE_MS_CLIENT_ID as string | undefined;
 const tenant = (import.meta.env.VITE_MS_TENANT as string | undefined) || 'common';
@@ -29,8 +30,8 @@ async function client(persist: boolean): Promise<PublicClientApplication> {
     auth: {
       clientId,
       authority: 'https://login.microsoftonline.com/' + tenant,
-      redirectUri: window.location.origin + '/auth-redirect.html',
-      postLogoutRedirectUri: window.location.origin,
+      redirectUri: appUrl('auth-redirect.html'),
+      postLogoutRedirectUri: appUrl(''),
     },
     // Tokens stay in this browser only: sessionStorage by default, localStorage when the user opts in.
     cache: { cacheLocation: persist ? 'localStorage' : 'sessionStorage' },
@@ -44,26 +45,56 @@ function account(app: PublicClientApplication): AccountInfo | null {
   return app.getActiveAccount() ?? app.getAllAccounts()[0] ?? null;
 }
 
-export async function msSignIn(scopes: readonly string[], persist: boolean): Promise<AccountInfo> {
+/**
+ * Inside the Android/iOS app popups do not work, so sign-in navigates to
+ * Microsoft and back (redirect). What the user was doing is remembered here and
+ * finished by completeMsRedirect() after the app reloads.
+ */
+export type MsPending = { kind: 'connect' } | { kind: 'feature'; key: string } | { kind: 'sync' };
+const PENDING_KEY = 'planora-ms-pending';
+
+async function redirectTo(scopes: readonly string[], persist: boolean, pending: MsPending, acc?: AccountInfo | null): Promise<never> {
   const app = await client(persist);
+  sessionStorage.setItem(PENDING_KEY, JSON.stringify(pending));
+  if (acc) await app.acquireTokenRedirect({ scopes: [...scopes], account: acc });
+  else await app.loginRedirect({ scopes: [...scopes], prompt: 'select_account' });
+  return new Promise<never>(() => undefined); // the page is navigating away
+}
+
+/** Call once at startup in the native app; returns what was pending, if a redirect just completed. */
+export async function msHandleRedirect(persist: boolean): Promise<{ account: AccountInfo; pending: MsPending | null } | null> {
+  if (!clientId || !isNativeApp()) return null;
+  const app = await client(persist);
+  const result = await app.handleRedirectPromise();
+  const raw = sessionStorage.getItem(PENDING_KEY);
+  sessionStorage.removeItem(PENDING_KEY);
+  if (!result?.account) return null;
+  app.setActiveAccount(result.account);
+  return { account: result.account, pending: raw ? (JSON.parse(raw) as MsPending) : null };
+}
+
+export async function msSignIn(scopes: readonly string[], persist: boolean, pending: MsPending = { kind: 'connect' }): Promise<AccountInfo> {
+  const app = await client(persist);
+  if (isNativeApp()) return redirectTo(scopes, persist, pending);
   const result = await app.loginPopup({ scopes: [...scopes], prompt: 'select_account' });
   app.setActiveAccount(result.account);
   return result.account;
 }
 
 /** Get a token for the given scopes, asking for consent in a popup only when needed. */
-export async function msToken(scopes: readonly string[], persist: boolean, interactive = false): Promise<string> {
+export async function msToken(scopes: readonly string[], persist: boolean, interactive = false, pending: MsPending = { kind: 'sync' }): Promise<string> {
   const app = await client(persist);
   const acc = account(app);
   if (!acc) {
     if (!interactive) throw new Error('ms-signed-out');
-    await msSignIn(scopes, persist);
+    await msSignIn(scopes, persist, pending);
     return msToken(scopes, persist, false);
   }
   try {
     return (await app.acquireTokenSilent({ scopes: [...scopes], account: acc })).accessToken;
   } catch (e) {
     if (interactive && e instanceof InteractionRequiredAuthError) {
+      if (isNativeApp()) return redirectTo(scopes, persist, pending, acc);
       return (await app.acquireTokenPopup({ scopes: [...scopes], account: acc })).accessToken;
     }
     throw e;

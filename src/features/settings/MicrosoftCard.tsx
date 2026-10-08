@@ -39,7 +39,7 @@ export function MicrosoftCard() {
   /** Turning a feature on asks Microsoft for exactly that permission, nothing more. */
   const toggle = (key: keyof MicrosoftSettings, value: boolean, scopes?: readonly string[]) =>
     run(async () => {
-      if (value && scopes) await microsoftToken(true, scopes);
+      if (value && scopes) await microsoftToken(true, scopes, { kind: 'feature', key });
       if (key === 'writeSessions' && !value) await removeMicrosoftEvents();
       await patchMicrosoft({ [key]: value });
       if (key === 'readBusy' && !value) await actions.replaceBusySource('microsoft', []);

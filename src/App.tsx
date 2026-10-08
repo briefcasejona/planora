@@ -9,6 +9,8 @@ import { Shell } from './Shell';
 import { startIntegrations } from './integrations';
 import { scheduleWeeklyReminders } from './notifications';
 
+let openFileHooked = false;
+
 export default function App() {
   const ready = useStore((s) => s.ready);
   const locked = useStore((s) => s.locked);
@@ -27,6 +29,11 @@ export default function App() {
   useEffect(() => {
     if (!ready || locked) return;
     void startIntegrations();
+    // Desktop app: .ics files opened with Planora are imported as busy time.
+    if (!openFileHooked) window.planoraDesktop?.onOpenFile((name, text) => {
+      void import('./integrations/calendarFiles').then((m) => m.importCalendarFile(name, text));
+    });
+    openFileHooked = true;
     // Re-check for missed sessions, passed deadlines and weekly overviews regularly.
     const tick = () => void actions.replan();
     const timer = setInterval(tick, 10 * 60 * 1000);
@@ -54,7 +61,7 @@ export default function App() {
   if (locked) return <LockScreen />;
   if (!prefs.onboarded) return <Onboarding />;
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Shell />
     </BrowserRouter>
   );

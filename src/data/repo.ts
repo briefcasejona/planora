@@ -13,7 +13,7 @@ type TableName = 'tasks' | 'sessions' | 'busy' | 'feedback' | 'reports';
 const PLAIN_FIELDS: Record<TableName, string[] | 'all'> = {
   tasks: ['id', 'status', 'deadline', 'type'],
   sessions: 'all',
-  busy: ['id', 'source', 'start', 'end', 'allDay', 'repeatWeekdays', 'repeatUntil'],
+  busy: ['id', 'source', 'importId', 'start', 'end', 'allDay', 'repeatWeekdays', 'repeatUntil'],
   feedback: ['id', 'taskId', 'taskType', 'createdAt'],
   reports: ['id', 'kind', 'weekStart'],
 };

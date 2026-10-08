@@ -3,6 +3,7 @@ import { actions, useStore } from '../data/store';
 import { repo } from '../data/repo';
 import type { BusyBlock } from '../domain/types';
 import { patchGoogle, useIntegrations } from './settings';
+import { appUrl } from '../lib/platform';
 
 const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
 export const googleConfigured = !!clientId;
@@ -36,7 +37,7 @@ export function googleSignIn(): Promise<string> {
   const state = 'google-' + crypto.randomUUID();
   const params = new URLSearchParams({
     client_id: clientId,
-    redirect_uri: window.location.origin + '/auth-redirect.html',
+    redirect_uri: appUrl('auth-redirect.html'),
     response_type: 'token',
     scope: SCOPE,
     include_granted_scopes: 'false',

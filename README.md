@@ -8,6 +8,17 @@ time **you** really need, so the next prediction is better.
 Runs on desktop and phone as an installable web app (PWA), and as an Android/iOS app via Capacitor.
 Interface in Dutch and English.
 
+## Download and share
+
+| Device | How |
+| --- | --- |
+| Any browser | <https://briefcasejona.github.io/planora/> |
+| iPhone / iPad | Open the website in Safari > Share > **Add to Home Screen** |
+| Android | Download `Planora.apk` from [Releases](https://github.com/briefcasejona/planora/releases/latest) and allow "install unknown apps" (or install the website from Chrome) |
+| Windows | Download `Planora-Setup.exe` (or the portable `.exe`) from [Releases](https://github.com/briefcasejona/planora/releases/latest). The app is not code-signed, so SmartScreen asks: **More info > Run anyway** |
+
+Everyone's data stays on their own device; nothing is shared or synced between people or devices.
+
 ## Features
 
 - **Task inbox**: name, deadline, estimate, type (test, assignment, project, task; for teachers also
@@ -34,7 +45,10 @@ Interface in Dutch and English.
   - Every plan and review is saved so you can look back.
 - **Own calendar** with one-off and weekly-repeating events (classes, sports, a job).
 - **Optional integrations**: Microsoft 365 (Outlook calendar including Teams meetings, Microsoft To Do,
-  Teams assignments), Google Calendar (free/busy), and .ics import/export for any calendar app.
+  Teams assignments), Google Calendar (free/busy), and **Apple Calendar via .ics files** (no Apple password):
+  import exports from Apple Calendar on a Mac as busy time (several files side by side), and export the
+  plan (or one task) to Apple Calendar. Exports use stable event ids, so importing a newer export updates
+  events instead of duplicating them; blocks that disappeared are sent as cancelled.
 
 ## Privacy model
 
@@ -90,6 +104,25 @@ Host `dist/` on any static HTTPS host. Open the site and choose **Install app**
 When hosting, also send the Content-Security-Policy from `vite.config.ts` as an HTTP header;
 headers support extra protections such as `frame-ancestors 'none'` that a meta tag can't express.
 
+### Desktop app (Electron)
+
+```bash
+npm run desktop     # run the desktop app
+npm run dist:win    # build release/Planora-Setup-x.y.z.exe and a portable .exe
+npm run e2e:desktop # end-to-end test of the desktop app
+```
+
+The desktop app serves Planora from a local server on `127.0.0.1:47823` (never reachable from other
+computers), with the CSP as an HTTP header, a sandboxed window without Node.js access, close-to-tray so
+reminders keep working, optional start with Windows, and `.ics` file association.
+
+### Releases
+
+Pushing a tag `vX.Y.Z` runs `.github/workflows/release.yml`: it builds the Windows installer and a signed
+Android APK and publishes them as a GitHub Release. Every push to `main` deploys the website
+(`.github/workflows/pages.yml`). The Android signing key is stored in repository secrets; a backup copy
+must be kept privately outside the repository.
+
 ### Native Android / iOS app
 
 ```bash
@@ -108,10 +141,14 @@ There is no client secret, and you don't need a server.
 1. Go to <https://entra.microsoft.com> > **Applications** > **App registrations** > **New registration**.
 2. Name: `Planora`. Supported account types: *Accounts in any organizational directory and personal
    Microsoft accounts* (or only your school's directory).
-3. Redirect URI: platform **Single-page application (SPA)**, with
-   `http://localhost:5173/auth-redirect.html`. Later, add `http://localhost:4173/auth-redirect.html`
-   and your production URL (`https://your-domain/auth-redirect.html`) under **Authentication**.
-4. Copy the **Application (client) ID** into `.env` (see `.env.example`):
+3. Redirect URIs, all of platform **Single-page application (SPA)**:
+   - `https://briefcasejona.github.io/planora/auth-redirect.html` (website)
+   - `http://localhost:47823/auth-redirect.html` (desktop app)
+   - `https://localhost/auth-redirect.html` (Android app, sign-in opens inside the app)
+   - `http://localhost:5173/auth-redirect.html` (development)
+4. Copy the **Application (client) ID** into `.env` (see `.env.example`) and into the repository
+   variable `VITE_MS_CLIENT_ID` (Settings > Secrets and variables > Actions > Variables) so the website
+   and release builds include it:
 
    ```
    VITE_MS_CLIENT_ID=00000000-0000-0000-0000-000000000000
@@ -127,11 +164,16 @@ There is no client secret, and you don't need a server.
 
 1. In <https://console.cloud.google.com>, create a project and enable the **Google Calendar API**.
 2. Configure the **OAuth consent screen**, adding the scope `.../auth/calendar.freebusy`.
-3. Under **Credentials**, create an **OAuth client ID** of type *Web application*:
-   - Authorized JavaScript origin: `http://localhost:5173`
-   - Authorized redirect URI: `http://localhost:5173/auth-redirect.html`
-   - Add your production URLs too.
-4. Put the client ID in `.env` as `VITE_GOOGLE_CLIENT_ID`.
+3. Keep the app in **Testing** mode and add your friends' Google accounts as test users (up to 100).
+   Calendar scopes need a Google verification before the app can be fully public.
+4. Under **Credentials**, create an **OAuth client ID** of type *Web application*:
+   - Authorized JavaScript origins: `https://briefcasejona.github.io`, `http://localhost:47823`, `http://localhost:5173`
+   - Authorized redirect URIs: `https://briefcasejona.github.io/planora/auth-redirect.html`,
+     `http://localhost:47823/auth-redirect.html`, `http://localhost:5173/auth-redirect.html`
+5. Put the client ID in `.env` and in the repository variable `VITE_GOOGLE_CLIENT_ID`.
+
+Google does not allow sign-in inside app web views, so Google Calendar works on the website and in the
+desktop app, not inside the Android app (use .ics there).
 
 Google tokens stay in the browser tab session and expire after about an hour; Planora asks again when needed.
 
@@ -175,8 +217,7 @@ android/         Capacitor Android project
 - In a browser, reminders only appear while Planora is open, because pushing them without a server is
   impossible. The plan and review are generated and shown the next time you open the app. The native
   app has real scheduled notifications.
-- Microsoft and Google sign-in use popup windows. They work in the browser and the installed PWA.
-  Inside the native Android/iOS shell, popups are restricted; use the PWA on your phone for the
-  Microsoft integration, or add a native auth flow (e.g. MSAL for Android) later.
+- iPhone: a native iOS app needs a Mac and a paid Apple developer account, so iPhone users use the
+  website installed to the home screen. Apple Calendar has no web API; Planora uses .ics files only.
 - Recurring Outlook series are read per occurrence for the next 120 days. Blocks are written to
   Outlook for the coming 28 days.
