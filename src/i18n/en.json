@@ -172,7 +172,7 @@
     "privacyPromise": "Connecting is optional. Linked data travels directly between this device and Microsoft or Google, never through a Planora server. You decide per feature what Planora may do, and you can disconnect at any time; everything Planora fetched is then erased.",
     "microsoft": "Microsoft 365 (Outlook, Teams, To Do)",
     "microsoftIntro": "Use your busy times from Outlook (including Teams meetings) and optionally put your blocks in your Outlook calendar.",
-    "notConfigured": "This connection isn't set up in this build of Planora. See the README for the steps.",
+    "notConfigured": "This connection isn't set up yet. Whoever installs Planora must register the app once with Microsoft or Google and put the client ID in the .env file. The steps are in README.md in the Planora project folder.",
     "connectMicrosoft": "Connect with Microsoft", "connectHint": "A Microsoft sign-in window opens. Planora first only asks to read your calendar.",
     "staySignedIn": "Stay signed in", "staySignedInHint": "Keeps the sign-in on this device. Off: sign in again after closing the browser.",
     "connectedAs": "Connected as {{who}}", "connected": "Connected", "lastSync": "last updated {{when}}",

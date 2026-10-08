@@ -158,7 +158,7 @@
     "privacyPromise": "Koppelen is optioneel. Gekoppelde gegevens gaan rechtstreeks tussen dit apparaat en Microsoft of Google, nooit via een server van Planora. Je bepaalt per onderdeel wat Planora mag, en je kunt altijd ontkoppelen; dan wordt alles wat Planora had opgehaald gewist.",
     "microsoft": "Microsoft 365 (Outlook, Teams, To Do)",
     "microsoftIntro": "Gebruik je drukke tijden uit Outlook (ook Teams-vergaderingen) en zet desgewenst je blokken in je Outlook-agenda.",
-    "notConfigured": "Deze koppeling is niet ingesteld in deze versie van Planora. Zie de README voor de stappen.",
+    "notConfigured": "Deze koppeling is nog niet ingesteld. Degene die Planora installeert, moet de app eenmalig registreren bij Microsoft of Google en de client-ID in het bestand .env zetten. De stappen staan in README.md in de projectmap van Planora.",
     "connectMicrosoft": "Koppelen met Microsoft", "connectHint": "Er opent een aanmeldvenster van Microsoft. Planora vraagt eerst alleen om je agenda te lezen.",
     "staySignedIn": "Aangemeld blijven", "staySignedInHint": "Bewaart de aanmelding op dit apparaat. Uit: na het sluiten van de browser opnieuw aanmelden.",
     "connectedAs": "Gekoppeld als {{who}}", "connected": "Gekoppeld", "lastSync": "laatst bijgewerkt {{when}}",
