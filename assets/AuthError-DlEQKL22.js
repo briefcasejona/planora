@@ -1,0 +1,1 @@
+function e(e){return`See https://aka.ms/msal.js.errors#${e} for details`}var t=class t extends Error{constructor(n,r,i,a){let o=i||(n?e(n):``),s=o?`${n}: ${o}`:n;super(s),Object.setPrototypeOf(this,t.prototype),this.errorCode=n||``,this.errorMessage=o||``,this.subError=a||``,this.correlationId=r,this.name=`AuthError`}};export{t};
