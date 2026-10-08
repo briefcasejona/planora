@@ -1,0 +1,176 @@
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { addDays, differenceInCalendarDays, isSameDay } from 'date-fns';
+import { actions, useStore } from '../data/store';
+import { feedbackDue } from '../domain/replan';
+import { sessionMinutes } from '../domain/scheduler';
+import type { WorkSession } from '../domain/types';
+import { useFormat } from '../lib/format';
+import { Banner, Empty, Section, TypeBadge } from '../components/ui';
+import { Icon } from '../components/Icon';
+import { TaskDetail } from './TaskDetail';
+import { FeedbackDialog } from './FeedbackDialog';
+
+export function TodayPage() {
+  const { t, date, time, duration, relativeDay } = useFormat();
+  const { tasks, sessions, warnings, reports } = useStore();
+  const [openTask, setOpenTask] = useState<string | null>(null);
+  const [feedbackFor, setFeedbackFor] = useState<string | null>(null);
+  const now = new Date();
+  const byId = new Map(tasks.map((x) => [x.id, x]));
+
+  const checkIn = sessions
+    .filter((s) => s.status === 'planned' && new Date(s.end) <= now)
+    .sort((a, b) => a.start.localeCompare(b.start));
+  const today = sessions
+    .filter((s) => isSameDay(new Date(s.start), now) && !(s.status === 'planned' && new Date(s.end) <= now))
+    .sort((a, b) => a.start.localeCompare(b.start));
+  const due = feedbackDue(tasks, now);
+  const upcoming = tasks
+    .filter((x) => x.status === 'open' && differenceInCalendarDays(new Date(x.deadline), now) <= 7)
+    .sort((a, b) => a.deadline.localeCompare(b.deadline));
+  const unseen = reports.filter((r) => !r.seenAt).sort((a, b) => b.generatedAt.localeCompare(a.generatedAt));
+  const todayMin = today.reduce((a, s) => a + sessionMinutes(s), 0);
+  const tomorrow = sessions.filter((s) => s.status === 'planned' && isSameDay(new Date(s.start), addDays(now, 1)));
+
+  const hour = now.getHours();
+  const greeting = hour < 12 ? t('today.morning') : hour < 18 ? t('today.afternoon') : t('today.evening');
+
+  return (
+    <div>
+      <header className="mb-5">
+        <p className="text-sm text-slate-500 dark:text-slate-400">{date(now, 'EEEE d MMMM')}</p>
+        <h1 className="text-2xl font-bold">{greeting}</h1>
+        <p className="text-sm text-slate-600 dark:text-slate-300">
+          {today.length ? t('today.summary', { count: today.length, d: duration(todayMin) }) : t('today.free')}
+        </p>
+      </header>
+
+      <div className="mb-5 space-y-2">
+        {unseen.map((r) => (
+          <Banner key={r.id} icon="review" action={<Link className="btn-primary" to={'/review?report=' + encodeURIComponent(r.id)}>{t('common.open')}</Link>}>
+            <p className="font-medium">{r.kind === 'plan' ? t('today.planReady') : t('today.reviewReady')}</p>
+          </Banner>
+        ))}
+        {warnings.filter((w) => w.kind !== 'buffer-squeezed').map((w) => (
+          <Banner key={w.taskId + w.kind} tone="warn" icon="alert"
+            action={<button className="btn-secondary" onClick={() => setOpenTask(w.taskId)}>{t('common.view')}</button>}>
+            <span className="font-medium">{byId.get(w.taskId)?.title}: </span>
+            {t('warning.' + w.kind, { d: duration(w.unplacedMin ?? 0) })}
+          </Banner>
+        ))}
+      </div>
+
+      {checkIn.length > 0 && (
+        <Section title={t('today.checkIn')}>
+          <p className="mb-2 text-sm text-slate-600 dark:text-slate-300">{t('today.checkInHint')}</p>
+          <ul className="space-y-2">
+            {checkIn.map((s) => (
+              <CheckInRow key={s.id} session={s} title={byId.get(s.taskId)?.title ?? '?'} when={relativeDay(s.start) + ' ' + time(s.start)} />
+            ))}
+          </ul>
+        </Section>
+      )}
+
+      {due.length > 0 && (
+        <Section title={t('today.feedback')}>
+          <ul className="space-y-2">
+            {due.map((x) => (
+              <li key={x.id} className="card flex items-center gap-3">
+                <Icon name="sparkle" className="h-5 w-5 text-brand-600" />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium">{x.title}</p>
+                  <p className="text-xs text-slate-500">{x.status === 'done' ? t('today.feedbackDone') : t('today.feedbackDeadline')}</p>
+                </div>
+                <button className="btn-primary" onClick={() => setFeedbackFor(x.id)}>{t('today.giveFeedback')}</button>
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )}
+
+      <Section title={t('today.sessions')}>
+        {today.length === 0 ? (
+          <div className="card">
+            <Empty icon="today" title={t('today.noSessions')}>
+              {tomorrow.length > 0 && <p className="text-sm">{t('today.tomorrow', { count: tomorrow.length })}</p>}
+            </Empty>
+          </div>
+        ) : (
+          <ul className="space-y-2">
+            {today.map((s) => {
+              const task = byId.get(s.taskId);
+              const active = new Date(s.start) <= now && now < new Date(s.end);
+              return (
+                <li key={s.id} className={`card flex items-center gap-3 ${active ? 'ring-2 ring-brand-500' : ''}`}>
+                  <div className="w-14 shrink-0 text-center">
+                    <div className="text-sm font-semibold">{time(s.start)}</div>
+                    <div className="text-xs text-slate-500">{time(s.end)}</div>
+                  </div>
+                  <button className="min-w-0 flex-1 text-left" onClick={() => task && setOpenTask(task.id)}>
+                    <p className="truncate font-medium">{task?.title}</p>
+                    <p className="flex items-center gap-2 text-xs text-slate-500">
+                      {task && <TypeBadge type={task.type} />}
+                      {t('kind.' + s.kind)}
+                      {task?.steps && s.stepId && <span>· {task.steps.find((x) => x.id === s.stepId)?.title}</span>}
+                    </p>
+                  </button>
+                  {s.status === 'done' ? (
+                    <span className="flex items-center gap-1 text-sm text-emerald-600"><Icon name="check" className="h-4 w-4" />{t('session.done')}</span>
+                  ) : (
+                    <button className="btn-secondary" onClick={() => actions.setSessionStatus(s.id, 'done', sessionMinutes(s))}>
+                      <Icon name="check" className="h-4 w-4" />{t('session.markDone')}
+                    </button>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </Section>
+
+      <Section title={t('today.deadlines')}>
+        {upcoming.length === 0 ? (
+          <p className="text-sm text-slate-500">{t('today.noDeadlines')}</p>
+        ) : (
+          <ul className="card divide-y divide-slate-100 p-0 dark:divide-slate-800">
+            {upcoming.map((x) => (
+              <li key={x.id}>
+                <button className="flex w-full items-center gap-3 px-4 py-3 text-left" onClick={() => setOpenTask(x.id)}>
+                  <TypeBadge type={x.type} />
+                  <span className="min-w-0 flex-1 truncate font-medium">{x.title}</span>
+                  <span className="text-sm text-slate-500">{relativeDay(x.deadline)}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Section>
+
+      {openTask && <TaskDetail taskId={openTask} onClose={() => setOpenTask(null)} />}
+      {feedbackFor && <FeedbackDialog taskId={feedbackFor} onClose={() => setFeedbackFor(null)} />}
+    </div>
+  );
+}
+
+function CheckInRow({ session, title, when }: { session: WorkSession; title: string; when: string }) {
+  const { t, duration } = useFormat();
+  const [actual, setActual] = useState(sessionMinutes(session));
+  return (
+    <li className="card flex flex-wrap items-center gap-3">
+      <div className="min-w-0 flex-1">
+        <p className="truncate font-medium">{title}</p>
+        <p className="text-xs text-slate-500">{when} · {duration(sessionMinutes(session))}</p>
+      </div>
+      <label className="flex items-center gap-1 text-sm">
+        <span className="sr-only">{t('today.actualMinutes')}</span>
+        <input type="number" min={0} max={600} step={5} className="input w-20" value={actual} onChange={(e) => setActual(Number(e.target.value) || 0)} />
+        <span className="text-slate-500">{t('units.minutes')}</span>
+      </label>
+      <button className="btn-primary" onClick={() => actions.setSessionStatus(session.id, 'done', actual)}>
+        <Icon name="check" className="h-4 w-4" />{t('today.didIt')}
+      </button>
+      <button className="btn-secondary" onClick={() => actions.setSessionStatus(session.id, 'missed')}>{t('today.didNot')}</button>
+    </li>
+  );
+}

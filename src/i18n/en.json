@@ -1,0 +1,243 @@
+{
+  "common": {
+    "back": "Back", "cancel": "Cancel", "close": "Close", "delete": "Delete", "edit": "Edit",
+    "loading": "Loading…", "next": "Next", "ok": "OK", "open": "Open", "remove": "Remove",
+    "save": "Save", "view": "View", "yes": "Yes"
+  },
+  "units": { "hour": "h", "hours": "hours", "minutes": "min" },
+  "rel": {
+    "today": "today", "tomorrow": "tomorrow", "yesterday": "yesterday",
+    "daysAgo_one": "{{count}} day ago", "daysAgo_other": "{{count}} days ago",
+    "inDays_one": "in {{count}} day", "inDays_other": "in {{count}} days"
+  },
+  "nav": {
+    "today": "Today", "inbox": "Inbox", "calendar": "Calendar", "review": "Overview", "settings": "Settings",
+    "newTask": "New task", "main": "Main menu"
+  },
+  "type": { "test": "Test", "assignment": "Assignment", "project": "Project", "task": "Task", "grading": "Grading", "lessonprep": "Lesson prep" },
+  "role": { "student": "Student", "teacher": "Teacher" },
+  "status": { "open": "Open", "done": "Completed", "overdue": "Deadline passed", "dropped": "Dropped" },
+  "kind": { "work": "Work block", "study": "Study session", "review": "Review" },
+  "session": {
+    "planned": "Planned", "done": "Done", "missed": "Missed", "skipped": "Skipped",
+    "markDone": "Done", "openTask": "Open task", "reset": "Reset", "unlock": "Unpin",
+    "lockedHint": "You moved this block yourself. Planora keeps it here and plans around it.",
+    "dragHint": "Tip: drag this block in the calendar to move it."
+  },
+  "daypart": { "morning": "morning", "afternoon": "afternoon", "evening": "evening" },
+  "basis": { "subject": "the same subject", "type": "the same kind of task", "all": "all your tasks" },
+  "difficulty": { "1": "Very easy", "2": "Easy", "3": "Average", "4": "Hard", "5": "Very hard" },
+  "source": {
+    "local": "Planora", "microsoft": "Outlook", "google": "Google Calendar", "ics": "Calendar file",
+    "ms-todo": "Microsoft To Do", "ms-teams": "Teams assignment"
+  },
+  "estimate": {
+    "noData": "No comparable tasks yet: Planora learns from your feedback.",
+    "accurate": "Your estimates for this kind of task have been accurate so far ({{n}} tasks).",
+    "under": "Based on {{n}} tasks ({{basis}}) you usually need {{pct}}% more time than you expect.",
+    "over": "Based on {{n}} tasks ({{basis}}) you usually finish {{pct}}% faster than you expect."
+  },
+  "warning": {
+    "infeasible": "{{d}} does not fit in your available time before the deadline.",
+    "buffer-squeezed": "This only fits by working right up to the deadline.",
+    "deadline-passed": "The deadline has passed while work is still open.",
+    "adjustAvailability": "Adjust availability"
+  },
+  "today": {
+    "morning": "Good morning", "afternoon": "Good afternoon", "evening": "Good evening",
+    "summary_one": "{{count}} block planned today ({{d}}).", "summary_other": "{{count}} blocks planned today ({{d}}).",
+    "free": "Nothing planned today.",
+    "planReady": "Your weekly plan is ready.",
+    "reviewReady": "Your review of this week is ready.",
+    "checkIn": "Quick check-in", "checkInHint": "These blocks are over. Did you work on them? Planora replans the rest.",
+    "didIt": "Done", "didNot": "Not done", "actualMinutes": "Actually worked (minutes)",
+    "feedback": "How did it go?", "feedbackDone": "Completed: tell us how it went", "feedbackDeadline": "Deadline passed: how did it go?",
+    "giveFeedback": "Give feedback",
+    "sessions": "Today", "noSessions": "Nothing planned for today",
+    "tomorrow_one": "{{count}} block planned tomorrow.", "tomorrow_other": "{{count}} blocks planned tomorrow.",
+    "deadlines": "Deadlines in the next 7 days", "noDeadlines": "No deadlines this week."
+  },
+  "inbox": {
+    "quickAdd": "Quickly add a task", "quickAddPlaceholder": "What needs doing? E.g. Biology test ch. 4", "add": "Add",
+    "filter": "Filter", "filterOpen": "Open", "filterDone": "Completed", "filterAll": "All",
+    "empty": "Your inbox is empty", "emptyHint": "Add a task with a deadline and an estimate. Planora plans the moments to work on it.",
+    "group": { "overdue": "Deadline passed", "thisWeek": "This week", "later": "Later", "finished": "Completed" },
+    "upcomingSessions_one": "{{count}} block planned", "upcomingSessions_other": "{{count}} blocks planned",
+    "stepsDone": "{{done}}/{{total}} steps"
+  },
+  "form": {
+    "newTitle": "New task", "editTitle": "Edit task", "addAndPlan": "Add and plan",
+    "title": "What needs doing?", "titlePlaceholder": "E.g. History test, English essay", "type": "Kind",
+    "subject": "Subject or category", "subjectPlaceholder": "E.g. Maths", "deadline": "Deadline",
+    "estimate": "How much time do you think you need?",
+    "steps": "Steps", "stepsHint": "List every step in order with your estimate. Planora schedules them one after another before the deadline.",
+    "stepPlaceholder": "E.g. Find sources", "stepTitle": "Step {{n}}", "addStep": "Add step", "stepsTotal": "Total: {{d}}",
+    "moveUp": "Move up", "moveDown": "Move down",
+    "suggestion": "You estimate {{mine}}, Planora predicts {{ours}}.", "useSuggestion": "Plan with Planora's prediction",
+    "difficulty": "How hard do you expect it to be?", "notes": "Notes (optional)",
+    "errTitle": "Give the task a name.", "errDeadline": "Choose a valid deadline.", "errPast": "The deadline must be in the future.",
+    "errEstimate": "Enter an estimate of at least 5 minutes."
+  },
+  "detail": {
+    "deadline": "Deadline", "estimate": "Planned total", "yourEstimate": "you estimated {{d}}", "worked": "Worked", "planned": "Still scheduled",
+    "unplanned": "{{d}} doesn't fit", "progress": "Progress", "steps": "Steps", "sessions": "Blocks ({{n}})",
+    "noSessions": "No blocks yet.", "complete": "Complete", "redo": "Replan", "giveFeedback": "Give feedback",
+    "confirmDelete": "Delete the task and all its blocks?"
+  },
+  "feedback": {
+    "title": "How did it go: {{title}}?", "intro": "A few quick questions. This teaches Planora how much time you really need so it plans better next time.",
+    "completed": "Is the task finished?", "notYet": "No, not yet",
+    "actual": "How much time did you spend in total?", "actualHint": "Planned: {{planned}} · checked off: {{logged}}",
+    "enough": "Was enough time planned?",
+    "enough_too-little": "Too little", "enough_right": "Just right", "enough_too-much": "Too much",
+    "sessions": "Did you need more or fewer moments?",
+    "sessions_fewer": "Fewer", "sessions_same": "It was right", "sessions_more": "More",
+    "difficulty": "How hard was it?",
+    "spacing": "What worked for you?",
+    "spacing_spread": "Spread over days", "spacing_mixed": "Mix", "spacing_crammed": "All at once",
+    "grade": "Grade or result (optional)", "gradeHint": "Stays on this device only.",
+    "later": "Later", "submit": "Save"
+  },
+  "reopen": {
+    "title": "Replan: {{title}}",
+    "intro": "Does the task need (partly) redoing? Say how much time is still needed; Planora schedules new moments.",
+    "introFeedback": "Thanks! The task isn't finished yet. Do you want to replan the rest?",
+    "remaining": "How much time is still needed?", "deadline": "(New) deadline", "deadlineHint": "The old deadline has passed: choose a new one.",
+    "replan": "Replan", "drop": "Let it go"
+  },
+  "busy": {
+    "new": "New event", "edit": "Edit event",
+    "intro": "Time when you can't work, such as classes, sports or a job. Planora plans around it.",
+    "title": "Description", "titlePlaceholder": "E.g. Training", "start": "Start", "end": "End",
+    "repeat": "Repeat every week on", "until": "Repeat until", "errTime": "The end must be after the start."
+  },
+  "calendar": {
+    "addEvent": "Add event", "busy": "Busy",
+    "hint": "Drag across an empty area to add an event. Drag a Planora block to move it; it then stays pinned."
+  },
+  "review": {
+    "tabPlan": "Weekly plan", "tabReview": "Weekly review", "tabHistory": "Past weeks",
+    "weekOf": "Week of {{from}} to {{to}}", "totalPlanned": "{{d}} planned",
+    "focus": "Focus points", "deadlines": "Deadlines this week", "perDay": "Per day", "free": "Free", "heavy": "Busy day",
+    "completion": "Completed", "sessionsDone": "Blocks done", "sessionsMissed": "Blocks missed", "timeWorked": "Worked",
+    "wentWell": "Went well", "struggled": "Went less well", "nothingYet": "No completed tasks with feedback this week yet.",
+    "nothingStruggled": "Nothing: well done!", "completedTasks": "Completed: {{list}}", "missedDeadline": "Missed deadline",
+    "improve": "Room for improvement", "accuracy": "How well do you estimate?", "noAccuracy": "No feedback to compare yet.",
+    "needsMore": "needs {{pct}}% more time than estimated", "needsLess": "needs {{pct}}% less time than estimated", "spotOn": "Estimate is spot on",
+    "missedWhen": "When do you miss blocks?",
+    "noHistory": "No past weeks yet", "noHistoryHint": "Every week Planora makes a plan and a review that are kept here.",
+    "new": "New", "snapshot": "Saved on {{date}}",
+    "reason": {
+      "easy": "Went smoothly: {{pct}}% faster than planned.", "onTrack": "Roughly on plan.",
+      "moreTime": "Took {{pct}}% more time than planned.", "hard": "Was harder than expected.", "notCompleted": "Not completed."
+    }
+  },
+  "improve": {
+    "daypart": "You miss most blocks in the {{daypart}} ({{n}} times). Plan less then or pick other times.",
+    "estimate": "For {{label}} you need {{pct}}% more time than you estimate on average. Planora now plans extra time for it.",
+    "moreTime": "{{n}} tasks didn't have enough time. Start earlier or plan bigger blocks.",
+    "lessPerDay": "You completed {{pct}}% of your blocks. Try planning fewer hours per day.",
+    "deadlines": "{{n}} deadline(s) missed. Replan the rest with a new deadline.",
+    "none": "Great week! Keep it up."
+  },
+  "focus": {
+    "underestimate": "{{label}}: you usually need {{pct}}% more time. This week's plan accounts for that.",
+    "overestimate": "{{label}}: you usually finish {{pct}}% faster. Planora plans less time for it.",
+    "lowCompletion": "Last week you completed {{pct}}% of your blocks. Start on time and check off your blocks.",
+    "daypart": "Last week you mostly missed blocks in the {{daypart}}. Pay extra attention then.",
+    "heavyDay": "{{date}} will be a busy day. Keep the rest of that day light.",
+    "busyWeek": "{{n}} deadlines this week: start with the first one.",
+    "keepGoing": "A calm week. Work through your blocks and you're on schedule."
+  },
+  "import": {
+    "title": "Tasks from Microsoft To Do / Teams", "fetch": "Fetch", "none": "No new tasks found.",
+    "add": "Add and plan", "ignore": "Ignore", "error": "Fetching failed. Please try again later."
+  },
+  "log": {
+    "connect": "connected", "read-busy": "{{count}} busy times read", "write-sessions": "{{count}} changes in Outlook",
+    "remove-events": "{{count}} Planora events removed", "read-tasks": "{{count}} tasks read",
+    "import-file": "{{count}} events from file", "read-freebusy": "{{count}} busy times read",
+    "ok": "ok", "failed": "failed"
+  },
+  "lock": {
+    "title": "Planora is locked", "intro": "Your data is encrypted. Enter your passphrase.",
+    "passphrase": "Passphrase", "unlock": "Unlock", "wrong": "Incorrect passphrase."
+  },
+  "notify": {
+    "planTitle": "Your weekly plan is ready", "planBody": "See what's planned for this week.",
+    "reviewTitle": "Time for your weekly review", "reviewBody": "How did this week go? See what went well and what could be better."
+  },
+  "integrations": {
+    "builtin": "Planora calendar", "builtinIntro": "Planora has its own calendar that always works, even without any connections. Everything then stays on this device.",
+    "privacyPromise": "Connecting is optional. Linked data travels directly between this device and Microsoft or Google, never through a Planora server. You decide per feature what Planora may do, and you can disconnect at any time; everything Planora fetched is then erased.",
+    "microsoft": "Microsoft 365 (Outlook, Teams, To Do)",
+    "microsoftIntro": "Use your busy times from Outlook (including Teams meetings) and optionally put your blocks in your Outlook calendar.",
+    "notConfigured": "This connection isn't set up in this build of Planora. See the README for the steps.",
+    "connectMicrosoft": "Connect with Microsoft", "connectHint": "A Microsoft sign-in window opens. Planora first only asks to read your calendar.",
+    "staySignedIn": "Stay signed in", "staySignedInHint": "Keeps the sign-in on this device. Off: sign in again after closing the browser.",
+    "connectedAs": "Connected as {{who}}", "connected": "Connected", "lastSync": "last updated {{when}}",
+    "readBusy": "Read busy times", "readBusyHint": "Only start and end times and whether you're busy. No titles, content or attendees.",
+    "showTitles": "Also show event titles", "showTitlesHint": "Titles stay on this device only.",
+    "tentative": "Count tentative events as busy",
+    "writeSessions": "Put Planora blocks in Outlook", "writeSessionsHint": "As private events. Planora only changes or deletes events it created itself.",
+    "genericTitles": "Use a neutral title", "genericTitlesHint": "Shows ‘Planora focus’ instead of your task name.",
+    "importTodo": "Fetch tasks from Microsoft To Do", "importHint": "You choose which tasks to take over.",
+    "importTeams": "Fetch assignments from Teams", "importTeamsHint": "School accounts only. Your school admin may need to allow this first.",
+    "syncNow": "Update now", "disconnect": "Disconnect", "disconnectTitle": "Disconnect Microsoft",
+    "disconnectBody": "Planora forgets your sign-in and erases all fetched calendar data from this device.",
+    "removeEvents": "Also remove the Planora events from Outlook",
+    "revokeHint": "Want to revoke the permission at Microsoft as well? You can do that at",
+    "google": "Google Calendar", "googleIntro": "Use only your free/busy times from Google Calendar. Planora can't see titles or content.",
+    "connectGoogle": "Connect with Google",
+    "error": "That didn't work ({{msg}})."
+  },
+  "ics": {
+    "title": "Calendar file (.ics)", "intro": "Works with any calendar (Apple, Google, Outlook). Files are read on this device only.",
+    "import": "Import file", "clear": "Clear imported events",
+    "imported_one": "{{count}} event imported.", "imported_other": "{{count}} events imported.",
+    "invalid": "This file couldn't be read.", "status": "{{count}} events, imported {{when}}",
+    "genericHint": "Shows ‘Planora focus’ instead of task names in the exported file.",
+    "includeDeadlines": "Include deadlines", "export": "Export plan (.ics)"
+  },
+  "privacy": {
+    "badge": "Your data stays on this device",
+    "summaryTitle": "Where is your data?",
+    "local": "All your tasks, plans and feedback are stored on this device only.",
+    "noServer": "Planora has no server and no account: there is nothing to leak.",
+    "noTracking": "No ads, analytics or trackers.",
+    "connections": "Active connections: {{list}}. Only what you turn on is fetched.",
+    "noConnections": "No connections are active.",
+    "encryption": "Encryption", "encryptionIntro": "Encrypt your data on this device with a passphrase. Without it nobody can read your tasks, even with access to your device.",
+    "encryptionOn": "Your data is encrypted. Planora asks for your passphrase when it opens.",
+    "repeat": "Repeat passphrase", "pwShort": "Use at least 8 characters.", "pwMismatch": "The passphrases don't match.",
+    "pwWarning": "Careful: if you lose the passphrase, nobody can recover your data. Make a backup too.",
+    "enableEncryption": "Turn on encryption", "disableEncryption": "Turn off encryption", "lockNow": "Lock now",
+    "backup": "Backup", "backupIntro": "A backup is always encrypted with a passphrase you choose.",
+    "export": "Create backup", "import": "Restore backup",
+    "exportHint": "Choose a passphrase for this backup file.", "importHint": "Enter the passphrase of the backup file. Your current data will be replaced.",
+    "backupDone": "Backup downloaded.", "restoreDone": "Backup restored.", "restoreFailed": "Restoring failed.",
+    "log": "Activity log", "logIntro": "Every time Planora contacted Microsoft or Google. Counts only, never content.",
+    "logEmpty": "No activity yet: Planora hasn't contacted anyone.",
+    "deleteAll": "Delete everything", "deleteIntro": "Erases all Planora data on this device and signs you out of linked services.",
+    "deleteWord": "delete", "deleteConfirm": "Type ‘{{word}}’ to confirm. This can't be undone."
+  },
+  "settings": {
+    "tabPlanning": "Planning", "tabCalendars": "Calendars & connections", "tabPrivacy": "Privacy & data",
+    "general": "General", "language": "Language", "role": "I am a",
+    "availability": "When can you work?", "availabilityHint": "Planora only plans within these times and never over your events.",
+    "from": "From ({{day}})", "to": "Until ({{day}})",
+    "maxPerDay": "Maximum per day", "minutes": "in minutes", "buffer": "Days done before the deadline", "bufferHint": "Slack for the unexpected",
+    "minBlock": "Shortest block", "maxBlock": "Longest block", "break": "Break between blocks",
+    "weekly": "Weekly moments", "weeklyPlan": "Plan for the new week", "weeklyReview": "Review of the week",
+    "enableNotifications": "Turn on notifications", "notificationsOn": "Notifications are on.",
+    "saveReplan": "Save and replan", "saved": "Saved"
+  },
+  "onboarding": {
+    "welcome": "Welcome to Planora", "intro": "Add your tasks, Planora plans the moments to work on them and learns how much time you really need.",
+    "roleTitle": "Who are you?", "roleIntro": "This tailors the kinds of tasks to you. You can change it later.",
+    "timeTitle": "When can you usually work?", "timeIntro": "On school days (Mon to Fri). You can adjust each day later in Settings.",
+    "from": "From", "to": "Until", "timeHint": "Put classes, sports and other events in the calendar; Planora plans around them.",
+    "privacyTitle": "Your privacy", "privacyIntegrations": "Connecting Outlook, Teams or Google is optional and can be done later. You choose exactly what Planora may do.",
+    "start": "Get started"
+  }
+}
