@@ -6,3 +6,6 @@ test-results
 playwright-report
 *.tsbuildinfo
 release
+
+# Claude Code per-machine settings
+.claude/settings.local.json
