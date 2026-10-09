@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import CSP from './csp.cjs';
+import pkg from './package.json' with { type: 'json' };
 
 /** "/" for local, desktop and Android builds; "/planora/" for GitHub Pages. */
 const base = process.env.VITE_BASE || '/';
@@ -33,6 +34,8 @@ function spaFallbackPlugin(): Plugin {
 
 export default defineConfig({
   base,
+  // The app's own version (shown in Settings and put into bug reports).
+  define: { __APP_VERSION__: JSON.stringify(pkg.version) },
   plugins: [
     react(),
     tailwindcss(),

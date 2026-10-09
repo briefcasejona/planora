@@ -60,3 +60,7 @@ export const asset = (path: string) => BASE + path.replace(/^\//, '');
 
 /** Absolute URL inside the app, e.g. for OAuth redirect URIs. */
 export const appUrl = (path: string) => window.location.origin + asset(path);
+
+declare const __APP_VERSION__: string;
+/** Planora's version, from package.json at build time. */
+export const APP_VERSION: string = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : 'dev';

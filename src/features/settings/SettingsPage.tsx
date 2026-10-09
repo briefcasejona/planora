@@ -42,6 +42,13 @@ export function SettingsPage() {
       )}
       {tab === 'sync' && <SyncCard />}
       {tab === 'privacy' && <PrivacyCenter />}
+      {tab !== 'privacy' && (
+        <p className="mt-6 text-center text-sm">
+          <button className="text-slate-500 underline hover:text-slate-700 dark:hover:text-slate-300" onClick={() => setParams({ tab: 'privacy' })}>
+            {t('report.title')}
+          </button>
+        </p>
+      )}
     </div>
   );
 }

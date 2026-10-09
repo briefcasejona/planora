@@ -10,6 +10,7 @@ import { Icon } from '../../components/Icon';
 import { useIntegrations, saveIntegrations, DEFAULT_INTEGRATIONS } from '../../integrations/settings';
 import { msSignOut } from '../../integrations/microsoft/auth';
 import { disableSync } from '../../data/sync/engine';
+import { BugReportCard } from './BugReportCard';
 import { googleDisconnect } from '../../integrations/google';
 import { BASE } from '../../lib/platform';
 
@@ -36,6 +37,7 @@ export function PrivacyCenter() {
           </div>
         </div>
       </div>
+      <BugReportCard />
       <EncryptionCard />
       <BackupCard />
       <ActivityLog />

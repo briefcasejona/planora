@@ -62,6 +62,16 @@ optionally sync them through your own OneDrive (see below); nothing is ever shar
   plan (or one task) to Apple Calendar. Exports use stable event ids, so importing a newer export updates
   events instead of duplicating them; blocks that disappeared are sent as cancelled.
 
+## Report a problem
+
+In Planora: **Settings > Een probleem melden** (or the link in the sidebar). Describe what happened; Planora
+fills in technical details you can see and switch off (version, device, error codes; never your tasks or
+calendar) and opens a ready-made report on GitHub. You only press **Submit** (a free GitHub account is
+needed). Reports are public, so don't include personal information. No GitHub account? E-mail
+**planoradevelopment@outlook.com**.
+
+Reports are checked daily: spam is closed, real bugs are fixed, and small fixes are released as an update.
+
 ## Updates
 
 You never have to uninstall. From v0.3.3 on:
