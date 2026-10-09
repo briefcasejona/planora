@@ -16,7 +16,10 @@ const GRAPH = 'https://graph.microsoft.com/v1.0/me/drive/special/approot:/planor
 export const MAX_SYNC_BYTES = 4 * 1024 * 1024;
 
 export class SyncHttpError extends Error {
-  constructor(public status: number, message: string) {
+  constructor(
+    public status: number,
+    message: string,
+  ) {
     super(message);
   }
 }
@@ -40,7 +43,11 @@ export function oneDriveTransport(token: () => Promise<string>, fetchFn: typeof 
       if (new Blob([text]).size > MAX_SYNC_BYTES) throw new Error('sync-too-large');
       const res = await fetchFn(GRAPH + ':/content', {
         method: 'PUT',
-        headers: { ...(await auth()), 'Content-Type': 'application/json', ...(etag ? { 'If-Match': etag } : { 'If-None-Match': '*' }) },
+        headers: {
+          ...(await auth()),
+          'Content-Type': 'application/json',
+          ...(etag ? { 'If-Match': etag } : { 'If-None-Match': '*' }),
+        },
         body: text,
       });
       if (res.status === 412 || res.status === 409) return 'conflict';

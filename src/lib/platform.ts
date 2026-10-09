@@ -44,7 +44,10 @@ export const isNativeApp = () => Capacitor.isNativePlatform();
 /** iPhone/iPad (also iPads that report themselves as a Mac). */
 export function isIos(): boolean {
   if (typeof navigator === 'undefined') return false;
-  return /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.userAgent.includes('Macintosh') && navigator.maxTouchPoints > 1);
+  return (
+    /iPhone|iPad|iPod/.test(navigator.userAgent) ||
+    (navigator.userAgent.includes('Macintosh') && navigator.maxTouchPoints > 1)
+  );
 }
 
 /** Planora opened from the iPhone home screen (popups don't work well there). */

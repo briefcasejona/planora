@@ -4,13 +4,7 @@
 export type Role = 'student' | 'teacher';
 export type Language = 'nl' | 'en';
 
-export type TaskType =
-  | 'test'
-  | 'assignment'
-  | 'project'
-  | 'task'
-  | 'grading'
-  | 'lessonprep';
+export type TaskType = 'test' | 'assignment' | 'project' | 'task' | 'grading' | 'lessonprep';
 
 export const STUDENT_TYPES: TaskType[] = ['test', 'assignment', 'project', 'task'];
 export const TEACHER_TYPES: TaskType[] = ['grading', 'lessonprep', 'project', 'task', 'test'];
@@ -74,7 +68,15 @@ export type BusySource = 'local' | 'microsoft' | 'google' | 'ics';
 
 /** What kind of appointment an event is. Events are planned around, never planned themselves. */
 export type EventCategory = 'lesson' | 'meeting' | 'work' | 'sport' | 'personal' | 'test' | 'excursion';
-export const EVENT_CATEGORIES: EventCategory[] = ['lesson', 'test', 'excursion', 'meeting', 'work', 'sport', 'personal'];
+export const EVENT_CATEGORIES: EventCategory[] = [
+  'lesson',
+  'test',
+  'excursion',
+  'meeting',
+  'work',
+  'sport',
+  'personal',
+];
 
 export interface BusyBlock {
   id: string;

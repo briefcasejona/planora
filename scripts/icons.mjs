@@ -1,6 +1,7 @@
 // Generates the PNG icons (PWA, iPhone home screen, Android, desktop) from public/icon.svg.
-import sharp from 'sharp';
+
 import { readFileSync } from 'node:fs';
+import sharp from 'sharp';
 
 const svg = readFileSync('public/icon.svg');
 const out = [
@@ -15,7 +16,9 @@ for (const [file, size] of out) {
   console.log('wrote', file);
 }
 // Android adaptive icon: foreground with padding on the brand background.
-await sharp({ create: { width: 1024, height: 1024, channels: 4, background: '#4f46e5' } }).png().toFile('assets/icon-background.png');
+await sharp({ create: { width: 1024, height: 1024, channels: 4, background: '#4f46e5' } })
+  .png()
+  .toFile('assets/icon-background.png');
 const inner = await sharp(svg, { density: 512 }).resize(640, 640).png().toBuffer();
 await sharp({ create: { width: 1024, height: 1024, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
   .composite([{ input: inner, gravity: 'center' }])
@@ -32,7 +35,10 @@ for (const [d, f] of Object.entries(densities)) {
   for (const name of ['ic_launcher.png', 'ic_launcher_round.png']) {
     await sharp(svg, { density: 512 }).resize(legacy, legacy).png().toFile(`${dir}/${name}`);
   }
-  const art = await sharp(svg, { density: 512 }).resize(Math.round(fg * 0.62), Math.round(fg * 0.62)).png().toBuffer();
+  const art = await sharp(svg, { density: 512 })
+    .resize(Math.round(fg * 0.62), Math.round(fg * 0.62))
+    .png()
+    .toBuffer();
   await sharp({ create: { width: fg, height: fg, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
     .composite([{ input: art, gravity: 'center' }])
     .png()

@@ -4,7 +4,12 @@ export default defineConfig({
   testDir: 'e2e',
   testIgnore: 'desktop.spec.ts',
   timeout: 60_000,
-  use: { baseURL: 'http://localhost:4174/planora/', channel: 'chrome', locale: 'nl-NL', timezoneId: 'Europe/Amsterdam' },
+  use: {
+    baseURL: 'http://localhost:4174/planora/',
+    channel: 'chrome',
+    locale: 'nl-NL',
+    timezoneId: 'Europe/Amsterdam',
+  },
   projects: [
     { name: 'desktop', use: { viewport: { width: 1280, height: 800 } } },
     { name: 'mobile', use: { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } },

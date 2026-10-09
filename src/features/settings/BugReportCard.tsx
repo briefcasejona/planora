@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
-import { repo } from '../../data/repo';
-import { buildBugReportText, buildBugReportUrl, REPORT_EMAIL, type ReportPlatform } from '../../lib/bugReport';
-import { APP_VERSION, isIos, platform } from '../../lib/platform';
-import { useFormat } from '../../lib/format';
-import { useIntegrations } from '../../integrations/settings';
-import { useSync } from '../../data/sync/engine';
-import { Field } from '../../components/ui';
 import { Icon } from '../../components/Icon';
+import { Field } from '../../components/ui';
+import { repo } from '../../data/repo';
+import { useSync } from '../../data/sync/engine';
+import { useIntegrations } from '../../integrations/settings';
+import { buildBugReportText, buildBugReportUrl, REPORT_EMAIL, type ReportPlatform } from '../../lib/bugReport';
+import { useFormat } from '../../lib/format';
+import { APP_VERSION, isIos, platform } from '../../lib/platform';
 
 async function reportPlatform(): Promise<ReportPlatform> {
   const p = platform();
@@ -38,7 +38,12 @@ export function BugReportCard() {
   useEffect(() => {
     void reportPlatform().then(setPlat);
     void repo.listLog().then((log) =>
-      setErrors(log.filter((l) => !l.ok).slice(0, 10).map((l) => `${l.at.slice(0, 16)} ${l.provider} ${l.action}: ${String(l.detail ?? '').slice(0, 80)}`)),
+      setErrors(
+        log
+          .filter((l) => !l.ok)
+          .slice(0, 10)
+          .map((l) => `${l.at.slice(0, 16)} ${l.provider} ${l.action}: ${String(l.detail ?? '').slice(0, 80)}`),
+      ),
     );
   }, []);
 
@@ -64,16 +69,30 @@ export function BugReportCard() {
 
   return (
     <div id="report" className="card mb-4">
-      <h3 className="mb-1 flex items-center gap-2 font-semibold"><Icon name="alert" className="h-5 w-5" />{t('report.title')}</h3>
+      <h3 className="mb-1 flex items-center gap-2 font-semibold">
+        <Icon name="alert" className="h-5 w-5" />
+        {t('report.title')}
+      </h3>
       <p className="mb-3 text-sm text-slate-600 dark:text-slate-300">{t('report.intro')}</p>
       <Field label={t('report.what')}>
         <textarea className="input min-h-20" value={what} onChange={(e) => setWhat(e.target.value)} maxLength={4000} />
       </Field>
       <Field label={t('report.expected')}>
-        <textarea className="input min-h-14" value={expected} onChange={(e) => setExpected(e.target.value)} maxLength={2000} />
+        <textarea
+          className="input min-h-14"
+          value={expected}
+          onChange={(e) => setExpected(e.target.value)}
+          maxLength={2000}
+        />
       </Field>
       <Field label={t('report.steps')}>
-        <textarea className="input min-h-14" value={steps} onChange={(e) => setSteps(e.target.value)} maxLength={2000} placeholder={t('report.stepsPlaceholder')} />
+        <textarea
+          className="input min-h-14"
+          value={steps}
+          onChange={(e) => setSteps(e.target.value)}
+          maxLength={2000}
+          placeholder={t('report.stepsPlaceholder')}
+        />
       </Field>
       <label className="mb-2 flex items-center gap-2 text-sm">
         <input type="checkbox" checked={attach} onChange={(e) => setAttach(e.target.checked)} />
@@ -82,10 +101,14 @@ export function BugReportCard() {
       {attach && (
         <details className="mb-3 text-xs">
           <summary className="cursor-pointer text-slate-500">{t('report.preview')}</summary>
-          <pre className="mt-1 overflow-x-auto whitespace-pre-wrap rounded-xl bg-slate-50 p-2 text-[11px] dark:bg-slate-800/60">{details.join('\n')}</pre>
+          <pre className="mt-1 overflow-x-auto whitespace-pre-wrap rounded-xl bg-slate-50 p-2 text-[11px] dark:bg-slate-800/60">
+            {details.join('\n')}
+          </pre>
         </details>
       )}
-      <p className="mb-3 rounded-xl bg-amber-50 p-2 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-100">{t('report.public')}</p>
+      <p className="mb-3 rounded-xl bg-amber-50 p-2 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
+        {t('report.public')}
+      </p>
       <div className="flex flex-wrap gap-2">
         <a
           className={`btn-primary ${ready ? '' : 'pointer-events-none opacity-50'}`}
@@ -96,7 +119,9 @@ export function BugReportCard() {
         >
           {t('report.send')}
         </a>
-        <button className="btn-secondary" disabled={!ready} onClick={copy}>{copied ? t('report.copied') : t('report.copy')}</button>
+        <button className="btn-secondary" disabled={!ready} onClick={copy}>
+          {copied ? t('report.copied') : t('report.copy')}
+        </button>
       </div>
       <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">{t('report.noGithub', { email: REPORT_EMAIL })}</p>
     </div>

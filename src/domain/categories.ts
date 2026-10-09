@@ -53,9 +53,17 @@ export function guessSubject(title: string, knownSubjects: string[] = []): strin
  * The same test from two calendars (timetable file and Outlook) is suggested
  * once, and a test task with its deadline at the test's start counts as done.
  */
-export function testSuggestions(busy: BusyBlock[], tasks: Task[], dismissed: string[], now: Date, horizonDays = 60): BusyBlock[] {
+export function testSuggestions(
+  busy: BusyBlock[],
+  tasks: Task[],
+  dismissed: string[],
+  now: Date,
+  horizonDays = 60,
+): BusyBlock[] {
   const taken = new Set([...dismissed, ...tasks.map((t) => t.externalId).filter(Boolean)]);
-  const testDeadlines = tasks.filter((t) => t.type === 'test' && t.status !== 'dropped').map((t) => new Date(t.deadline).getTime());
+  const testDeadlines = tasks
+    .filter((t) => t.type === 'test' && t.status !== 'dropped')
+    .map((t) => new Date(t.deadline).getTime());
   const until = now.getTime() + horizonDays * 86400000;
   const candidates = busy
     .filter((b) => b.category === 'test' && !b.repeatWeekdays?.length)
@@ -63,5 +71,7 @@ export function testSuggestions(busy: BusyBlock[], tasks: Task[], dismissed: str
     .filter((x) => +x.start > now.getTime() && +x.start <= until);
   return dedupeBusy(candidates)
     .map((x) => x.block)
-    .filter((b) => !taken.has(eventKey(b)) && !testDeadlines.some((d) => Math.abs(d - new Date(b.start).getTime()) <= 60000));
+    .filter(
+      (b) => !taken.has(eventKey(b)) && !testDeadlines.some((d) => Math.abs(d - new Date(b.start).getTime()) <= 60000),
+    );
 }

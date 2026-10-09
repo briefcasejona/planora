@@ -1,22 +1,32 @@
-import { useState } from 'react';
 import { addMonths } from 'date-fns';
+import { useState } from 'react';
+import { Chips, Field, Modal, toLocalInput } from '../components/ui';
 import { actions } from '../data/store';
-import { EVENT_CATEGORIES, type BusyBlock, type EventCategory } from '../domain/types';
+import { type BusyBlock, EVENT_CATEGORIES, type EventCategory } from '../domain/types';
 import { setEventCategory } from '../integrations/calendarFiles';
 import { useFormat } from '../lib/format';
-import { Chips, Field, Modal, toLocalInput } from '../components/ui';
 
 /**
  * Create or edit an event in the in-app calendar (time when you cannot work).
  * Events from other calendars can't be edited here; only their category can be changed.
  */
-export function BusyDialog({ block, start, end, onClose }: { block?: BusyBlock; start?: Date; end?: Date; onClose: () => void }) {
+export function BusyDialog({
+  block,
+  start,
+  end,
+  onClose,
+}: {
+  block?: BusyBlock;
+  start?: Date;
+  end?: Date;
+  onClose: () => void;
+}) {
   const { t, locale } = useFormat();
   const external = !!block && block.source !== 'local';
   const [category, setCategory] = useState<EventCategory>(block?.category ?? (external ? 'lesson' : 'personal'));
   const [title, setTitle] = useState(block?.title ?? '');
-  const [from, setFrom] = useState(toLocalInput(block ? new Date(block.start) : start ?? new Date()));
-  const [to, setTo] = useState(toLocalInput(block ? new Date(block.end) : end ?? new Date(Date.now() + 3600000)));
+  const [from, setFrom] = useState(toLocalInput(block ? new Date(block.start) : (start ?? new Date())));
+  const [to, setTo] = useState(toLocalInput(block ? new Date(block.end) : (end ?? new Date(Date.now() + 3600000))));
   const [repeat, setRepeat] = useState<number[]>(block?.repeatWeekdays ?? []);
   const [until, setUntil] = useState((block?.repeatUntil ?? addMonths(new Date(), 4).toISOString()).slice(0, 10));
   const [error, setError] = useState('');
@@ -26,8 +36,12 @@ export function BusyDialog({ block, start, end, onClose }: { block?: BusyBlock; 
   const categoryChips = (
     <div className="mb-3">
       <span className="label">{t('busy.category')}</span>
-      <Chips label={t('busy.category')} value={category} onChange={setCategory}
-        options={EVENT_CATEGORIES.map((c) => ({ value: c, label: t('category.' + c) }))} />
+      <Chips
+        label={t('busy.category')}
+        value={category}
+        onChange={setCategory}
+        options={EVENT_CATEGORIES.map((c) => ({ value: c, label: t('category.' + c) }))}
+      />
     </div>
   );
 
@@ -39,12 +53,24 @@ export function BusyDialog({ block, start, end, onClose }: { block?: BusyBlock; 
         title={block.title ?? t('calendar.busy')}
         footer={
           <>
-            <button className="btn-secondary" onClick={onClose}>{t('common.cancel')}</button>
-            <button className="btn-primary" onClick={async () => { await setEventCategory(block, category); onClose(); }}>{t('common.save')}</button>
+            <button className="btn-secondary" onClick={onClose}>
+              {t('common.cancel')}
+            </button>
+            <button
+              className="btn-primary"
+              onClick={async () => {
+                await setEventCategory(block, category);
+                onClose();
+              }}
+            >
+              {t('common.save')}
+            </button>
           </>
         }
       >
-        <p className="mb-3 text-sm text-slate-600 dark:text-slate-300">{t('busy.externalIntro', { source: t('source.' + block.source) })}</p>
+        <p className="mb-3 text-sm text-slate-600 dark:text-slate-300">
+          {t('busy.externalIntro', { source: t('source.' + block.source) })}
+        </p>
         {categoryChips}
       </Modal>
     );
@@ -53,7 +79,7 @@ export function BusyDialog({ block, start, end, onClose }: { block?: BusyBlock; 
   const save = async () => {
     const s = new Date(from);
     const e = new Date(to);
-    if (isNaN(s.getTime()) || isNaN(e.getTime()) || e <= s) return setError(t('busy.errTime'));
+    if (Number.isNaN(s.getTime()) || Number.isNaN(e.getTime()) || e <= s) return setError(t('busy.errTime'));
     await actions.saveBusy([
       {
         id: block?.id ?? crypto.randomUUID(),
@@ -80,15 +106,29 @@ export function BusyDialog({ block, start, end, onClose }: { block?: BusyBlock; 
       title={block ? t('busy.edit') : t('busy.new')}
       footer={
         <>
-          {block && <button className="btn-ghost mr-auto text-rose-600" onClick={remove}>{t('common.delete')}</button>}
-          <button className="btn-secondary" onClick={onClose}>{t('common.cancel')}</button>
-          <button className="btn-primary" onClick={save}>{t('common.save')}</button>
+          {block && (
+            <button className="btn-ghost mr-auto text-rose-600" onClick={remove}>
+              {t('common.delete')}
+            </button>
+          )}
+          <button className="btn-secondary" onClick={onClose}>
+            {t('common.cancel')}
+          </button>
+          <button className="btn-primary" onClick={save}>
+            {t('common.save')}
+          </button>
         </>
       }
     >
       <p className="mb-3 text-sm text-slate-600 dark:text-slate-300">{t('busy.intro')}</p>
       <Field label={t('busy.title')}>
-        <input className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t('busy.titlePlaceholder')} maxLength={80} />
+        <input
+          className="input"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder={t('busy.titlePlaceholder')}
+          maxLength={80}
+        />
       </Field>
       {categoryChips}
       <div className="grid gap-x-3 sm:grid-cols-2">
@@ -102,8 +142,13 @@ export function BusyDialog({ block, start, end, onClose }: { block?: BusyBlock; 
       <span className="label">{t('busy.repeat')}</span>
       <div className="mb-3 flex flex-wrap gap-1.5">
         {days.map((d) => (
-          <button key={d} type="button" aria-pressed={repeat.includes(d)} className={`chip ${repeat.includes(d) ? 'chip-active' : ''}`}
-            onClick={() => setRepeat(repeat.includes(d) ? repeat.filter((x) => x !== d) : [...repeat, d])}>
+          <button
+            key={d}
+            type="button"
+            aria-pressed={repeat.includes(d)}
+            className={`chip ${repeat.includes(d) ? 'chip-active' : ''}`}
+            onClick={() => setRepeat(repeat.includes(d) ? repeat.filter((x) => x !== d) : [...repeat, d])}
+          >
             {dayName(d)}
           </button>
         ))}
@@ -113,7 +158,11 @@ export function BusyDialog({ block, start, end, onClose }: { block?: BusyBlock; 
           <input className="input" type="date" value={until} onChange={(e) => setUntil(e.target.value)} />
         </Field>
       )}
-      {error && <p role="alert" className="text-sm font-medium text-rose-600">{error}</p>}
+      {error && (
+        <p role="alert" className="text-sm font-medium text-rose-600">
+          {error}
+        </p>
+      )}
     </Modal>
   );
 }

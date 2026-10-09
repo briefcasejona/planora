@@ -1,6 +1,8 @@
+import { addDays, differenceInCalendarDays, isSameDay, startOfDay } from 'date-fns';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { addDays, differenceInCalendarDays, isSameDay, startOfDay } from 'date-fns';
+import { Icon } from '../components/Icon';
+import { Banner, CategoryBadge, Empty, Section, TypeBadge } from '../components/ui';
 import { actions, useStore } from '../data/store';
 import { dedupeBusy, expandBusy } from '../domain/busy';
 import { eventKey, guessSubject, testSuggestions } from '../domain/categories';
@@ -8,15 +10,13 @@ import { feedbackDue } from '../domain/replan';
 import { sessionMinutes } from '../domain/scheduler';
 import type { WorkSession } from '../domain/types';
 import { saveIntegrations, useIntegrations } from '../integrations/settings';
+import { installUpdate, useUpdates } from '../integrations/updates';
 import { useFormat } from '../lib/format';
 import { isIos, isIosStandalone, isNativeApp } from '../lib/platform';
-import { Banner, CategoryBadge, Empty, Section, TypeBadge } from '../components/ui';
-import { Icon } from '../components/Icon';
-import { TaskDetail } from './TaskDetail';
 import { FeedbackDialog } from './FeedbackDialog';
-import { TaskForm, type TaskPrefill } from './TaskForm';
-import { installUpdate, useUpdates } from '../integrations/updates';
 import { updateAction } from './settings/UpdatesCard';
+import { TaskDetail } from './TaskDetail';
+import { TaskForm, type TaskPrefill } from './TaskForm';
 
 export function TodayPage() {
   const { t, date, time, duration, relativeDay } = useFormat();
@@ -78,29 +78,70 @@ export function TodayPage() {
 
       <div className="mb-5 space-y-2">
         {showUpdate && (
-          <Banner icon="download" tone="success" action={<button className="btn-primary" onClick={() => void installUpdate()}>{t(updateAction(update.kind, update.state))}</button>}>
+          <Banner
+            icon="download"
+            tone="success"
+            action={
+              <button className="btn-primary" onClick={() => void installUpdate()}>
+                {t(updateAction(update.kind, update.state))}
+              </button>
+            }
+          >
             <p className="font-medium">{t('updates.found', { version: update.version })}</p>
-            <p className="text-sm">{t(update.kind === 'android' ? 'updates.androidHint' : update.kind === 'install' ? 'updates.restartHint' : 'updates.downloadHint')}</p>
+            <p className="text-sm">
+              {t(
+                update.kind === 'android'
+                  ? 'updates.androidHint'
+                  : update.kind === 'install'
+                    ? 'updates.restartHint'
+                    : 'updates.downloadHint',
+              )}
+            </p>
           </Banner>
         )}
         {iosHint && (
-          <Banner icon="download" action={<button className="btn-ghost" onClick={hideIosHint}>{t('today.iosHintDismiss')}</button>}>
+          <Banner
+            icon="download"
+            action={
+              <button className="btn-ghost" onClick={hideIosHint}>
+                {t('today.iosHintDismiss')}
+              </button>
+            }
+          >
             <p className="font-medium">{t('today.iosHint')}</p>
             <p className="text-sm">{t('today.iosHintText')}</p>
           </Banner>
         )}
         {unseen.map((r) => (
-          <Banner key={r.id} icon="review" action={<Link className="btn-primary" to={'/review?report=' + encodeURIComponent(r.id)}>{t('common.open')}</Link>}>
+          <Banner
+            key={r.id}
+            icon="review"
+            action={
+              <Link className="btn-primary" to={'/review?report=' + encodeURIComponent(r.id)}>
+                {t('common.open')}
+              </Link>
+            }
+          >
             <p className="font-medium">{r.kind === 'plan' ? t('today.planReady') : t('today.reviewReady')}</p>
           </Banner>
         ))}
-        {warnings.filter((w) => w.kind !== 'buffer-squeezed').map((w) => (
-          <Banner key={w.taskId + w.kind} tone="warn" icon="alert"
-            action={<button className="btn-secondary" onClick={() => setOpenTask(w.taskId)}>{t('common.view')}</button>}>
-            <span className="font-medium">{byId.get(w.taskId)?.title}: </span>
-            {t('warning.' + w.kind, { d: duration(w.unplacedMin ?? 0) })}
-          </Banner>
-        ))}
+        {warnings
+          .filter((w) => w.kind !== 'buffer-squeezed')
+          .map((w) => (
+            <Banner
+              key={w.taskId + w.kind}
+              tone="warn"
+              icon="alert"
+              action={
+                <button className="btn-secondary" onClick={() => setOpenTask(w.taskId)}>
+                  {t('common.view')}
+                </button>
+              }
+            >
+              <span className="font-medium">{byId.get(w.taskId)?.title}: </span>
+              {t('warning.' + w.kind, { d: duration(w.unplacedMin ?? 0) })}
+            </Banner>
+          ))}
       </div>
 
       {tests.length > 0 && (
@@ -112,23 +153,38 @@ export function TodayPage() {
                 <CategoryBadge category="test" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium">{b.title ?? t('category.test')}</p>
-                  <p className="text-xs text-slate-500">{relativeDay(b.start)} {time(b.start)}</p>
+                  <p className="text-xs text-slate-500">
+                    {relativeDay(b.start)} {time(b.start)}
+                  </p>
                 </div>
-                <button className="btn-primary" onClick={() => setPrefill({
-                  title: b.title ?? t('category.test'),
-                  type: 'test',
-                  deadline: b.start,
-                  subject: b.title ? guessSubject(b.title, subjects) : undefined,
-                  source: b.source === 'ics' ? 'ics' : 'manual',
-                  externalId: eventKey(b),
-                })}>
-                  <Icon name="plus" className="h-4 w-4" />{t('today.addStudyTask')}
+                <button
+                  className="btn-primary"
+                  onClick={() =>
+                    setPrefill({
+                      title: b.title ?? t('category.test'),
+                      type: 'test',
+                      deadline: b.start,
+                      subject: b.title ? guessSubject(b.title, subjects) : undefined,
+                      source: b.source === 'ics' ? 'ics' : 'manual',
+                      externalId: eventKey(b),
+                    })
+                  }
+                >
+                  <Icon name="plus" className="h-4 w-4" />
+                  {t('today.addStudyTask')}
                 </button>
-                <button className="btn-ghost" onClick={() => saveIntegrations({ dismissedTests: [...dismissedTests, eventKey(b)] })}>{t('today.hideTest')}</button>
+                <button
+                  className="btn-ghost"
+                  onClick={() => saveIntegrations({ dismissedTests: [...dismissedTests, eventKey(b)] })}
+                >
+                  {t('today.hideTest')}
+                </button>
               </li>
             ))}
           </ul>
-          {tests.length > 5 && <p className="mt-2 text-sm text-slate-500">{t('today.moreTests', { count: tests.length - 5 })}</p>}
+          {tests.length > 5 && (
+            <p className="mt-2 text-sm text-slate-500">{t('today.moreTests', { count: tests.length - 5 })}</p>
+          )}
         </Section>
       )}
 
@@ -137,7 +193,12 @@ export function TodayPage() {
           <p className="mb-2 text-sm text-slate-600 dark:text-slate-300">{t('today.checkInHint')}</p>
           <ul className="space-y-2">
             {checkIn.map((s) => (
-              <CheckInRow key={s.id} session={s} title={byId.get(s.taskId)?.title ?? '?'} when={relativeDay(s.start) + ' ' + time(s.start)} />
+              <CheckInRow
+                key={s.id}
+                session={s}
+                title={byId.get(s.taskId)?.title ?? '?'}
+                when={relativeDay(s.start) + ' ' + time(s.start)}
+              />
             ))}
           </ul>
         </Section>
@@ -151,9 +212,13 @@ export function TodayPage() {
                 <Icon name="sparkle" className="h-5 w-5 text-brand-600" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium">{x.title}</p>
-                  <p className="text-xs text-slate-500">{x.status === 'done' ? t('today.feedbackDone') : t('today.feedbackDeadline')}</p>
+                  <p className="text-xs text-slate-500">
+                    {x.status === 'done' ? t('today.feedbackDone') : t('today.feedbackDeadline')}
+                  </p>
                 </div>
-                <button className="btn-primary" onClick={() => setFeedbackFor(x.id)}>{t('today.giveFeedback')}</button>
+                <button className="btn-primary" onClick={() => setFeedbackFor(x.id)}>
+                  {t('today.giveFeedback')}
+                </button>
               </li>
             ))}
           </ul>
@@ -166,7 +231,10 @@ export function TodayPage() {
             {agenda.map((x) => {
               const active = x.start <= now && now < x.end;
               return (
-                <li key={x.block.id + x.start.getTime()} className={`flex items-center gap-3 px-4 py-2.5 ${x.end <= now ? 'opacity-60' : ''}`}>
+                <li
+                  key={x.block.id + x.start.getTime()}
+                  className={`flex items-center gap-3 px-4 py-2.5 ${x.end <= now ? 'opacity-60' : ''}`}
+                >
                   <div className="w-14 shrink-0 text-center">
                     {x.block.allDay ? (
                       <div className="text-xs text-slate-500">{t('today.allDay')}</div>
@@ -177,7 +245,9 @@ export function TodayPage() {
                       </>
                     )}
                   </div>
-                  <span className="min-w-0 flex-1 truncate font-medium">{x.block.title ?? (x.block.category ? t('category.' + x.block.category) : t('calendar.busy'))}</span>
+                  <span className="min-w-0 flex-1 truncate font-medium">
+                    {x.block.title ?? (x.block.category ? t('category.' + x.block.category) : t('calendar.busy'))}
+                  </span>
                   <CategoryBadge category={x.block.category} />
                 </li>
               );
@@ -213,10 +283,17 @@ export function TodayPage() {
                     </p>
                   </button>
                   {s.status === 'done' ? (
-                    <span className="flex items-center gap-1 text-sm text-emerald-600"><Icon name="check" className="h-4 w-4" />{t('session.done')}</span>
+                    <span className="flex items-center gap-1 text-sm text-emerald-600">
+                      <Icon name="check" className="h-4 w-4" />
+                      {t('session.done')}
+                    </span>
                   ) : (
-                    <button className="btn-secondary" onClick={() => actions.setSessionStatus(s.id, 'done', sessionMinutes(s))}>
-                      <Icon name="check" className="h-4 w-4" />{t('session.markDone')}
+                    <button
+                      className="btn-secondary"
+                      onClick={() => actions.setSessionStatus(s.id, 'done', sessionMinutes(s))}
+                    >
+                      <Icon name="check" className="h-4 w-4" />
+                      {t('session.markDone')}
                     </button>
                   )}
                 </li>
@@ -233,7 +310,10 @@ export function TodayPage() {
           <ul className="card divide-y divide-slate-100 p-0 dark:divide-slate-800">
             {upcoming.map((x) => (
               <li key={x.id}>
-                <button className="flex w-full items-center gap-3 px-4 py-3 text-left" onClick={() => setOpenTask(x.id)}>
+                <button
+                  className="flex w-full items-center gap-3 px-4 py-3 text-left"
+                  onClick={() => setOpenTask(x.id)}
+                >
                   <TypeBadge type={x.type} />
                   <span className="min-w-0 flex-1 truncate font-medium">{x.title}</span>
                   <span className="text-sm text-slate-500">{relativeDay(x.deadline)}</span>
@@ -258,17 +338,30 @@ function CheckInRow({ session, title, when }: { session: WorkSession; title: str
     <li className="card flex flex-wrap items-center gap-3">
       <div className="min-w-0 flex-1">
         <p className="truncate font-medium">{title}</p>
-        <p className="text-xs text-slate-500">{when} · {duration(sessionMinutes(session))}</p>
+        <p className="text-xs text-slate-500">
+          {when} · {duration(sessionMinutes(session))}
+        </p>
       </div>
       <label className="flex items-center gap-1 text-sm">
         <span className="sr-only">{t('today.actualMinutes')}</span>
-        <input type="number" min={0} max={600} step={5} className="input w-20" value={actual} onChange={(e) => setActual(Number(e.target.value) || 0)} />
+        <input
+          type="number"
+          min={0}
+          max={600}
+          step={5}
+          className="input w-20"
+          value={actual}
+          onChange={(e) => setActual(Number(e.target.value) || 0)}
+        />
         <span className="text-slate-500">{t('units.minutes')}</span>
       </label>
       <button className="btn-primary" onClick={() => actions.setSessionStatus(session.id, 'done', actual)}>
-        <Icon name="check" className="h-4 w-4" />{t('today.didIt')}
+        <Icon name="check" className="h-4 w-4" />
+        {t('today.didIt')}
       </button>
-      <button className="btn-secondary" onClick={() => actions.setSessionStatus(session.id, 'missed')}>{t('today.didNot')}</button>
+      <button className="btn-secondary" onClick={() => actions.setSessionStatus(session.id, 'missed')}>
+        {t('today.didNot')}
+      </button>
     </li>
   );
 }

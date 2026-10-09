@@ -1,13 +1,13 @@
 import { useEffect } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { actions, useStore } from './data/store';
-import { useFormat } from './lib/format';
-import i18n from './i18n';
-import { Onboarding } from './features/Onboarding';
 import { LockScreen } from './features/LockScreen';
-import { Shell } from './Shell';
+import { Onboarding } from './features/Onboarding';
+import i18n from './i18n';
 import { startIntegrations } from './integrations';
+import { useFormat } from './lib/format';
 import { scheduleWeeklyReminders } from './notifications';
+import { Shell } from './Shell';
 
 let openFileHooked = false;
 
@@ -30,9 +30,10 @@ export default function App() {
     if (!ready || locked) return;
     void startIntegrations();
     // Desktop app: .ics files opened with Planora are imported as busy time.
-    if (!openFileHooked) window.planoraDesktop?.onOpenFile((name, text) => {
-      void import('./integrations/calendarFiles').then((m) => m.importCalendarFile(name, text));
-    });
+    if (!openFileHooked)
+      window.planoraDesktop?.onOpenFile((name, text) => {
+        void import('./integrations/calendarFiles').then((m) => m.importCalendarFile(name, text));
+      });
     openFileHooked = true;
     // Re-check for missed sessions, passed deadlines and weekly overviews regularly.
     const tick = () => void actions.replan();
@@ -57,7 +58,8 @@ export default function App() {
     });
   }, [ready, locked, prefs, t]);
 
-  if (!ready) return <div className="flex h-full items-center justify-center text-slate-500">{t('common.loading')}</div>;
+  if (!ready)
+    return <div className="flex h-full items-center justify-center text-slate-500">{t('common.loading')}</div>;
   if (locked) return <LockScreen />;
   if (!prefs.onboarded) return <Onboarding />;
   return (

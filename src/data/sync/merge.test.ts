@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { diffTables, emptySnapshot, mergeSnapshots, stableStringify, type SyncSnapshot } from './merge';
 import { makeTask } from '../../domain/testUtils';
 import type { WorkSession } from '../../domain/types';
+import { diffTables, emptySnapshot, mergeSnapshots, type SyncSnapshot, stableStringify } from './merge';
 
 const NOW = new Date('2026-10-12T12:00:00Z');
 const at = (h: number) => new Date(Date.UTC(2026, 9, 12, h)).toISOString();
@@ -9,8 +9,21 @@ const snap = (patch: Partial<SyncSnapshot['tables']> = {}, extra: Partial<SyncSn
   const s = emptySnapshot();
   return { ...s, ...extra, tables: { ...s.tables, ...patch } };
 };
-const session = (id: string, taskId: string, status: WorkSession['status'], startH: number, updatedAt = at(1)): WorkSession => ({
-  id, taskId, status, start: at(startH), end: at(startH + 1), kind: 'work', locked: false, updatedAt,
+const session = (
+  id: string,
+  taskId: string,
+  status: WorkSession['status'],
+  startH: number,
+  updatedAt = at(1),
+): WorkSession => ({
+  id,
+  taskId,
+  status,
+  start: at(startH),
+  end: at(startH + 1),
+  kind: 'work',
+  locked: false,
+  updatedAt,
 });
 
 describe('mergeSnapshots', () => {
@@ -33,7 +46,11 @@ describe('mergeSnapshots', () => {
   });
 
   it('drops study blocks of a deleted task', () => {
-    const merged = mergeSnapshots(snap({ sessions: [session('s1', 't1', 'done', 9)] }), snap({}, { tombstones: { 'tasks:t1': at(2) } }), NOW);
+    const merged = mergeSnapshots(
+      snap({ sessions: [session('s1', 't1', 'done', 9)] }),
+      snap({}, { tombstones: { 'tasks:t1': at(2) } }),
+      NOW,
+    );
     expect(merged.tables.sessions).toEqual([]);
     expect(merged.tombstones['sessions:s1']).toBeDefined();
   });
@@ -58,8 +75,14 @@ describe('mergeSnapshots', () => {
   });
 
   it('gives the same result in either order and when merged again', () => {
-    const a = snap({ tasks: [task], sessions: [session('a1', 't1', 'done', 9)] }, { tombstones: { 'tasks:t9': at(1) } });
-    const b = snap({ tasks: [{ ...task, title: 'X', updatedAt: at(5) }], sessions: [session('b1', 't1', 'missed', 14)] });
+    const a = snap(
+      { tasks: [task], sessions: [session('a1', 't1', 'done', 9)] },
+      { tombstones: { 'tasks:t9': at(1) } },
+    );
+    const b = snap({
+      tasks: [{ ...task, title: 'X', updatedAt: at(5) }],
+      sessions: [session('b1', 't1', 'missed', 14)],
+    });
     const ab = mergeSnapshots(a, b, NOW);
     expect(stableStringify(ab)).toBe(stableStringify(mergeSnapshots(b, a, NOW)));
     expect(stableStringify(mergeSnapshots(a, ab, NOW))).toBe(stableStringify(ab));
@@ -75,7 +98,10 @@ describe('diffTables', () => {
   it('lists what to write and delete on this device', () => {
     const t1 = makeTask({ id: 't1', updatedAt: at(1) });
     const t2 = makeTask({ id: 't2', updatedAt: at(1) });
-    const { put, del } = diffTables(snap({ tasks: [t1, t2] }).tables, snap({ tasks: [{ ...t1, title: 'new', updatedAt: at(2) }] }).tables);
+    const { put, del } = diffTables(
+      snap({ tasks: [t1, t2] }).tables,
+      snap({ tasks: [{ ...t1, title: 'new', updatedAt: at(2) }] }).tables,
+    );
     expect(put.tasks?.map((t) => t.id)).toEqual(['t1']);
     expect(del.tasks).toEqual(['t2']);
   });

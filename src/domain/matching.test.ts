@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { findManualMatch, similarTitles } from './matching';
 import { dedupeBusy } from './busy';
 import { testSuggestions } from './categories';
-import type { BusyBlock } from './types';
+import { findManualMatch, similarTitles } from './matching';
 import { makeTask } from './testUtils';
+import type { BusyBlock } from './types';
 
 describe('connecting Microsoft after importing a timetable by hand', () => {
   const at = (h: number, source: BusyBlock['source'], title?: string, minuteShift = 0): BusyBlock => ({
@@ -49,7 +49,9 @@ describe('Teams assignment that was already entered by hand', () => {
   });
 
   it('does not match another day, another title, or a task that is already linked', () => {
-    expect(findManualMatch({ title: 'Essay Engels H4', due: new Date(2026, 9, 21, 9).toISOString() }, [manual])).toBeUndefined();
+    expect(
+      findManualMatch({ title: 'Essay Engels H4', due: new Date(2026, 9, 21, 9).toISOString() }, [manual]),
+    ).toBeUndefined();
     expect(findManualMatch({ title: 'Verslag Scheikunde', due }, [manual])).toBeUndefined();
     expect(findManualMatch({ title: 'Essay Engels H4', due }, [{ ...manual, externalId: 'teams:1' }])).toBeUndefined();
     expect(findManualMatch({ title: 'Essay Engels H4' }, [manual])).toBeUndefined();

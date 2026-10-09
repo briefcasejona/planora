@@ -1,5 +1,5 @@
-import type { BusyBlock } from '../../domain/types';
 import { detectCategory } from '../../domain/categories';
+import type { BusyBlock } from '../../domain/types';
 
 const GRAPH = 'https://graph.microsoft.com/v1.0';
 
@@ -96,13 +96,19 @@ function eventBody(e: OutlookEventInput) {
 export async function createEvent(token: string, e: OutlookEventInput): Promise<string> {
   const created = await graph<{ id: string }>(token, '/me/events', {
     method: 'POST',
-    body: JSON.stringify({ ...eventBody(e), singleValueExtendedProperties: [{ id: PLANORA_PROP, value: e.sessionId }] }),
+    body: JSON.stringify({
+      ...eventBody(e),
+      singleValueExtendedProperties: [{ id: PLANORA_PROP, value: e.sessionId }],
+    }),
   });
   return created.id;
 }
 
 export async function updateEvent(token: string, eventId: string, e: OutlookEventInput): Promise<void> {
-  await graph(token, '/me/events/' + encodeURIComponent(eventId), { method: 'PATCH', body: JSON.stringify(eventBody(e)) });
+  await graph(token, '/me/events/' + encodeURIComponent(eventId), {
+    method: 'PATCH',
+    body: JSON.stringify(eventBody(e)),
+  });
 }
 
 export async function deleteEvent(token: string, eventId: string): Promise<void> {
@@ -124,13 +130,17 @@ export async function fetchTodoTasks(token: string): Promise<ImportCandidate[]> 
   const lists = await graph<{ value: { id: string }[] }>(token, '/me/todo/lists?$select=id');
   const out: ImportCandidate[] = [];
   for (const list of lists.value.slice(0, 20)) {
-    const tasks = await graph<{ value: { id: string; title: string; status: string; dueDateTime?: { dateTime: string } }[] }>(
-      token,
-      `/me/todo/lists/${encodeURIComponent(list.id)}/tasks?$select=id,title,status,dueDateTime&$top=100`,
-    );
+    const tasks = await graph<{
+      value: { id: string; title: string; status: string; dueDateTime?: { dateTime: string } }[];
+    }>(token, `/me/todo/lists/${encodeURIComponent(list.id)}/tasks?$select=id,title,status,dueDateTime&$top=100`);
     for (const t of tasks.value) {
       if (t.status === 'completed') continue;
-      out.push({ externalId: 'todo:' + t.id, source: 'ms-todo', title: t.title, due: t.dueDateTime ? utc(t.dueDateTime.dateTime).toISOString() : undefined });
+      out.push({
+        externalId: 'todo:' + t.id,
+        source: 'ms-todo',
+        title: t.title,
+        due: t.dueDateTime ? utc(t.dueDateTime.dateTime).toISOString() : undefined,
+      });
     }
   }
   return out;
@@ -143,5 +153,10 @@ export async function fetchTeamsAssignments(token: string): Promise<ImportCandid
   );
   return data.value
     .filter((a) => a.status === 'assigned' || a.status === 'published')
-    .map((a) => ({ externalId: 'teams:' + a.id, source: 'ms-teams' as const, title: a.displayName, due: a.dueDateTime }));
+    .map((a) => ({
+      externalId: 'teams:' + a.id,
+      source: 'ms-teams' as const,
+      title: a.displayName,
+      due: a.dueDateTime,
+    }));
 }

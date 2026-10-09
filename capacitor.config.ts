@@ -8,7 +8,14 @@ const config: CapacitorConfig = {
   server: {
     androidScheme: 'https',
     // Only Microsoft sign-in pages may open inside the app (for the Outlook/Teams connection).
-    allowNavigation: ['login.microsoftonline.com', 'login.live.com', 'login.microsoft.com', 'account.live.com', '*.msauth.net', '*.msftauth.net'],
+    allowNavigation: [
+      'login.microsoftonline.com',
+      'login.live.com',
+      'login.microsoft.com',
+      'account.live.com',
+      '*.msauth.net',
+      '*.msftauth.net',
+    ],
   },
   plugins: {
     LocalNotifications: { smallIcon: 'ic_stat_icon', iconColor: '#4f46e5' },

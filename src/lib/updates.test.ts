@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { compareVersions, pickUpdate, type GithubRelease } from './updates';
+import { compareVersions, type GithubRelease, pickUpdate } from './updates';
 
 const release: GithubRelease = {
   tag_name: 'v0.3.4',
@@ -21,7 +21,11 @@ describe('compareVersions', () => {
 
 describe('pickUpdate', () => {
   it('offers the file for this platform when the release is newer', () => {
-    expect(pickUpdate(release, '0.3.3', 'windows')).toEqual({ version: '0.3.4', url: 'https://x/Planora-Setup.exe', sha256: 'abc' });
+    expect(pickUpdate(release, '0.3.3', 'windows')).toEqual({
+      version: '0.3.4',
+      url: 'https://x/Planora-Setup.exe',
+      sha256: 'abc',
+    });
     expect(pickUpdate(release, '0.3.3', 'android')?.url).toBe('https://x/Planora.apk');
     expect(pickUpdate(release, '0.3.3', 'linux')?.sha256).toBeUndefined();
   });

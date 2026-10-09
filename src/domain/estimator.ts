@@ -1,5 +1,5 @@
-import type { FeedbackRecord, Message, TaskType } from './types';
 import { roundTo5 } from './time';
+import type { FeedbackRecord, Message, TaskType } from './types';
 
 /**
  * Shrinkage constant: with n samples the learned log-ratio is divided by (n + K),

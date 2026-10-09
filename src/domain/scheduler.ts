@@ -1,18 +1,10 @@
 import { addDays, differenceInCalendarDays, startOfDay } from 'date-fns';
-import type {
-  BusyBlock,
-  FeedbackRecord,
-  Preferences,
-  ScheduleWarning,
-  SessionKind,
-  Task,
-  WorkSession,
-} from './types';
-import { atMinutes, minutesBetween, parseHM, roundUpToSlot, subtractIntervals, type Interval } from './time';
 import { expandBusy } from './busy';
 import { SCHOOL_CATEGORIES } from './categories';
-import { evenDayOffsets, spacedDayOffsets, splitMinutes } from './spacing';
 import { suggestSessionCount } from './estimator';
+import { evenDayOffsets, spacedDayOffsets, splitMinutes } from './spacing';
+import { atMinutes, type Interval, minutesBetween, parseHM, roundUpToSlot, subtractIntervals } from './time';
+import type { BusyBlock, FeedbackRecord, Preferences, ScheduleWarning, SessionKind, Task, WorkSession } from './types';
 
 export interface ScheduleInput {
   now: Date;
@@ -128,7 +120,7 @@ function buildChunks(task: Task, kept: WorkSession[], input: ScheduleInput, earl
       const lastDay = Math.max(firstDay, differenceInCalendarDays(new Date(stepLatest.getTime() - 1), today));
       const blocks = splitMinutes(rem, Math.ceil(rem / prefs.maxBlockMin), prefs.minBlockMin, prefs.maxBlockMin);
       const offsets = evenDayOffsets(lastDay - firstDay + 1, blocks.length);
-      blocks.forEach((minutes, j) =>
+      blocks.forEach((minutes, j) => {
         chunks.push({
           taskId: task.id,
           stepId: step.id,
@@ -140,8 +132,8 @@ function buildChunks(task: Task, kept: WorkSession[], input: ScheduleInput, earl
           latest: stepLatest > earliest ? stepLatest : latest,
           hardLatest,
           order: i + 1,
-        }),
-      );
+        });
+      });
     });
     return chunks;
   }
@@ -155,7 +147,7 @@ function buildChunks(task: Task, kept: WorkSession[], input: ScheduleInput, earl
   if (isTest) offsets = spacedDayOffsets(windowDays, blocks.length);
   else if (task.type === 'task' && blocks.length === 1) offsets = [0];
   else offsets = evenDayOffsets(windowDays, blocks.length);
-  blocks.forEach((minutes, j) =>
+  blocks.forEach((minutes, j) => {
     chunks.push({
       taskId: task.id,
       kind: isTest ? (j === blocks.length - 1 && blocks.length > 2 ? 'review' : 'study') : 'work',
@@ -165,17 +157,25 @@ function buildChunks(task: Task, kept: WorkSession[], input: ScheduleInput, earl
       latest,
       hardLatest,
       order: 0,
-    }),
-  );
+    });
+  });
   return chunks;
 }
 
-function buildDays(input: ScheduleInput, kept: WorkSession[], earliest: Date, today: Date, horizonDays: number): DayState[] {
+function buildDays(
+  input: ScheduleInput,
+  kept: WorkSession[],
+  earliest: Date,
+  today: Date,
+  horizonDays: number,
+): DayState[] {
   const { prefs, busy } = input;
   const horizonEnd = addDays(today, horizonDays);
   const lessonPad = prefs.lessonBufferMin * 60000;
   const busyIntervals = expandBusy(busy, today, horizonEnd).map((x) =>
-    lessonPad && x.block.category && SCHOOL_CATEGORIES.includes(x.block.category) ? { ...x, end: new Date(x.end.getTime() + lessonPad) } : x,
+    lessonPad && x.block.category && SCHOOL_CATEGORIES.includes(x.block.category)
+      ? { ...x, end: new Date(x.end.getTime() + lessonPad) }
+      : x,
   );
   const keptActive = kept.filter((s) => s.status === 'planned' || s.status === 'done');
   const pad = prefs.breakMin * 60000;
@@ -209,7 +209,14 @@ function buildDays(input: ScheduleInput, kept: WorkSession[], earliest: Date, to
 }
 
 /** Find a slot in `day` for up to `wanted` minutes between `from` and `until`. */
-function findSlot(day: DayState, wanted: number, minBlock: number, from: Date, until: Date, cap: number): Interval | null {
+function findSlot(
+  day: DayState,
+  wanted: number,
+  minBlock: number,
+  from: Date,
+  until: Date,
+  cap: number,
+): Interval | null {
   const budget = Math.min(wanted, cap - day.usedMin);
   if (budget < Math.min(wanted, minBlock)) return null;
   let best: Interval | null = null;

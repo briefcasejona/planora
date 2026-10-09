@@ -17,8 +17,14 @@ const ICON = path.join(__dirname, '..', 'build', 'icon.png');
 const AUTH_HOSTS = new Set(['login.microsoftonline.com', 'login.live.com', 'login.microsoft.com', 'account.live.com']);
 const google = createGoogleWaiter();
 const TYPES = {
-  '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml',
-  '.png': 'image/png', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.woff2': 'font/woff2',
+  '.html': 'text/html; charset=utf-8',
+  '.js': 'text/javascript',
+  '.css': 'text/css',
+  '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+  '.json': 'application/json',
+  '.webmanifest': 'application/manifest+json',
+  '.woff2': 'font/woff2',
 };
 
 // Tests run with a throwaway data folder.
@@ -33,7 +39,12 @@ let pendingFiles = [];
 const settingsFile = () => path.join(app.getPath('userData'), 'desktop-settings.json');
 function readSettings() {
   try {
-    return { closeToTray: true, openAtLogin: false, autoUpdate: true, ...JSON.parse(fs.readFileSync(settingsFile(), 'utf8')) };
+    return {
+      closeToTray: true,
+      openAtLogin: false,
+      autoUpdate: true,
+      ...JSON.parse(fs.readFileSync(settingsFile(), 'utf8')),
+    };
   } catch {
     return { closeToTray: true, openAtLogin: false, autoUpdate: true };
   }
@@ -42,7 +53,8 @@ function writeSettings(patch) {
   const next = { ...readSettings(), ...patch };
   fs.writeFileSync(settingsFile(), JSON.stringify(next));
   // Starting with the computer is supported on Windows and Mac only.
-  if (process.platform !== 'linux') app.setLoginItemSettings({ openAtLogin: next.openAtLogin, openAsHidden: true, args: ['--hidden'] });
+  if (process.platform !== 'linux')
+    app.setLoginItemSettings({ openAtLogin: next.openAtLogin, openAsHidden: true, args: ['--hidden'] });
   return next;
 }
 
@@ -130,7 +142,16 @@ function createWindow(hidden) {
       /* about:blank */
     }
     if (url === 'about:blank' || url.startsWith(ORIGIN) || AUTH_HOSTS.has(host)) {
-      return { action: 'allow', overrideBrowserWindowOptions: { width: 520, height: 720, autoHideMenuBar: true, icon: ICON, webPreferences: { sandbox: true, contextIsolation: true } } };
+      return {
+        action: 'allow',
+        overrideBrowserWindowOptions: {
+          width: 520,
+          height: 720,
+          autoHideMenuBar: true,
+          icon: ICON,
+          webPreferences: { sandbox: true, contextIsolation: true },
+        },
+      };
     }
     if (url.startsWith('https://')) void shell.openExternal(url);
     return { action: 'deny' };
@@ -166,7 +187,13 @@ function createTray() {
     Menu.buildFromTemplate([
       { label: 'Planora', click: show },
       { type: 'separator' },
-      { label: app.getLocale().startsWith('nl') ? 'Afsluiten' : 'Quit', click: () => { quitting = true; app.quit(); } },
+      {
+        label: app.getLocale().startsWith('nl') ? 'Afsluiten' : 'Quit',
+        click: () => {
+          quitting = true;
+          app.quit();
+        },
+      },
     ]),
   );
   tray.on('click', show);
@@ -187,7 +214,12 @@ ipcMain.handle('google-sign-in', async (_e, url, state) => {
 });
 // ---------- updates (see updater.cjs) ----------
 const UPDATE_EVERY_MS = 6 * 60 * 60 * 1000;
-const updater = createUpdater({ app, send: (status) => { if (win && !win.isDestroyed()) win.webContents.send('update-status', status); } });
+const updater = createUpdater({
+  app,
+  send: (status) => {
+    if (win && !win.isDestroyed()) win.webContents.send('update-status', status);
+  },
+});
 let updateUnattended = false;
 ipcMain.handle('update-status', () => updater.status());
 ipcMain.handle('check-update', () => updater.check().then(() => updater.status()));
@@ -246,7 +278,9 @@ if (!app.requestSingleInstanceLock()) {
       return;
     }
     // Windows/Linux: no menu bar. Mac: the standard app and Edit menus, so Cmd+Q, Cmd+C/V and Cmd+W work.
-    Menu.setApplicationMenu(IS_MAC ? Menu.buildFromTemplate([{ role: 'appMenu' }, { role: 'editMenu' }, { role: 'windowMenu' }]) : null);
+    Menu.setApplicationMenu(
+      IS_MAC ? Menu.buildFromTemplate([{ role: 'appMenu' }, { role: 'editMenu' }, { role: 'windowMenu' }]) : null,
+    );
     createWindow(process.argv.includes('--hidden'));
     createTray();
     scheduleUpdateChecks();

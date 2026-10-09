@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { buildBugReportText, buildBugReportUrl } from './bugReport';
 
-const base = { what: 'Google vernieuwen doet niets\nmeer tekst', expected: 'Nieuwe bezette tijden', steps: '1. Agenda', version: '0.3.4', platform: 'Windows' as const, details: ['Fouten: google-400 timeRangeTooLong'] };
+const base = {
+  what: 'Google vernieuwen doet niets\nmeer tekst',
+  expected: 'Nieuwe bezette tijden',
+  steps: '1. Agenda',
+  version: '0.3.4',
+  platform: 'Windows' as const,
+  details: ['Fouten: google-400 timeRangeTooLong'],
+};
 
 describe('bug report', () => {
   it('fills the GitHub form fields by their ids', () => {

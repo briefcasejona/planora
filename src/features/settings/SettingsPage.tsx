@@ -1,9 +1,9 @@
 import { useSearchParams } from 'react-router-dom';
-import { useFormat } from '../../lib/format';
 import { Chips } from '../../components/ui';
-import { PlanningSettings } from './PlanningSettings';
+import { useFormat } from '../../lib/format';
 import { MicrosoftCard } from './MicrosoftCard';
 import { GoogleCard, IcsCard } from './OtherCalendars';
+import { PlanningSettings } from './PlanningSettings';
 import { PrivacyCenter } from './PrivacyCenter';
 import { SyncCard } from './SyncCard';
 
@@ -17,13 +17,17 @@ export function SettingsPage() {
     <div>
       <h1 className="mb-4 text-2xl font-bold">{t('nav.settings')}</h1>
       <div className="mb-5">
-        <Chips label={t('nav.settings')} value={tab} onChange={(v) => setParams({ tab: v })}
+        <Chips
+          label={t('nav.settings')}
+          value={tab}
+          onChange={(v) => setParams({ tab: v })}
           options={[
             { value: 'planning', label: t('settings.tabPlanning') },
             { value: 'calendars', label: t('settings.tabCalendars') },
             { value: 'sync', label: t('settings.tabSync') },
             { value: 'privacy', label: t('settings.tabPrivacy') },
-          ]} />
+          ]}
+        />
       </div>
       {tab === 'planning' && <PlanningSettings />}
       {tab === 'calendars' && (
@@ -44,7 +48,10 @@ export function SettingsPage() {
       {tab === 'privacy' && <PrivacyCenter />}
       {tab !== 'privacy' && (
         <p className="mt-6 text-center text-sm">
-          <button className="text-slate-500 underline hover:text-slate-700 dark:hover:text-slate-300" onClick={() => setParams({ tab: 'privacy' })}>
+          <button
+            className="text-slate-500 underline hover:text-slate-700 dark:hover:text-slate-300"
+            onClick={() => setParams({ tab: 'privacy' })}
+          >
             {t('report.title')}
           </button>
         </p>

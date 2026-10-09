@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Icon } from '../components/Icon';
+import { Banner, Modal, Progress, TypeBadge } from '../components/ui';
 import { actions, useStore } from '../data/store';
 import { remainingMinutes, sessionMinutes, stepScale, workedMinutes } from '../domain/scheduler';
 import { useFormat } from '../lib/format';
-import { Banner, Modal, Progress, TypeBadge } from '../components/ui';
-import { Icon } from '../components/Icon';
-import { TaskForm } from './TaskForm';
-import { ReopenDialog } from './ReopenDialog';
 import { FeedbackDialog } from './FeedbackDialog';
+import { ReopenDialog } from './ReopenDialog';
+import { TaskForm } from './TaskForm';
 
 type Mode = 'view' | 'edit' | 'reopen' | 'feedback' | 'confirmDelete';
 
@@ -45,8 +45,12 @@ export function TaskDetail({ taskId, onClose }: { taskId: string; onClose: () =>
     mode === 'confirmDelete' ? (
       <>
         <span className="mr-auto self-center text-sm">{t('detail.confirmDelete')}</span>
-        <button className="btn-secondary" onClick={() => setMode('view')}>{t('common.cancel')}</button>
-        <button className="btn-danger" onClick={remove}>{t('common.delete')}</button>
+        <button className="btn-secondary" onClick={() => setMode('view')}>
+          {t('common.cancel')}
+        </button>
+        <button className="btn-danger" onClick={remove}>
+          {t('common.delete')}
+        </button>
       </>
     ) : (
       <>
@@ -55,12 +59,18 @@ export function TaskDetail({ taskId, onClose }: { taskId: string; onClose: () =>
           {t('common.delete')}
         </button>
         {open && planned > 0 && (
-          <button className="btn-secondary" onClick={() => void import('../integrations/calendarFiles').then((m) => m.exportTask(task.id))} title={t('detail.addToCalendarHint')}>
+          <button
+            className="btn-secondary"
+            onClick={() => void import('../integrations/calendarFiles').then((m) => m.exportTask(task.id))}
+            title={t('detail.addToCalendarHint')}
+          >
             <Icon name="calendar" className="h-4 w-4" />
             {t('detail.addToCalendar')}
           </button>
         )}
-        <button className="btn-secondary" onClick={() => setMode('edit')}>{t('common.edit')}</button>
+        <button className="btn-secondary" onClick={() => setMode('edit')}>
+          {t('common.edit')}
+        </button>
         {open ? (
           <button className="btn-primary" onClick={complete}>
             <Icon name="check" className="h-4 w-4" />
@@ -75,7 +85,12 @@ export function TaskDetail({ taskId, onClose }: { taskId: string; onClose: () =>
       </>
     );
 
-  const statusLabel = { planned: t('session.planned'), done: t('session.done'), missed: t('session.missed'), skipped: t('session.skipped') };
+  const statusLabel = {
+    planned: t('session.planned'),
+    done: t('session.done'),
+    missed: t('session.missed'),
+    skipped: t('session.skipped'),
+  };
 
   return (
     <Modal open onClose={onClose} title={task.title} wide footer={footer}>
@@ -85,7 +100,9 @@ export function TaskDetail({ taskId, onClose }: { taskId: string; onClose: () =>
         <span>
           · {t('detail.deadline')}: {date(task.deadline, 'EEEE d MMMM HH:mm')} ({relativeDay(task.deadline)})
         </span>
-        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs dark:bg-slate-800">{t('status.' + task.status)}</span>
+        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs dark:bg-slate-800">
+          {t('status.' + task.status)}
+        </span>
       </div>
 
       {warnings.map((w) => (
@@ -95,7 +112,13 @@ export function TaskDetail({ taskId, onClose }: { taskId: string; onClose: () =>
             icon="alert"
             action={
               w.kind === 'infeasible' ? (
-                <button className="btn-secondary" onClick={() => { onClose(); navigate('/settings'); }}>
+                <button
+                  className="btn-secondary"
+                  onClick={() => {
+                    onClose();
+                    navigate('/settings');
+                  }}
+                >
                   {t('warning.adjustAvailability')}
                 </button>
               ) : undefined
@@ -110,10 +133,18 @@ export function TaskDetail({ taskId, onClose }: { taskId: string; onClose: () =>
         <Stat
           label={t('detail.estimate')}
           value={duration(task.plannedEstimateMin)}
-          sub={task.plannedEstimateMin !== task.userEstimateMin ? t('detail.yourEstimate', { d: duration(task.userEstimateMin) }) : undefined}
+          sub={
+            task.plannedEstimateMin !== task.userEstimateMin
+              ? t('detail.yourEstimate', { d: duration(task.userEstimateMin) })
+              : undefined
+          }
         />
         <Stat label={t('detail.worked')} value={duration(done)} />
-        <Stat label={t('detail.planned')} value={duration(planned)} sub={unplanned > 0 ? t('detail.unplanned', { d: duration(unplanned) }) : undefined} />
+        <Stat
+          label={t('detail.planned')}
+          value={duration(planned)}
+          sub={unplanned > 0 ? t('detail.unplanned', { d: duration(unplanned) }) : undefined}
+        />
       </div>
       <Progress value={done / Math.max(1, task.plannedEstimateMin)} label={t('detail.progress')} />
 
@@ -121,13 +152,17 @@ export function TaskDetail({ taskId, onClose }: { taskId: string; onClose: () =>
         <div className="mt-5">
           <h3 className="mb-2 text-sm font-semibold">{t('detail.steps')}</h3>
           <ul className="space-y-1.5">
-            {[...task.steps].sort((a, b) => a.order - b.order).map((s) => (
-              <li key={s.id} className="flex items-center gap-2 text-sm">
-                <input type="checkbox" checked={s.done} onChange={() => toggleStep(s.id)} aria-label={s.title} />
-                <span className={s.done ? 'text-slate-400 line-through' : ''}>{s.title}</span>
-                <span className="ml-auto text-slate-500">{duration(Math.round(s.estimateMin * stepScale(task)))}</span>
-              </li>
-            ))}
+            {[...task.steps]
+              .sort((a, b) => a.order - b.order)
+              .map((s) => (
+                <li key={s.id} className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" checked={s.done} onChange={() => toggleStep(s.id)} aria-label={s.title} />
+                  <span className={s.done ? 'text-slate-400 line-through' : ''}>{s.title}</span>
+                  <span className="ml-auto text-slate-500">
+                    {duration(Math.round(s.estimateMin * stepScale(task)))}
+                  </span>
+                </li>
+              ))}
           </ul>
         </div>
       )}
@@ -141,7 +176,9 @@ export function TaskDetail({ taskId, onClose }: { taskId: string; onClose: () =>
             {sessions.map((s) => (
               <li key={s.id} className="flex items-center gap-2 py-1.5">
                 <span className="w-28 shrink-0">{date(s.start, 'EEE d MMM')}</span>
-                <span className="text-slate-500">{time(s.start)} - {time(s.end)}</span>
+                <span className="text-slate-500">
+                  {time(s.start)} - {time(s.end)}
+                </span>
                 {s.locked && <Icon name="pin" className="h-4 w-4 text-slate-400" />}
                 <span className="ml-auto text-xs text-slate-500">{statusLabel[s.status]}</span>
               </li>
@@ -149,9 +186,13 @@ export function TaskDetail({ taskId, onClose }: { taskId: string; onClose: () =>
           </ul>
         )}
       </div>
-      {task.notes && <p className="mt-4 text-sm whitespace-pre-wrap text-slate-600 dark:text-slate-300">{task.notes}</p>}
+      {task.notes && (
+        <p className="mt-4 text-sm whitespace-pre-wrap text-slate-600 dark:text-slate-300">{task.notes}</p>
+      )}
       {task.status !== 'open' && !task.feedbackGiven && (
-        <button className="btn-secondary mt-4" onClick={() => setMode('feedback')}>{t('detail.giveFeedback')}</button>
+        <button className="btn-secondary mt-4" onClick={() => setMode('feedback')}>
+          {t('detail.giveFeedback')}
+        </button>
       )}
     </Modal>
   );

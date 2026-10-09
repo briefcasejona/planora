@@ -1,9 +1,9 @@
-import type { ReactNode } from 'react';
 import { addDays } from 'date-fns';
+import type { ReactNode } from 'react';
+import { Icon } from '../components/Icon';
+import { Section, TypeBadge } from '../components/ui';
 import type { WeeklyPlanData, WeeklyReviewData } from '../domain/insights';
 import { useFormat } from '../lib/format';
-import { Section, TypeBadge } from '../components/ui';
-import { Icon } from '../components/Icon';
 
 export function PlanView({ data }: { data: WeeklyPlanData }) {
   const { t, date, time, duration, msg } = useFormat();
@@ -11,12 +11,17 @@ export function PlanView({ data }: { data: WeeklyPlanData }) {
   return (
     <div>
       <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
-        {t('review.weekOf', { from: date(start, 'd MMM'), to: date(addDays(start, 6), 'd MMM') })} · {t('review.totalPlanned', { d: duration(data.totalMin) })}
+        {t('review.weekOf', { from: date(start, 'd MMM'), to: date(addDays(start, 6), 'd MMM') })} ·{' '}
+        {t('review.totalPlanned', { d: duration(data.totalMin) })}
       </p>
       <Section title={t('review.focus')}>
         <ul className="space-y-2">
           {data.focus.map((f, i) => (
-            <li key={i} className="card flex items-start gap-3 border-brand-200 bg-brand-50 dark:border-brand-700 dark:bg-brand-700/20">
+            <li
+              // biome-ignore lint/suspicious/noArrayIndexKey: read-only list, rebuilt as a whole
+              key={i}
+              className="card flex items-start gap-3 border-brand-200 bg-brand-50 dark:border-brand-700 dark:bg-brand-700/20"
+            >
               <Icon name="sparkle" className="mt-0.5 h-5 w-5 shrink-0 text-brand-600" />
               <span className="text-sm">{msg(f)}</span>
             </li>
@@ -74,13 +79,24 @@ function Tile({ label, value }: { label: string; value: ReactNode }) {
   );
 }
 
-function List({ items, empty, tone }: { items: { key: string; title: string; sub: string }[]; empty: string; tone: 'good' | 'bad' }) {
+function List({
+  items,
+  empty,
+  tone,
+}: {
+  items: { key: string; title: string; sub: string }[];
+  empty: string;
+  tone: 'good' | 'bad';
+}) {
   if (!items.length) return <p className="text-sm text-slate-500">{empty}</p>;
   return (
     <ul className="card divide-y divide-slate-100 p-0 dark:divide-slate-800">
       {items.map((x) => (
         <li key={x.key} className="flex items-start gap-2 px-4 py-2.5 text-sm">
-          <Icon name={tone === 'good' ? 'check' : 'alert'} className={`mt-0.5 h-4 w-4 shrink-0 ${tone === 'good' ? 'text-emerald-600' : 'text-amber-600'}`} />
+          <Icon
+            name={tone === 'good' ? 'check' : 'alert'}
+            className={`mt-0.5 h-4 w-4 shrink-0 ${tone === 'good' ? 'text-emerald-600' : 'text-amber-600'}`}
+          />
           <div>
             <p className="font-medium">{x.title}</p>
             <p className="text-slate-500 dark:text-slate-400">{x.sub}</p>
@@ -107,14 +123,21 @@ export function ReviewView({ data }: { data: WeeklyReviewData }) {
         {t('review.weekOf', { from: date(start, 'd MMM'), to: date(addDays(start, 6), 'd MMM') })}
       </p>
       <div className="mb-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <Tile label={t('review.completion')} value={data.sessionsDone + data.sessionsMissed ? Math.round(data.completionRate * 100) + '%' : '–'} />
+        <Tile
+          label={t('review.completion')}
+          value={data.sessionsDone + data.sessionsMissed ? Math.round(data.completionRate * 100) + '%' : '–'}
+        />
         <Tile label={t('review.sessionsDone')} value={data.sessionsDone} />
         <Tile label={t('review.sessionsMissed')} value={data.sessionsMissed} />
         <Tile label={t('review.timeWorked')} value={duration(data.minutesDone)} />
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <Section title={t('review.wentWell')}>
-          <List items={data.wentWell.map((x) => ({ key: x.taskId, title: x.title, sub: msg(x.reason) }))} empty={t('review.nothingYet')} tone="good" />
+          <List
+            items={data.wentWell.map((x) => ({ key: x.taskId, title: x.title, sub: msg(x.reason) }))}
+            empty={t('review.nothingYet')}
+            tone="good"
+          />
           {data.tasksCompleted.length > 0 && (
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
               {t('review.completedTasks', { list: data.tasksCompleted.map((x) => x.title).join(', ') })}
@@ -125,7 +148,11 @@ export function ReviewView({ data }: { data: WeeklyReviewData }) {
           <List
             items={[
               ...data.struggled.map((x) => ({ key: x.taskId, title: x.title, sub: msg(x.reason) })),
-              ...data.missedDeadlines.map((x) => ({ key: 'd' + x.taskId, title: x.title, sub: t('review.missedDeadline') })),
+              ...data.missedDeadlines.map((x) => ({
+                key: 'd' + x.taskId,
+                title: x.title,
+                sub: t('review.missedDeadline'),
+              })),
             ]}
             empty={t('review.nothingStruggled')}
             tone="bad"
@@ -135,6 +162,7 @@ export function ReviewView({ data }: { data: WeeklyReviewData }) {
       <Section title={t('review.improve')}>
         <ul className="space-y-2">
           {data.improvements.map((m, i) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: read-only list, rebuilt as a whole
             <li key={i} className="card flex items-start gap-3">
               <Icon name="sparkle" className="mt-0.5 h-5 w-5 shrink-0 text-brand-600" />
               <span className="text-sm">{msg(m)}</span>
@@ -164,7 +192,10 @@ export function ReviewView({ data }: { data: WeeklyReviewData }) {
               <li key={d} className="flex items-center gap-2">
                 <span className="w-24">{t('daypart.' + d)}</span>
                 <span className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
-                  <span className="block h-full rounded-full bg-amber-500" style={{ width: (data.missedByDaypart[d] / maxDaypart) * 100 + '%' }} />
+                  <span
+                    className="block h-full rounded-full bg-amber-500"
+                    style={{ width: (data.missedByDaypart[d] / maxDaypart) * 100 + '%' }}
+                  />
                 </span>
                 <span className="w-6 text-right">{data.missedByDaypart[d]}</span>
               </li>

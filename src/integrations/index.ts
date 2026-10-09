@@ -1,9 +1,9 @@
 import { onPlanChanged } from '../data/store';
+import { isIosStandalone, isNativeApp } from '../lib/platform';
+import { startDeviceSync } from './deviceSync';
 import { completeGoogleRedirect, pullGoogleBusy } from './google';
 import { loadIntegrations, useIntegrations } from './settings';
-import { startDeviceSync } from './deviceSync';
 import { startUpdates } from './updates';
-import { isIosStandalone, isNativeApp } from '../lib/platform';
 
 /** Same check as microsoft/auth.ts, without loading the Microsoft library. */
 const msConfigured = !!import.meta.env.VITE_MS_CLIENT_ID;
@@ -33,7 +33,10 @@ export async function startIntegrations(): Promise<void> {
   // Native app or iPhone home-screen app: a Microsoft sign-in may just have returned via redirect.
   // iPhone home-screen app: a Google sign-in may just have returned the same way.
   if (isIosStandalone()) await completeGoogleRedirect();
-  if ((isNativeApp() || isIosStandalone()) && msConfigured) await microsoft().then((m) => m.completeMsRedirect()).catch(console.error);
+  if ((isNativeApp() || isIosStandalone()) && msConfigured)
+    await microsoft()
+      .then((m) => m.completeMsRedirect())
+      .catch(console.error);
   let pushTimer: ReturnType<typeof setTimeout> | undefined;
   onPlanChanged(() => {
     const ms = useIntegrations.getState().microsoft;

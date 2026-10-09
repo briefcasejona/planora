@@ -1,0 +1,44 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm test:*)",
+      "Bash(npm run test:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npm run format:*)",
+      "Bash(npm run e2e:*)",
+      "Bash(npx playwright test:*)",
+      "Bash(npx vitest:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git branch:*)"
+    ],
+    "ask": [
+      "Bash(git tag:*)",
+      "Bash(git push:*)",
+      "Edit(csp.cjs)",
+      "Edit(electron/updater.cjs)",
+      "Edit(.github/workflows/**)",
+      "Edit(src/data/crypto.ts)",
+      "Edit(src/data/db.ts)",
+      "Edit(src/data/sync/**)"
+    ],
+    "deny": ["Read(.env)", "Read(.env.local)", "Read(**/*.jks)", "Read(**/*.keystore)"]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/format.mjs\"",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -14,7 +14,11 @@ const LATEST = 'https://api.github.com/repos/briefcasejona/planora/releases/late
 const DOWNLOAD_PAGE = 'https://briefcasejona.github.io/planora/download.html';
 
 function compareVersions(a, b) {
-  const parts = (v) => String(v).replace(/^v/i, '').split(/[.-]/).map((x) => parseInt(x, 10) || 0);
+  const parts = (v) =>
+    String(v)
+      .replace(/^v/i, '')
+      .split(/[.-]/)
+      .map((x) => parseInt(x, 10) || 0);
   const pa = parts(a);
   const pb = parts(b);
   for (let i = 0; i < Math.max(pa.length, pb.length, 3); i++) {
@@ -49,26 +53,33 @@ function pickAsset(release, current, platform, arch) {
 function sha256File(file) {
   return new Promise((resolve, reject) => {
     const hash = crypto.createHash('sha256');
-    fs.createReadStream(file).on('error', reject).on('data', (d) => hash.update(d)).on('end', () => resolve(hash.digest('hex')));
+    fs.createReadStream(file)
+      .on('error', reject)
+      .on('data', (d) => hash.update(d))
+      .on('end', () => resolve(hash.digest('hex')));
   });
 }
 
 /** GET over HTTPS (following GitHub's redirects to its download servers). */
 function request(url, onResponse, redirects = 5) {
   return new Promise((resolve, reject) => {
-    const req = https.get(url, { headers: { 'User-Agent': 'Planora-updater', Accept: 'application/vnd.github+json' } }, (res) => {
-      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location && redirects > 0) {
-        res.resume();
-        resolve(request(new URL(res.headers.location, url).toString(), onResponse, redirects - 1));
-        return;
-      }
-      if (res.statusCode !== 200) {
-        res.resume();
-        reject(new Error('http-' + res.statusCode));
-        return;
-      }
-      onResponse(res, resolve, reject);
-    });
+    const req = https.get(
+      url,
+      { headers: { 'User-Agent': 'Planora-updater', Accept: 'application/vnd.github+json' } },
+      (res) => {
+        if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location && redirects > 0) {
+          res.resume();
+          resolve(request(new URL(res.headers.location, url).toString(), onResponse, redirects - 1));
+          return;
+        }
+        if (res.statusCode !== 200) {
+          res.resume();
+          reject(new Error('http-' + res.statusCode));
+          return;
+        }
+        onResponse(res, resolve, reject);
+      },
+    );
     req.setTimeout(60_000, () => req.destroy(new Error('timeout')));
     req.on('error', reject);
   });
@@ -119,7 +130,10 @@ function createUpdater({ app, send, platform = process.platform, arch = process.
     if (kind === 'notify') return set({ state: 'available', lastCheck, version: found.version, url: DOWNLOAD_PAGE });
     if (status.state === 'ready' && status.version === found.version) return set({ lastCheck });
     set({ state: 'downloading', lastCheck, version: found.version });
-    const target = path.join(app.getPath('temp'), platform === 'win32' ? `Planora-Setup-${found.version}.exe` : `Planora-${found.version}.AppImage`);
+    const target = path.join(
+      app.getPath('temp'),
+      platform === 'win32' ? `Planora-Setup-${found.version}.exe` : `Planora-${found.version}.AppImage`,
+    );
     await download(found.url, target);
     if (!found.sha256 || (await sha256File(target)) !== found.sha256) {
       fs.rmSync(target, { force: true });

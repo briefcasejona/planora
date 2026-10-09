@@ -1,17 +1,27 @@
 import { describe, expect, it } from 'vitest';
 import { buildWeeklyPlan, buildWeeklyReview, upcomingWeekStart, weekStartOf } from './insights';
 import { feedbackDue, findMissed, reopenTask } from './replan';
-import type { WorkSession } from './types';
 import { makeFeedback, makeTask, prefsEveryEvening } from './testUtils';
+import type { WorkSession } from './types';
 
 const at = (d: number, h: number) => new Date(2026, 9, d, h, 0).toISOString();
 const session = (id: string, taskId: string, d: number, h: number, status: WorkSession['status']): WorkSession => ({
-  id, taskId, start: at(d, h), end: at(d, h + 1), status, kind: 'work', locked: false,
+  id,
+  taskId,
+  start: at(d, h),
+  end: at(d, h + 1),
+  status,
+  kind: 'work',
+  locked: false,
 });
 
 describe('replan helpers', () => {
   it('finds planned sessions that ended without being checked off', () => {
-    const s = [session('a', 't', 12, 16, 'planned'), session('b', 't', 12, 20, 'planned'), session('c', 't', 12, 10, 'done')];
+    const s = [
+      session('a', 't', 12, 16, 'planned'),
+      session('b', 't', 12, 20, 'planned'),
+      session('c', 't', 12, 10, 'done'),
+    ];
     expect(findMissed(s, new Date(2026, 9, 12, 19)).map((x) => x.id)).toEqual(['a']);
   });
 
@@ -38,7 +48,14 @@ describe('replan helpers', () => {
 describe('weekly insights', () => {
   const now = new Date(2026, 9, 17, 15, 0); // Saturday afternoon
   const weekStart = weekStartOf(now);
-  const math = makeTask({ title: 'Wiskunde toets', subject: 'Wiskunde', type: 'test', status: 'done', completedAt: at(15, 20), deadline: at(16, 9) });
+  const math = makeTask({
+    title: 'Wiskunde toets',
+    subject: 'Wiskunde',
+    type: 'test',
+    status: 'done',
+    completedAt: at(15, 20),
+    deadline: at(16, 9),
+  });
   const essay = makeTask({ title: 'Essay', subject: 'Engels', deadline: at(16, 23) });
   const sessions = [
     session('1', math.id, 12, 19, 'done'),
@@ -48,7 +65,14 @@ describe('weekly insights', () => {
     session('5', essay.id, 16, 10, 'done'),
   ];
   const feedback = [
-    makeFeedback({ taskId: math.id, userEstimateMin: 120, plannedEstimateMin: 120, actualMin: 200, enoughTime: 'too-little', createdAt: at(16, 12) }),
+    makeFeedback({
+      taskId: math.id,
+      userEstimateMin: 120,
+      plannedEstimateMin: 120,
+      actualMin: 200,
+      enoughTime: 'too-little',
+      createdAt: at(16, 12),
+    }),
     makeFeedback({ subject: 'Wiskunde', userEstimateMin: 60, actualMin: 90, createdAt: at(2, 12) }),
   ];
   const input = { now, tasks: [math, essay], sessions, feedback, prefs: prefsEveryEvening() };
