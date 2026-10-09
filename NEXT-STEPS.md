@@ -16,7 +16,9 @@
 3. **Test sync yourself**: Settings > Sync on the laptop (choose a passphrase), then on the phone
    (same Microsoft account and passphrase). Add a task on the phone; it should appear on the laptop
    within a minute. Report any error text to Claude.
-4. Optional: school IT approval for Outlook/Teams (request text is in the chat history), Google OAuth client.
+4. **Google Calendar (v0.3.1)**: create the Google OAuth client (README, "Connecting Google Calendar"), add
+   repo variable `VITE_GOOGLE_CLIENT_ID`, then ask Claude to release v0.3.1.
+5. Optional: school IT approval for Outlook/Teams (request text is in the chat history).
 
 ## Keep safe
 - `C:\Users\haasn\planora-android-key\` holds the Android signing key (also stored as GitHub Secrets).

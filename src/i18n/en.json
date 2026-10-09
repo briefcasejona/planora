@@ -402,7 +402,9 @@
     "googleIntro": "Use only your free/busy times from Google Calendar. Planora can't see titles or content.",
     "connectGoogle": "Connect with Google",
     "error": "That didn't work ({{msg}}).",
-    "googleNative": "Google doesn't allow signing in inside apps. Use Planora through the website to connect Google, or import an .ics file."
+    "googleRefresh": "Refresh Google",
+    "googleExpired": "Google keeps Planora signed in for an hour at a time. Busy times already fetched stay; refresh with one click when you want the latest.",
+    "googleBrowserHint": "A browser window opens to sign in with Google; afterwards you return to Planora (on a computer: switch back to Planora yourself)."
   },
   "ics": {
     "title": "Apple Calendar and other calendars (.ics)",

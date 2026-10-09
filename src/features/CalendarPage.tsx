@@ -9,6 +9,8 @@ import type { DateSelectArg, EventClickArg, EventDropArg, EventInput } from '@fu
 import type { EventResizeDoneArg } from '@fullcalendar/interaction';
 import { addDays } from 'date-fns';
 import { actions, useStore } from '../data/store';
+import { useIntegrations } from '../integrations/settings';
+import { pullGoogleBusy } from '../integrations/google';
 import { dedupeBusy, expandBusy } from '../domain/busy';
 import { EVENT_CATEGORIES, type BusyBlock } from '../domain/types';
 import { useFormat } from '../lib/format';
@@ -41,6 +43,19 @@ function loadHidden(): Filter[] {
 export function CalendarPage() {
   const { t, lang } = useFormat();
   const { tasks, sessions, busy } = useStore();
+  const google = useIntegrations((s) => s.google);
+  const googleExpired = google.connected && (!google.tokenExpires || google.tokenExpires < Date.now() + 60_000);
+  const [refreshing, setRefreshing] = useState(false);
+  const refreshGoogle = async () => {
+    setRefreshing(true);
+    try {
+      await pullGoogleBusy(true);
+    } catch {
+      // The Google card in Settings shows details; here the button simply stays.
+    } finally {
+      setRefreshing(false);
+    }
+  };
   const [dialog, setDialog] = useState<Dialog>(null);
   const [hidden, setHidden] = useState<Filter[]>(loadHidden);
   const toggle = (f: Filter) => {
@@ -136,9 +151,16 @@ export function CalendarPage() {
     <div>
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-2xl font-bold">{t('nav.calendar')}</h1>
-        <button className="btn-secondary" onClick={() => setDialog({ kind: 'newBusy', start: new Date(), end: new Date(Date.now() + 3600000) })}>
-          {t('calendar.addEvent')}
-        </button>
+        <div className="flex flex-wrap gap-2">
+          {googleExpired && (
+            <button className="btn-ghost" disabled={refreshing} onClick={refreshGoogle} title={t('integrations.googleExpired')}>
+              {t('integrations.googleRefresh')}
+            </button>
+          )}
+          <button className="btn-secondary" onClick={() => setDialog({ kind: 'newBusy', start: new Date(), end: new Date(Date.now() + 3600000) })}>
+            {t('calendar.addEvent')}
+          </button>
+        </div>
       </div>
       <p className="mb-3 text-sm text-slate-600 dark:text-slate-300">{t('calendar.hint')}</p>
       <div role="group" aria-label={t('calendar.show')} className="mb-3 flex flex-wrap gap-1.5">

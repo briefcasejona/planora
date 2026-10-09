@@ -6,4 +6,5 @@ contextBridge.exposeInMainWorld('planoraDesktop', {
   onOpenFile: (cb) => ipcRenderer.on('open-file', (_e, name, content) => cb(String(name), String(content))),
   getSettings: () => ipcRenderer.invoke('get-settings'),
   setSettings: (s) => ipcRenderer.invoke('set-settings', s),
+  googleSignIn: (url, state) => ipcRenderer.invoke('google-sign-in', String(url), String(state)),
 });

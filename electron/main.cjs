@@ -6,13 +6,15 @@ const fs = require('node:fs');
 const http = require('node:http');
 const path = require('node:path');
 const CSP = require('../csp.cjs');
+const { createGoogleWaiter } = require('./oauth.cjs');
 
 const IS_MAC = process.platform === 'darwin';
 const PORT = 47823; // fixed, so stored data and the sign-in redirect address stay the same
 const ORIGIN = `http://localhost:${PORT}`;
 const DIST = path.join(__dirname, '..', 'dist');
 const ICON = path.join(__dirname, '..', 'build', 'icon.png');
-const AUTH_HOSTS = new Set(['login.microsoftonline.com', 'login.live.com', 'login.microsoft.com', 'account.live.com', 'accounts.google.com']);
+const AUTH_HOSTS = new Set(['login.microsoftonline.com', 'login.live.com', 'login.microsoft.com', 'account.live.com']);
+const google = createGoogleWaiter();
 const TYPES = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml',
   '.png': 'image/png', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.woff2': 'font/woff2',
@@ -47,6 +49,23 @@ function writeSettings(patch) {
 function startServer() {
   const server = http.createServer((req, res) => {
     const url = new URL(req.url, ORIGIN);
+    if (req.method === 'POST' && url.pathname === '/oauth/google') {
+      let body = '';
+      req.on('data', (chunk) => {
+        body += chunk;
+        if (body.length > 8192) req.destroy();
+      });
+      req.on('end', () => {
+        const status = google.receive(body);
+        res.writeHead(status, { 'Cache-Control': 'no-store' }).end();
+        if (status === 204) show();
+      });
+      return;
+    }
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+      res.writeHead(405).end();
+      return;
+    }
     let file = path.normalize(path.join(DIST, decodeURIComponent(url.pathname)));
     if (file !== DIST && !file.startsWith(DIST + path.sep)) {
       res.writeHead(403).end();
@@ -158,6 +177,12 @@ ipcMain.handle('save-file', async (_e, name, content) => {
   if (canceled || !filePath) return false;
   await fs.promises.writeFile(filePath, String(content), 'utf8');
   return true;
+});
+ipcMain.handle('google-sign-in', async (_e, url, state) => {
+  if (!String(url).startsWith('https://accounts.google.com/')) throw new Error('google-bad-url');
+  const answer = google.wait(String(state));
+  await shell.openExternal(String(url));
+  return answer;
 });
 ipcMain.handle('get-settings', () => ({ ...readSettings(), platform: process.platform }));
 ipcMain.handle('set-settings', (_e, patch) => {

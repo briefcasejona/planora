@@ -3,7 +3,7 @@ import { actions, useStore } from '../data/store';
 import { repo } from '../data/repo';
 import type { BusyBlock } from '../domain/types';
 import { patchGoogle, useIntegrations } from './settings';
-import { appUrl } from '../lib/platform';
+import { appUrl, isIosStandalone, isNativeApp } from '../lib/platform';
 
 const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
 export const googleConfigured = !!clientId;
@@ -13,16 +13,50 @@ export const googleConfigured = !!clientId;
  * titles, descriptions, attendees or locations from Google Calendar.
  */
 const SCOPE = 'https://www.googleapis.com/auth/calendar.freebusy';
+/** On this device only (never synced); Google tokens for apps without a server last one hour. */
 const TOKEN_KEY = 'planora-google-token';
+/** iPhone home-screen app: the sign-in leaves the app and comes back through auth-redirect.html. */
+const PENDING_KEY = 'planora-google-pending';
+export const RESPONSE_KEY = 'planora-google-response';
 
 interface StoredToken {
   token: string;
   expires: number;
 }
 
+/**
+ * How to sign in with Google here. Google refuses sign-ins inside app windows,
+ * so the desktop app and the Android app use the system browser.
+ */
+export type GoogleMethod = 'popup' | 'redirect' | 'desktop' | 'android';
+export function googleMethod(): GoogleMethod {
+  if (typeof window !== 'undefined' && window.planoraDesktop?.googleSignIn) return 'desktop';
+  if (isNativeApp()) return 'android';
+  if (isIosStandalone()) return 'redirect';
+  return 'popup';
+}
+
+/** Read Google's answer (the part after # in the redirect) and check it belongs to our request. */
+export function parseGoogleResponse(hash: string, expectedState: string, now = Date.now()): StoredToken {
+  const p = new URLSearchParams(hash.replace(/^#/, ''));
+  if (!expectedState || p.get('state') !== expectedState) throw new Error('google-state-mismatch');
+  const token = p.get('access_token');
+  if (!token) throw new Error(p.get('error') ?? 'google-auth-failed');
+  return { token, expires: now + Number(p.get('expires_in') ?? '3600') * 1000 };
+}
+
+function saveToken(t: StoredToken): void {
+  try {
+    localStorage.setItem(TOKEN_KEY, JSON.stringify(t));
+  } catch {
+    /* not kept; asked again next time */
+  }
+  void patchGoogle({ tokenExpires: t.expires });
+}
+
 function readToken(): string | null {
   try {
-    const raw = sessionStorage.getItem(TOKEN_KEY);
+    const raw = localStorage.getItem(TOKEN_KEY);
     if (!raw) return null;
     const t = JSON.parse(raw) as StoredToken;
     return t.expires > Date.now() + 60000 ? t.token : null;
@@ -31,25 +65,79 @@ function readToken(): string | null {
   }
 }
 
-/** OAuth in a popup (no Google scripts are loaded); the token stays in this tab session. */
+/** Is the one-hour Google sign-in still valid on this device? */
+export const googleTokenValid = () => !!readToken();
+
+function authUrl(state: string): string {
+  return (
+    'https://accounts.google.com/o/oauth2/v2/auth?' +
+    new URLSearchParams({
+      client_id: clientId!,
+      redirect_uri: appUrl('auth-redirect.html'),
+      response_type: 'token',
+      scope: SCOPE,
+      include_granted_scopes: 'false',
+      state,
+      // After the first time Google only asks which account; the permission screen is skipped.
+      prompt: 'select_account',
+    })
+  );
+}
+
+/** Sign in with Google (no Google scripts are loaded). Resolves with a token valid for about an hour. */
 export function googleSignIn(): Promise<string> {
   if (!clientId) return Promise.reject(new Error('google-not-configured'));
-  const state = 'google-' + crypto.randomUUID();
-  const params = new URLSearchParams({
-    client_id: clientId,
-    redirect_uri: appUrl('auth-redirect.html'),
-    response_type: 'token',
-    scope: SCOPE,
-    include_granted_scopes: 'false',
-    state,
-    prompt: 'consent',
-  });
-  if (!window.open('https://accounts.google.com/o/oauth2/v2/auth?' + params, 'planora-google', 'width=480,height=640')) {
-    return Promise.reject(new Error('popup-blocked'));
+  const method = googleMethod();
+  const prefix = method === 'popup' ? 'google-' : `google-${method === 'redirect' ? 'ios' : method}-`;
+  const state = prefix + crypto.randomUUID();
+  const url = authUrl(state);
+  const accept = (hash: string): string => {
+    const t = parseGoogleResponse(hash, state);
+    saveToken(t);
+    return t.token;
+  };
+
+  if (method === 'redirect') {
+    sessionStorage.setItem(PENDING_KEY, state);
+    window.location.assign(url);
+    return new Promise<never>(() => undefined); // the app navigates to Google and comes back
   }
+
+  if (method === 'desktop') {
+    // The desktop app opens the system browser and waits until auth-redirect.html reports back.
+    return window.planoraDesktop!.googleSignIn!(url, state).then(accept);
+  }
+
+  if (method === 'android') {
+    return new Promise((resolve, reject) => {
+      void (async () => {
+        const [{ App }, { Browser }] = await Promise.all([import('@capacitor/app'), import('@capacitor/browser')]);
+        const timer = setTimeout(() => done(new Error('google-auth-timeout')), 5 * 60 * 1000);
+        // auth-redirect.html (opened in the system browser) hands the answer back via app.planora://google#…
+        const handle = await App.addListener('appUrlOpen', ({ url: back }) => {
+          if (!back.startsWith('app.planora://google')) return;
+          try {
+            done(null, accept(back.slice(back.indexOf('#'))));
+          } catch (e) {
+            done(e as Error);
+          }
+        });
+        function done(err: Error | null, token?: string) {
+          clearTimeout(timer);
+          void handle.remove();
+          void Browser.close().catch(() => undefined);
+          if (err || !token) reject(err ?? new Error('google-auth-failed'));
+          else resolve(token);
+        }
+        await Browser.open({ url });
+      })().catch(reject);
+    });
+  }
+
+  // Browser: a popup; the redirect page hands the answer back over a same-origin channel, which keeps
+  // working even when Google's popup isolation (COOP) cuts the link to the popup window.
+  if (!window.open(url, 'planora-google', 'width=480,height=640')) return Promise.reject(new Error('popup-blocked'));
   return new Promise((resolve, reject) => {
-    // The redirect page hands the response back over a same-origin channel; this keeps
-    // working even when Google's popup isolation (COOP) cuts the link to the popup window.
     const channel = new BroadcastChannel('planora-oauth');
     const timer = setTimeout(() => finish(new Error('google-auth-timeout')), 5 * 60 * 1000);
     function finish(err: Error | null, token?: string) {
@@ -59,21 +147,43 @@ export function googleSignIn(): Promise<string> {
       else resolve(token);
     }
     channel.onmessage = (e: MessageEvent<{ hash?: string }>) => {
-      const p = new URLSearchParams((e.data?.hash ?? '').slice(1));
-      if (p.get('state') !== state) return;
-      const token = p.get('access_token');
-      if (!token) return finish(new Error(p.get('error') ?? 'google-auth-failed'));
-      const expires = Date.now() + Number(p.get('expires_in') ?? '3600') * 1000;
-      sessionStorage.setItem(TOKEN_KEY, JSON.stringify({ token, expires } satisfies StoredToken));
-      finish(null, token);
+      const hash = e.data?.hash ?? '';
+      if (new URLSearchParams(hash.slice(1)).get('state') !== state) return;
+      try {
+        finish(null, accept(hash));
+      } catch (err) {
+        finish(err as Error);
+      }
     };
   });
 }
 
-async function token(interactive: boolean): Promise<string> {
+/** iPhone home-screen app: finish a Google sign-in that just came back to the app. */
+export async function completeGoogleRedirect(): Promise<void> {
+  let hash: string | null = null;
+  let state: string | null = null;
+  try {
+    hash = sessionStorage.getItem(RESPONSE_KEY);
+    state = sessionStorage.getItem(PENDING_KEY);
+    sessionStorage.removeItem(RESPONSE_KEY);
+    sessionStorage.removeItem(PENDING_KEY);
+  } catch {
+    return;
+  }
+  if (!hash || !state) return;
+  try {
+    saveToken(parseGoogleResponse(hash, state));
+    await patchGoogle({ connected: true });
+    await pullGoogleBusy();
+  } catch (e) {
+    await repo.addLog({ provider: 'google', action: 'connect', count: 0, ok: false, detail: String((e as Error).message ?? e) });
+  }
+}
+
+async function token(interactive: boolean): Promise<string | null> {
   const t = readToken();
   if (t) return t;
-  if (!interactive) throw new Error('google-signed-out');
+  if (!interactive) return null;
   return googleSignIn();
 }
 
@@ -81,6 +191,8 @@ export async function pullGoogleBusy(interactive = false): Promise<void> {
   if (!useIntegrations.getState().google.connected || !useStore.getState().ready || useStore.getState().locked) return;
   try {
     const access = await token(interactive);
+    // Sign-in expired: keep the busy times already fetched; the user refreshes with one click.
+    if (!access) return;
     const now = new Date();
     const res = await fetch('https://www.googleapis.com/calendar/v3/freeBusy', {
       method: 'POST',
@@ -89,6 +201,12 @@ export async function pullGoogleBusy(interactive = false): Promise<void> {
       headers: { Authorization: 'Bearer ' + access, 'Content-Type': 'application/json' },
       body: JSON.stringify({ timeMin: addDays(now, -7).toISOString(), timeMax: addDays(now, 90).toISOString(), items: [{ id: 'primary' }] }),
     });
+    if (res.status === 401) {
+      localStorage.removeItem(TOKEN_KEY);
+      await patchGoogle({ tokenExpires: undefined });
+      if (interactive) return pullGoogleBusy(true);
+      return;
+    }
     if (!res.ok) throw new Error('google-' + res.status);
     const data = (await res.json()) as { calendars: Record<string, { busy: { start: string; end: string }[] }> };
     const blocks: BusyBlock[] = (data.calendars.primary?.busy ?? []).map((b) => ({
@@ -112,7 +230,12 @@ export async function pullGoogleBusy(interactive = false): Promise<void> {
 /** Revoke the token at Google and forget it locally. */
 export async function googleDisconnect(): Promise<void> {
   const t = readToken();
-  sessionStorage.removeItem(TOKEN_KEY);
+  try {
+    localStorage.removeItem(TOKEN_KEY);
+  } catch {
+    /* nothing stored */
+  }
+  await patchGoogle({ tokenExpires: undefined });
   if (t) {
     try {
       // Token in the request body, not the URL, so it never ends up in logs.

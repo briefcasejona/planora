@@ -195,20 +195,32 @@ There is no client secret, and you don't need a server.
 
 ## Connecting Google Calendar (optional)
 
+Free for you and for users (no billing account needed). Steps, once:
+
 1. In <https://console.cloud.google.com>, create a project and enable the **Google Calendar API**.
-2. Configure the **OAuth consent screen**, adding the scope `.../auth/calendar.freebusy`.
-3. Keep the app in **Testing** mode and add your friends' Google accounts as test users (up to 100).
-   Calendar scopes need a Google verification before the app can be fully public.
+2. Configure the **OAuth consent screen** (External), adding the scope `.../auth/calendar.freebusy`.
+3. Keep the app in **Testing** mode and add your friends' Google accounts as **test users** (up to 100).
+   Only test users can connect; they see a "Google hasn't verified this app" notice and choose Continue.
+   Opening it to everyone needs Google's (free) verification, which takes days to weeks.
 4. Under **Credentials**, create an **OAuth client ID** of type *Web application*:
    - Authorized JavaScript origins: `https://briefcasejona.github.io`, `http://localhost:47823`, `http://localhost:5173`
    - Authorized redirect URIs: `https://briefcasejona.github.io/planora/auth-redirect.html`,
      `http://localhost:47823/auth-redirect.html`, `http://localhost:5173/auth-redirect.html`
 5. Put the client ID in `.env` and in the repository variable `VITE_GOOGLE_CLIENT_ID`.
 
-Google does not allow sign-in inside app web views, so Google Calendar works on the website and in the
-desktop app, not inside the Android app (use .ics there).
+How signing in works per platform (Google refuses sign-ins inside app windows):
 
-Google tokens stay in the browser tab session and expire after about an hour; Planora asks again when needed.
+| Where | How |
+| --- | --- |
+| Browser | A Google popup. |
+| iPhone home-screen app | The app goes to Google and comes back (no popup). |
+| Desktop app | Your normal browser opens; Google returns to Planora's own local address, which hands the answer to the app. |
+| Android app | A browser tab opens; Google returns through `app.planora://google` into the app. |
+
+Google gives an app without a server a sign-in for one hour. Planora keeps the busy times it fetched
+(90 days ahead), never interrupts you when the hour is over, and shows a **Refresh Google** button that
+re-signs in with one click (the permission screen is only shown the first time). The token stays on
+the device and is never included in backups or sync.
 
 ## How the planner works
 

@@ -2,17 +2,19 @@ import { useMemo, useRef, useState } from 'react';
 import { actions, useStore } from '../../data/store';
 import { repo } from '../../data/repo';
 import { useFormat } from '../../lib/format';
-import { googleConfigured, googleDisconnect, googleSignIn, pullGoogleBusy } from '../../integrations/google';
+import { googleConfigured, googleDisconnect, googleMethod, googleSignIn, pullGoogleBusy } from '../../integrations/google';
 import { exportPlan, importCalendarFile, removeCalendarImport, setImportCategory } from '../../integrations/calendarFiles';
 import { EVENT_CATEGORIES, type EventCategory } from '../../domain/types';
 import { Chips } from '../../components/ui';
 import { patchGoogle, saveIntegrations, useIntegrations } from '../../integrations/settings';
-import { isNativeApp, platform } from '../../lib/platform';
+import { platform } from '../../lib/platform';
 import { Toggle } from './Toggle';
 
 export function GoogleCard() {
   const { t, date } = useFormat();
   const g = useIntegrations((s) => s.google);
+  const method = googleMethod();
+  const expired = !g.tokenExpires || g.tokenExpires < Date.now() + 60_000;
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const run = async (fn: () => Promise<void>) => {
@@ -44,22 +46,24 @@ export function GoogleCard() {
     <div className="card mb-4">
       <h3 className="font-semibold">{t('integrations.google')}</h3>
       <p className="mb-3 text-sm text-slate-600 dark:text-slate-300">{t('integrations.googleIntro')}</p>
-      {isNativeApp() ? (
-        <p className="rounded-xl bg-slate-50 p-3 text-sm text-slate-600 dark:bg-slate-800/60 dark:text-slate-300">{t('integrations.googleNative')}</p>
-      ) : !googleConfigured ? (
+      {!googleConfigured ? (
         <p className="rounded-xl bg-slate-50 p-3 text-sm text-slate-600 dark:bg-slate-800/60 dark:text-slate-300">{t('integrations.notConfigured')}</p>
       ) : g.connected ? (
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm">{g.lastSync ? t('integrations.lastSync', { when: date(g.lastSync, 'd MMM HH:mm') }) : t('integrations.connected')}</span>
-          <button className="btn-secondary" disabled={busy} onClick={() => run(() => pullGoogleBusy(true))}>{t('integrations.syncNow')}</button>
+          <button className="btn-secondary" disabled={busy} onClick={() => run(() => pullGoogleBusy(true))}>
+            {expired ? t('integrations.googleRefresh') : t('integrations.syncNow')}
+          </button>
           <button className="btn-ghost text-rose-600" disabled={busy} onClick={disconnect}>{t('integrations.disconnect')}</button>
         </div>
       ) : (
         <>
           <code className="mb-2 inline-block rounded bg-slate-100 px-1.5 py-0.5 text-[11px] dark:bg-slate-800">calendar.freebusy</code>
           <div><button className="btn-primary" disabled={busy} onClick={connect}>{t('integrations.connectGoogle')}</button></div>
+          {method !== 'popup' && <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">{t('integrations.googleBrowserHint')}</p>}
         </>
       )}
+      {g.connected && expired && <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">{t('integrations.googleExpired')}</p>}
       {error && <p role="alert" className="mt-2 text-sm text-rose-600">{error}</p>}
     </div>
   );
