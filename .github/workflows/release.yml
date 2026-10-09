@@ -33,7 +33,9 @@ jobs:
       - run: npm ci
       - run: npm test
       # electronDist in package.json points at a local Electron copy; on CI electron-builder downloads it.
+      # bash, not PowerShell: PowerShell splits "-c.electronDist=" into two arguments.
       - run: npm run build && npx electron-builder --win --publish never -c.electronDist=
+        shell: bash
       - uses: actions/upload-artifact@v4
         with:
           name: windows
