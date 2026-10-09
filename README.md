@@ -12,6 +12,9 @@ Runs on Windows, Mac, Linux, Android and iPhone. Interface in Dutch and English.
 > right download with step-by-step instructions. Or use it straight in your browser at
 > <https://briefcasejona.github.io/planora/>. Free, no account.
 >
+> What Planora is, in plain words: <https://briefcasejona.github.io/planora/about.html>. Privacy statement:
+> <https://briefcasejona.github.io/planora/privacy.html>.
+>
 > The sections further down about Node.js and `npm` are only for developers who want to change Planora's code.
 
 ## Download and share

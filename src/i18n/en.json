@@ -436,6 +436,7 @@
     "alsoInOutlook": "This file is also in your Outlook calendar. You can remove it if you like; nothing breaks either way."
   },
   "privacy": {
+    "policyLink": "Read the full privacy statement",
     "badge": "Your data stays on this device",
     "summaryTitle": "Where is your data?",
     "local": "All your tasks, plans and feedback are stored on this device only.",
@@ -521,6 +522,7 @@
     "openAtLoginHint": "Starts Planora hidden in the background when you sign in."
   },
   "install": {
+    "about": "What is Planora (to share):",
     "title": "Planora on other devices / share",
     "intro": "Send these links to friends or use them yourself. Everyone uses Planora with their own data on their own device.",
     "web": "Website (works everywhere):",

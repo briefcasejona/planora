@@ -12,7 +12,17 @@
   all tests pass, including the desktop app test. The "new review" dot in the menu is now read out
   by screen readers on phones too, not only on computers.
 
+- On branch `claude/gallant-heisenberg-u5skud` (not merged yet): an **About page** (`about.html`: what Planora is,
+  who it's for, why, questions) and a **Privacy page** (`privacy.html`), both Dutch and English, linked from each other,
+  the download page and Settings. The download page now says school phones often block the .apk.
+
 ## What needs you
+0. **Website pages**: read the privacy text (`src/privacy/texts.ts`, or the page after merge) and say if it's OK;
+   it promises things to Google and schools. Then ask Claude to open a pull request and merge.
+   After merging: in Google Cloud, use `.../planora/about.html` as homepage and `.../planora/privacy.html` as
+   privacy policy, and check in Google Search Console whether Google accepts the github.io address (if not, a cheap
+   domain just for these pages is the fallback; never move the app itself, that would lose everyone's data).
+   Later ideas (not built): a page for schools/IT, checksums for downloads, Microsoft publisher verification.
 1. **Release v0.3.0**: ask Claude to push the tag `v0.3.0` (or `git tag v0.3.0 && git push origin v0.3.0`).
    GitHub then builds all installers and the APK (about 15 minutes).
 2. **Test sync yourself**: Settings > Sync on the laptop (choose a passphrase), then on the phone

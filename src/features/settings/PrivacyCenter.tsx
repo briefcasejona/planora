@@ -11,6 +11,7 @@ import { googleDisconnect } from '../../integrations/google';
 import { msSignOut } from '../../integrations/microsoft/auth';
 import { DEFAULT_INTEGRATIONS, saveIntegrations, useIntegrations } from '../../integrations/settings';
 import { useFormat } from '../../lib/format';
+import { PRIVACY_URL } from '../../lib/links';
 import { BASE } from '../../lib/platform';
 import { BugReportCard } from './BugReportCard';
 
@@ -38,6 +39,14 @@ export function PrivacyCenter() {
                   : t('privacy.noConnections')}
               </li>
             </ul>
+            <a
+              className="mt-2 inline-block font-medium text-brand-600 underline dark:text-brand-200"
+              href={PRIVACY_URL}
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              {t('privacy.policyLink')}
+            </a>
           </div>
         </div>
       </div>

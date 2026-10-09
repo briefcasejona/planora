@@ -1,6 +1,5 @@
+import type { Lang } from '../site/dom';
 import type { Device } from './devices';
-
-export type Lang = 'nl' | 'en';
 
 interface DeviceText {
   name: string;
@@ -70,7 +69,8 @@ export const texts: Record<Lang, Texts> = {
       },
       android: {
         name: 'Android',
-        intro: 'Kies de app, of zet de website op je beginscherm.',
+        intro:
+          'Kies de app, of zet de website op je beginscherm. Op een telefoon die door school wordt beheerd, mag de .apk vaak niet worden geïnstalleerd: gebruik dan de website.',
         buttons: ['Download de app (.apk)', 'Website openen'],
         steps: [
           'Open het gedownloade bestand <b>Planora.apk</b>.',
@@ -135,7 +135,8 @@ export const texts: Record<Lang, Texts> = {
       },
       android: {
         name: 'Android',
-        intro: 'Choose the app, or add the website to your home screen.',
+        intro:
+          'Choose the app, or add the website to your home screen. Phones managed by a school often block the .apk: use the website instead.',
         buttons: ['Download the app (.apk)', 'Open the website'],
         steps: [
           'Open the downloaded file <b>Planora.apk</b>.',

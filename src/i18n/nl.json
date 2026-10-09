@@ -423,6 +423,7 @@
     "sync-delete": "syncgegevens verwijderd uit OneDrive"
   },
   "privacy": {
+    "policyLink": "Lees de volledige privacyverklaring",
     "badge": "Je gegevens blijven op dit apparaat",
     "summaryTitle": "Waar staan je gegevens?",
     "local": "Al je taken, planning en feedback staan alleen op dit apparaat.",
@@ -521,6 +522,7 @@
     "openAtLoginHint": "Start Planora verborgen op de achtergrond wanneer je inlogt."
   },
   "install": {
+    "about": "Wat is Planora (om te delen):",
     "title": "Planora op andere apparaten / delen",
     "intro": "Stuur deze links naar vrienden of gebruik ze zelf. Iedereen gebruikt Planora met eigen gegevens op het eigen apparaat.",
     "web": "Website (werkt overal):",

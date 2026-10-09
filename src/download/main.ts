@@ -2,21 +2,14 @@
 // that fits with short install steps, and lists the other devices below.
 // Plain DOM (no React), so the page stays small. Nothing is tracked.
 import '../index.css';
+import { h, pageLang, siteFooter } from '../site/dom';
 import { type Device, DOWNLOADS, detectDevice } from './devices';
-import { type Lang, texts } from './texts';
+import { texts } from './texts';
 
-const lang: Lang = navigator.language.toLowerCase().startsWith('nl') ? 'nl' : 'en';
+const lang = pageLang();
 const t = texts[lang];
 document.documentElement.lang = lang;
 document.title = t.pageTitle;
-
-type Child = Node | string | null | undefined | false;
-function h(tag: string, attrs: Record<string, string> = {}, ...children: Child[]): HTMLElement {
-  const el = document.createElement(tag);
-  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
-  for (const c of children) if (c) el.append(c);
-  return el;
-}
 
 /** Small drawings of the iPhone buttons people have to look for. */
 const SHARE_ICON =
@@ -84,7 +77,7 @@ const others = (Object.keys(DOWNLOADS) as Device[]).filter((d) => d !== current)
 const iosNotSafari = current === 'ios' && /CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
 
 const root = document.getElementById('download')!;
-const parts: Child[] = [
+const parts = [
   h(
     'header',
     { class: 'mb-6 flex items-center gap-3' },
@@ -116,5 +109,6 @@ const parts: Child[] = [
     h('p', {}, t.syncNote),
     h('p', { class: 'text-xs text-slate-500 dark:text-slate-400' }, t.privacy),
   ),
+  siteFooter(lang),
 ];
 for (const p of parts) if (p) root.append(p);
