@@ -165,3 +165,26 @@ test('Google Calendar: connect in a popup and show busy times (fake Google)', as
   await page.getByRole('link', { name: 'Agenda' }).last().click();
   await expect(page.locator('.fc-event', { hasText: 'Google Agenda' }).first()).toBeAttached();
 });
+
+test('installed app: an update that is ready shows a banner and installs on click (stand-in desktop app)', async ({ page }) => {
+  await page.addInitScript(() => {
+    const w = window as unknown as Record<string, unknown>;
+    w.planoraDesktop = {
+      saveFile: async () => true,
+      onOpenFile: () => undefined,
+      getSettings: async () => ({ closeToTray: true, openAtLogin: false, autoUpdate: true, platform: 'win32' }),
+      setSettings: async () => undefined,
+      onUpdateStatus: () => undefined,
+      getUpdateStatus: async () => ({ state: 'ready', kind: 'install', current: '0.3.3', version: '0.3.4' }),
+      checkForUpdate: async () => ({ state: 'ready', kind: 'install', current: '0.3.3', version: '0.3.4' }),
+      installUpdate: async () => ((w.__installed = true), true),
+    };
+  });
+  await onboard(page);
+  await expect(page.getByText('Planora 0.3.4 is beschikbaar')).toBeVisible();
+  await page.getByRole('button', { name: 'Herstarten en bijwerken' }).first().click();
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __installed?: boolean }).__installed)).toBe(true);
+  await page.getByRole('link', { name: 'Instellingen' }).last().click();
+  await expect(page.getByRole('heading', { name: 'Updates' })).toBeVisible();
+  await expect(page.getByText('Automatisch op updates controleren')).toBeVisible();
+});

@@ -573,5 +573,24 @@
       "offline": "Geen internet. Planora probeert het later opnieuw.",
       "failed": "Synchroniseren is mislukt. Planora probeert het later opnieuw."
     }
+  },
+  "updates": {
+    "title": "Updates",
+    "current": "Je gebruikt versie {{version}}.",
+    "checking": "Zoeken naar updates…",
+    "downloading": "Versie {{version}} wordt gedownload…",
+    "found": "Planora {{version}} is beschikbaar",
+    "upToDate": "Je hebt de nieuwste versie.",
+    "failed": "Controleren lukte niet; Planora probeert het later opnieuw.",
+    "lastCheck": "Laatst gecontroleerd: {{when}}",
+    "auto": "Automatisch op updates controleren",
+    "autoHint": "Planora vraagt GitHub alleen wat de nieuwste versie is. Er gaat niets over jou mee.",
+    "checkNow": "Nu controleren",
+    "restart": "Herstarten en bijwerken",
+    "download": "Downloaden",
+    "androidUpdate": "Bijwerken",
+    "restartHint": "De update is al gedownload en gecontroleerd. Herstart nu, of hij wordt geïnstalleerd als je Planora afsluit.",
+    "downloadHint": "Download de nieuwe versie en installeer hem over de oude heen; je gegevens blijven bewaard.",
+    "androidHint": "Tik op Bijwerken, open de download en kies Bijwerken. Je gegevens blijven bewaard."
   }
 }

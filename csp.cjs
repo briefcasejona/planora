@@ -1,13 +1,14 @@
 // Content-Security-Policy shared by the web build (meta tag) and the desktop app (HTTP header).
 // The app may only talk to itself and, when the user links them, Microsoft and Google directly.
 // The OneDrive hosts are where Microsoft serves the (encrypted) sync file; only used with sync on.
+// api.github.com: the Android app's update check ("what is the newest version?"); can be turned off.
 module.exports = [
   "default-src 'self'",
   "script-src 'self'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self' data:",
-  "connect-src 'self' https://login.microsoftonline.com https://graph.microsoft.com https://www.googleapis.com https://oauth2.googleapis.com https://*.1drv.com https://*.microsoftpersonalcontent.com https://*.sharepoint.com",
+  "connect-src 'self' https://login.microsoftonline.com https://graph.microsoft.com https://www.googleapis.com https://oauth2.googleapis.com https://*.1drv.com https://*.microsoftpersonalcontent.com https://*.sharepoint.com https://api.github.com",
   'frame-src https://login.microsoftonline.com',
   "worker-src 'self'",
   "manifest-src 'self'",

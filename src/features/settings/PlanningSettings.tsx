@@ -4,6 +4,7 @@ import type { Preferences, WeeklyMoment } from '../../domain/types';
 import { useFormat } from '../../lib/format';
 import { Chips, Field } from '../../components/ui';
 import { requestWebNotificationPermission, notificationsSupported } from '../../notifications';
+import { UpdatesCard } from './UpdatesCard';
 import { DesktopCard } from './DesktopCard';
 import { InstallCard } from './InstallCard';
 
@@ -112,6 +113,7 @@ export function PlanningSettings() {
       </div>
 
       <DesktopCard />
+      <UpdatesCard />
       <InstallCard />
 
       <div className="sticky bottom-20 z-10 flex items-center justify-end gap-3 md:bottom-4">

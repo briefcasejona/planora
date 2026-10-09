@@ -573,5 +573,24 @@
       "offline": "No internet. Planora will try again later.",
       "failed": "Sync failed. Planora will try again later."
     }
+  },
+  "updates": {
+    "title": "Updates",
+    "current": "You are using version {{version}}.",
+    "checking": "Checking for updates…",
+    "downloading": "Downloading version {{version}}…",
+    "found": "Planora {{version}} is available",
+    "upToDate": "You have the latest version.",
+    "failed": "Couldn't check; Planora will try again later.",
+    "lastCheck": "Last checked: {{when}}",
+    "auto": "Check for updates automatically",
+    "autoHint": "Planora only asks GitHub what the newest version is. Nothing about you is sent.",
+    "checkNow": "Check now",
+    "restart": "Restart and update",
+    "download": "Download",
+    "androidUpdate": "Update",
+    "restartHint": "The update is downloaded and checked. Restart now, or it's installed when you quit Planora.",
+    "downloadHint": "Download the new version and install it over the old one; your data is kept.",
+    "androidHint": "Tap Update, open the download and choose Update. Your data is kept."
   }
 }

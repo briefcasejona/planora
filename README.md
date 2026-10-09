@@ -56,6 +56,22 @@ optionally sync them through your own OneDrive (see below); nothing is ever shar
   plan (or one task) to Apple Calendar. Exports use stable event ids, so importing a newer export updates
   events instead of duplicating them; blocks that disappeared are sent as cancelled.
 
+## Updates
+
+You never have to uninstall. From v0.3.3 on:
+
+| Installed as | How it updates |
+| --- | --- |
+| Website, iPhone home screen, Chrome "Install app" | Automatically; the new version is used the next time you open Planora. |
+| Windows (installer) | Checks GitHub at start and every 6 hours, downloads the new installer, checks its sha256 against GitHub's, and installs it on **Restart and update** (or when you quit). |
+| Linux (AppImage) | The same: the AppImage file is replaced and Planora restarts. |
+| Mac, Windows portable .exe | Shows that a new version is available with a **Download** button (install over the old one; data stays). Replacing itself needs a paid Apple signature. |
+| Android (.apk) | Shows **Update**; the new APK downloads and Android's installer asks **Update**. Android only accepts it when it is signed with the same key. |
+
+The update check only asks `api.github.com` for the newest version number; nothing about you is sent.
+It can be turned off in **Settings > Planning > Updates**. Versions before 0.3.3 have no updater, so install
+0.3.3 by hand once.
+
 ## Sync between your own devices (optional)
 
 Off by default; Planora works fully on one device without any account. In **Settings > Sync** you can
@@ -88,7 +104,8 @@ Privacy is the main design constraint:
   only allows connections to the app itself, `login.microsoftonline.com`, `graph.microsoft.com`,
   `www.googleapis.com`, `oauth2.googleapis.com` and OneDrive's download hosts (`*.1drv.com`,
   `*.microsoftpersonalcontent.com`, `*.sharepoint.com`). Those hosts are only contacted after you link an
-  account or turn on sync. The end-to-end test asserts that an unlinked session makes no external requests.
+  account or turn on sync. The installed apps (desktop, Android) also ask `api.github.com` for the newest
+  version number (see Updates; can be turned off). The website never does. The end-to-end test asserts that an unlinked session makes no external requests.
 - **Integrations talk directly** from the device to Microsoft or Google (OAuth with PKCE / public
   client, no client secret, no proxy).
 - **Least privilege, asked only when needed.** Each feature asks for its own permission, the moment

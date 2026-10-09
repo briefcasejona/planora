@@ -4,10 +4,25 @@ import { Capacitor } from '@capacitor/core';
 export interface DesktopBridge {
   saveFile(name: string, content: string): Promise<boolean>;
   onOpenFile(cb: (name: string, content: string) => void): void;
-  getSettings(): Promise<{ closeToTray: boolean; openAtLogin: boolean; platform?: string }>;
-  setSettings(s: { closeToTray?: boolean; openAtLogin?: boolean }): Promise<void>;
+  getSettings(): Promise<{ closeToTray: boolean; openAtLogin: boolean; autoUpdate?: boolean; platform?: string }>;
+  setSettings(s: { closeToTray?: boolean; openAtLogin?: boolean; autoUpdate?: boolean }): Promise<void>;
+  /** Updates (desktop app 0.3.3 and later). */
+  onUpdateStatus?(cb: (status: DesktopUpdateStatus) => void): void;
+  getUpdateStatus?(): Promise<DesktopUpdateStatus>;
+  checkForUpdate?(): Promise<DesktopUpdateStatus>;
+  installUpdate?(): Promise<boolean>;
   /** Google sign-in in the system browser (Google refuses app windows); resolves with Google's answer (#…). */
   googleSignIn?(url: string, state: string): Promise<string>;
+}
+
+export interface DesktopUpdateStatus {
+  state: 'idle' | 'checking' | 'none' | 'available' | 'downloading' | 'ready' | 'error';
+  /** 'install': this copy can replace itself; 'notify': only a download button (Mac, portable .exe). */
+  kind: 'install' | 'notify';
+  current: string;
+  version?: string;
+  lastCheck?: string;
+  error?: string;
 }
 
 declare global {
