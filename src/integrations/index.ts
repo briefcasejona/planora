@@ -1,6 +1,7 @@
 import { onPlanChanged } from '../data/store';
 import { pullGoogleBusy } from './google';
 import { loadIntegrations, useIntegrations } from './settings';
+import { startDeviceSync } from './deviceSync';
 import { isIosStandalone, isNativeApp } from '../lib/platform';
 
 /** Same check as microsoft/auth.ts, without loading the Microsoft library. */
@@ -39,6 +40,7 @@ export async function startIntegrations(): Promise<void> {
   });
   pullAll();
   setInterval(pullAll, PULL_EVERY_MS);
+  void startDeviceSync();
   window.addEventListener('focus', () => {
     if (Date.now() - lastPull > 2 * 60 * 1000) pullAll();
   });

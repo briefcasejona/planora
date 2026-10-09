@@ -35,6 +35,8 @@ export interface IcsImport {
   category?: EventCategory;
   /** Categories the user set on single events, by event UID; kept when the file is imported again. */
   overrides?: Record<string, EventCategory>;
+  /** Last change to this entry (for sync between devices). */
+  updatedAt?: string;
 }
 
 export interface IcsExportSettings {
@@ -52,6 +54,8 @@ export interface IntegrationSettings {
   icsExport: IcsExportSettings;
   /** Tests in the calendar the user chose not to make a study task for (see eventKey). */
   dismissedTests: string[];
+  /** With sync on: the device that writes study blocks to Outlook, so they are written only once. */
+  outlookWriter?: { device: string; at: string };
 }
 
 export const DEFAULT_INTEGRATIONS: IntegrationSettings = {

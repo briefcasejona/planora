@@ -95,7 +95,8 @@
     "google": "Google Agenda",
     "ics": "Agendabestand",
     "ms-todo": "Microsoft To Do",
-    "ms-teams": "Teams-opdracht"
+    "ms-teams": "Teams-opdracht",
+    "onedrive": "OneDrive (synchroniseren)"
   },
   "estimate": {
     "noData": "Nog geen vergelijkbare taken: Planora leert van je feedback.",
@@ -415,7 +416,9 @@
     "import-file": "{{count}} afspraken uit bestand",
     "read-freebusy": "{{count}} bezette tijden gelezen",
     "ok": "gelukt",
-    "failed": "mislukt"
+    "failed": "mislukt",
+    "sync": "gegevens gesynchroniseerd ({{count}} items)",
+    "sync-delete": "syncgegevens verwijderd uit OneDrive"
   },
   "privacy": {
     "badge": "Je gegevens blijven op dit apparaat",
@@ -485,7 +488,8 @@
     "saveReplan": "Opslaan en opnieuw plannen",
     "saved": "Opgeslagen",
     "lessonBuffer": "Pauze na lessen",
-    "lessonBufferHint": "Minuten vrij na een les, toets of excursie. 0 = uit."
+    "lessonBufferHint": "Minuten vrij na een les, toets of excursie. 0 = uit.",
+    "tabSync": "Synchroniseren"
   },
   "onboarding": {
     "welcome": "Welkom bij Planora",
@@ -530,5 +534,42 @@
     "work": "Werk",
     "sport": "Sport",
     "personal": "Privé"
+  },
+  "sync": {
+    "title": "Synchroniseren tussen je apparaten (optioneel)",
+    "intro": "Gebruik je Planora op meer apparaten, zoals je telefoon en je laptop? Dan kun je ze hier gelijk houden. Gebruik je maar één apparaat, dan heb je dit niet nodig.",
+    "point1": "Planora bewaart één versleuteld bestand in een eigen, verborgen map in jouw OneDrive. Planora ziet je andere bestanden niet en heeft geen eigen server.",
+    "point2": "Alles wordt op je apparaat versleuteld met een wachtwoordzin die alleen jij kent. Microsoft ziet alleen onleesbare gegevens.",
+    "point3": "Werkt met een gratis persoonlijk Microsoft-account (outlook.com/hotmail). Toestemming van school is niet nodig. Dit account staat los van de Outlook/Teams-koppeling.",
+    "notAvailable": "Synchroniseren is in deze versie van Planora niet beschikbaar.",
+    "signIn": "Inloggen met Microsoft",
+    "signInHint": "Microsoft vraagt toestemming voor toegang tot de eigen map van de app (Files.ReadWrite.AppFolder).",
+    "as": "Account: {{account}}",
+    "otherAccount": "ander account",
+    "createIntro": "Dit is je eerste apparaat met synchroniseren. Kies een wachtwoordzin; die vul je straks op je andere apparaten ook in.",
+    "joinIntro": "Er synchroniseert al een ander apparaat. Vul dezelfde wachtwoordzin in als daar.",
+    "passphrase": "Wachtwoordzin voor synchroniseren",
+    "passphraseAgain": "Wachtwoordzin nog een keer",
+    "passHint": "Minstens 8 tekens. Kwijt is kwijt: zonder deze wachtwoordzin kan niemand de gegevens lezen, ook Planora niet.",
+    "passTooShort": "Kies minstens {{n}} tekens.",
+    "passMismatch": "De twee wachtwoordzinnen zijn niet gelijk.",
+    "turnOn": "Synchroniseren aanzetten",
+    "running": "Bezig met synchroniseren…",
+    "last": "Laatst gesynchroniseerd: {{when}}",
+    "never": "Nog niet gesynchroniseerd.",
+    "now": "Nu synchroniseren",
+    "stop": "Stoppen op dit apparaat",
+    "stopHint": "Stoppen laat je gegevens op dit apparaat en in OneDrive staan.",
+    "deleteRemote": "Syncgegevens uit OneDrive verwijderen",
+    "deleteRemoteIntro": "Het versleutelde bestand in OneDrive wordt verwijderd en synchroniseren stopt. De gegevens op je apparaten blijven staan. Andere apparaten melden daarna dat synchroniseren opnieuw ingesteld moet worden.",
+    "signInAgain": "Opnieuw inloggen",
+    "retry": "Opnieuw proberen",
+    "errors": {
+      "wrong-passphrase": "De wachtwoordzin klopt niet (meer). Is synchroniseren op een ander apparaat opnieuw ingesteld? Vul de nieuwe wachtwoordzin in.",
+      "signed-out": "Je bent niet meer ingelogd bij Microsoft voor synchroniseren.",
+      "too-large": "Je gegevens zijn te groot om te synchroniseren (meer dan 4 MB).",
+      "offline": "Geen internet. Planora probeert het later opnieuw.",
+      "failed": "Synchroniseren is mislukt. Planora probeert het later opnieuw."
+    }
   }
 }

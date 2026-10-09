@@ -95,7 +95,8 @@
     "google": "Google Calendar",
     "ics": "Calendar file",
     "ms-todo": "Microsoft To Do",
-    "ms-teams": "Teams assignment"
+    "ms-teams": "Teams assignment",
+    "onedrive": "OneDrive (sync)"
   },
   "estimate": {
     "noData": "No comparable tasks yet: Planora learns from your feedback.",
@@ -347,7 +348,9 @@
     "import-file": "{{count}} events from file",
     "read-freebusy": "{{count}} busy times read",
     "ok": "ok",
-    "failed": "failed"
+    "failed": "failed",
+    "sync": "data synced ({{count}} items)",
+    "sync-delete": "sync data deleted from OneDrive"
   },
   "lock": {
     "title": "Planora is locked",
@@ -491,7 +494,8 @@
     "saveReplan": "Save and replan",
     "saved": "Saved",
     "lessonBuffer": "Break after lessons",
-    "lessonBufferHint": "Minutes kept free after a lesson, test or excursion. 0 = off."
+    "lessonBufferHint": "Minutes kept free after a lesson, test or excursion. 0 = off.",
+    "tabSync": "Sync"
   },
   "onboarding": {
     "welcome": "Welcome to Planora",
@@ -530,5 +534,42 @@
     "work": "Work",
     "sport": "Sport",
     "personal": "Personal"
+  },
+  "sync": {
+    "title": "Sync between your devices (optional)",
+    "intro": "Using Planora on more than one device, like your phone and your laptop? Keep them the same here. If you only use one device, you don't need this.",
+    "point1": "Planora keeps one encrypted file in its own hidden folder in your OneDrive. Planora can't see your other files and has no server of its own.",
+    "point2": "Everything is encrypted on your device with a passphrase only you know. Microsoft only sees unreadable data.",
+    "point3": "Works with a free personal Microsoft account (outlook.com/hotmail). No permission from school needed. This account is separate from the Outlook/Teams connection.",
+    "notAvailable": "Sync is not available in this version of Planora.",
+    "signIn": "Sign in with Microsoft",
+    "signInHint": "Microsoft asks permission to access the app's own folder (Files.ReadWrite.AppFolder).",
+    "as": "Account: {{account}}",
+    "otherAccount": "other account",
+    "createIntro": "This is your first device with sync. Choose a passphrase; you'll enter it on your other devices too.",
+    "joinIntro": "Another device already syncs. Enter the same passphrase as there.",
+    "passphrase": "Sync passphrase",
+    "passphraseAgain": "Passphrase again",
+    "passHint": "At least 8 characters. Lost means lost: without this passphrase nobody can read the data, not even Planora.",
+    "passTooShort": "Use at least {{n}} characters.",
+    "passMismatch": "The two passphrases don't match.",
+    "turnOn": "Turn on sync",
+    "running": "Syncing…",
+    "last": "Last synced: {{when}}",
+    "never": "Not synced yet.",
+    "now": "Sync now",
+    "stop": "Stop on this device",
+    "stopHint": "Stopping keeps your data on this device and in OneDrive.",
+    "deleteRemote": "Delete sync data from OneDrive",
+    "deleteRemoteIntro": "The encrypted file in OneDrive is deleted and sync stops. Data on your devices stays. Other devices will then say that sync needs to be set up again.",
+    "signInAgain": "Sign in again",
+    "retry": "Try again",
+    "errors": {
+      "wrong-passphrase": "The passphrase is not (or no longer) right. Was sync set up again on another device? Enter the new passphrase.",
+      "signed-out": "You are no longer signed in to Microsoft for sync.",
+      "too-large": "Your data is too large to sync (over 4 MB).",
+      "offline": "No internet. Planora will try again later.",
+      "failed": "Sync failed. Planora will try again later."
+    }
   }
 }

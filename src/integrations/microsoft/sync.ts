@@ -3,7 +3,8 @@ import { actions, useStore } from '../../data/store';
 import { repo } from '../../data/repo';
 import { MS_SCOPES, msHandleRedirect, msToken, type MsPending } from './auth';
 import { createEvent, deleteEvent, fetchBusy, updateEvent, type OutlookEventInput } from './graph';
-import { patchMicrosoft, useIntegrations } from '../settings';
+import { patchMicrosoft, saveIntegrations, useIntegrations } from '../settings';
+import { deviceId, useSync } from '../../data/sync/engine';
 
 interface MappedEvent {
   taskId: string;
@@ -50,6 +51,8 @@ export async function completeMsRedirect(): Promise<void> {
   const result = await msHandleRedirect(useIntegrations.getState().microsoft.staySignedIn);
   if (!result) return;
   const { pending, account } = result;
+  // Signing in for sync (Settings > Sync) is separate from the Outlook/Teams connection.
+  if (pending?.kind === 'syncSetup') return;
   if (pending?.kind === 'connect' || !useIntegrations.getState().microsoft.connected) {
     await patchMicrosoft({ connected: true, accountLabel: account.username });
     await repo.addLog({ provider: 'microsoft', action: 'connect', count: 0, ok: true });
@@ -87,6 +90,9 @@ export async function pullMicrosoftBusy(interactive = false): Promise<void> {
 export async function pushMicrosoftSessions(interactive = false): Promise<void> {
   const s = useIntegrations.getState().microsoft;
   if (!s.connected || !s.writeSessions || unavailable()) return;
+  // With sync on, only one device writes to Outlook; otherwise every block would appear twice.
+  const writer = useIntegrations.getState().outlookWriter;
+  if (useSync.getState().enabled && writer && writer.device !== (await deviceId())) return;
   const { sessions, tasks } = useStore.getState();
   const byId = new Map(tasks.map((t) => [t.id, t]));
   const now = new Date();
@@ -164,4 +170,9 @@ export async function removeMicrosoftEvents(): Promise<number> {
 
 export async function forgetMicrosoftEvents(): Promise<void> {
   await saveEventMap({});
+}
+
+/** This device becomes the one that writes study blocks to Outlook (shared with other devices through sync). */
+export async function claimOutlookWriter(): Promise<void> {
+  await saveIntegrations({ outlookWriter: { device: await deviceId(), at: new Date().toISOString() } });
 }

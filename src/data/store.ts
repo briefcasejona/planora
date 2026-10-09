@@ -222,6 +222,19 @@ export const actions = {
       await replanNow();
     }),
   replan: () => serial(replanNow),
+
+  /**
+   * Run a change made outside the normal actions (e.g. data merged from another
+   * device) in the same queue as everything else, then reload and replan when
+   * `fn` reports that something changed.
+   */
+  applyExternal: (fn: () => Promise<boolean>) =>
+    serial(async () => {
+      if (await fn()) {
+        await loadAll();
+        await replanNow();
+      }
+    }),
   ensureReports: () => serial(ensureReportsNow),
 
   suggest(input: Pick<NewTaskInput, 'type' | 'subject' | 'userEstimateMin'>) {

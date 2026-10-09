@@ -5,8 +5,9 @@ import { PlanningSettings } from './PlanningSettings';
 import { MicrosoftCard } from './MicrosoftCard';
 import { GoogleCard, IcsCard } from './OtherCalendars';
 import { PrivacyCenter } from './PrivacyCenter';
+import { SyncCard } from './SyncCard';
 
-type Tab = 'planning' | 'calendars' | 'privacy';
+type Tab = 'planning' | 'calendars' | 'sync' | 'privacy';
 
 export function SettingsPage() {
   const { t } = useFormat();
@@ -20,6 +21,7 @@ export function SettingsPage() {
           options={[
             { value: 'planning', label: t('settings.tabPlanning') },
             { value: 'calendars', label: t('settings.tabCalendars') },
+            { value: 'sync', label: t('settings.tabSync') },
             { value: 'privacy', label: t('settings.tabPrivacy') },
           ]} />
       </div>
@@ -38,6 +40,7 @@ export function SettingsPage() {
           <IcsCard />
         </div>
       )}
+      {tab === 'sync' && <SyncCard />}
       {tab === 'privacy' && <PrivacyCenter />}
     </div>
   );

@@ -119,3 +119,17 @@ test('download page shows the right download for each device', async ({ browser 
     await context.close();
   }
 });
+
+test('sync is optional: the Sync tab explains it and contacts nobody until you start it', async ({ page }) => {
+  const external: string[] = [];
+  page.on('request', (r) => {
+    const url = new URL(r.url());
+    if (!['localhost', '127.0.0.1'].includes(url.hostname) && url.protocol.startsWith('http')) external.push(r.url());
+  });
+  await onboard(page);
+  await page.getByRole('link', { name: 'Instellingen' }).last().click();
+  await page.getByRole('radio', { name: 'Synchroniseren' }).click();
+  await expect(page.getByRole('heading', { name: 'Synchroniseren tussen je apparaten (optioneel)' })).toBeVisible();
+  await page.getByRole('link', { name: 'Vandaag' }).last().click();
+  expect(external).toEqual([]);
+});

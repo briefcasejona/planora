@@ -17,7 +17,7 @@ export async function importCalendarFile(name: string, text: string, category: E
   const blocks = parseIcs(text, new Date(), id, category, overrides);
   await actions.replaceBusySource('ics', blocks, id);
   const imports = useIntegrations.getState().icsImports.filter((i) => i.id !== id);
-  await saveIntegrations({ icsImports: [...imports, { id, name, importedAt: new Date().toISOString(), count: blocks.length, category, overrides }] });
+  await saveIntegrations({ icsImports: [...imports, { id, name, importedAt: new Date().toISOString(), count: blocks.length, category, overrides, updatedAt: new Date().toISOString() }] });
   await repo.addLog({ provider: 'ics', action: 'import-file', count: blocks.length, ok: true });
   return blocks.length;
 }
@@ -31,7 +31,7 @@ export async function setImportCategory(importId: string, category: EventCategor
   await actions.saveBusy(
     blocks.map((b) => ({ ...b, category: (b.externalUid && overrides[b.externalUid]) || detectCategory(b.title, category) })),
   );
-  await saveIntegrations({ icsImports: useIntegrations.getState().icsImports.map((i) => (i.id === importId ? { ...i, category } : i)) });
+  await saveIntegrations({ icsImports: useIntegrations.getState().icsImports.map((i) => (i.id === importId ? { ...i, category, updatedAt: new Date().toISOString() } : i)) });
 }
 
 /** Set the category of one imported event (all occurrences of it), remembered across re-imports. */
@@ -42,12 +42,13 @@ export async function setEventCategory(block: BusyBlock, category: EventCategory
   const same = useStore.getState().busy.filter((b) => b.source === 'ics' && b.importId === block.importId && b.externalUid === uid);
   await actions.saveBusy(same.map((b) => ({ ...b, category })));
   await saveIntegrations({
-    icsImports: useIntegrations.getState().icsImports.map((i) => (i.id === imp.id ? { ...i, overrides: { ...i.overrides, [uid]: category } } : i)),
+    icsImports: useIntegrations.getState().icsImports.map((i) => (i.id === imp.id ? { ...i, overrides: { ...i.overrides, [uid]: category }, updatedAt: new Date().toISOString() } : i)),
   });
 }
 
 export async function removeCalendarImport(id: string): Promise<void> {
   await actions.replaceBusySource('ics', [], id);
+  await repo.addTombstones(['icsImports:' + id]);
   await saveIntegrations({ icsImports: useIntegrations.getState().icsImports.filter((i) => i.id !== id) });
 }
 

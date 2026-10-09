@@ -9,6 +9,7 @@ import { Field, Modal } from '../../components/ui';
 import { Icon } from '../../components/Icon';
 import { useIntegrations, saveIntegrations, DEFAULT_INTEGRATIONS } from '../../integrations/settings';
 import { msSignOut } from '../../integrations/microsoft/auth';
+import { disableSync } from '../../data/sync/engine';
 import { googleDisconnect } from '../../integrations/google';
 import { BASE } from '../../lib/platform';
 
@@ -198,6 +199,7 @@ function DeleteAll() {
   const [typed, setTyped] = useState('');
   const word = t('privacy.deleteWord');
   const wipe = async () => {
+    await disableSync(); // stop syncing first; the copy in OneDrive and on other devices stays
     await msSignOut().catch(() => undefined);
     await googleDisconnect().catch(() => undefined);
     await actions.wipeAll();

@@ -46,6 +46,8 @@ export interface Task {
   completedAt?: string;
   feedbackGiven: boolean;
   redoCount: number;
+  /** When this record last changed on any device (set by the database layer; used by sync). */
+  updatedAt?: string;
 }
 
 export type SessionStatus = 'planned' | 'done' | 'missed' | 'skipped';
@@ -64,6 +66,8 @@ export interface WorkSession {
   actualMin?: number;
   /** Id of the event Planora created in an external calendar (Outlook). */
   externalEventId?: string;
+  /** When this record last changed on any device (set by the database layer; used by sync). */
+  updatedAt?: string;
 }
 
 export type BusySource = 'local' | 'microsoft' | 'google' | 'ics';
@@ -89,6 +93,8 @@ export interface BusyBlock {
   /** Local recurring events: repeat weekly on these weekdays (0 = Sunday) until `repeatUntil`. */
   repeatWeekdays?: number[];
   repeatUntil?: string;
+  /** When this record last changed on any device (set by the database layer; used by sync). */
+  updatedAt?: string;
 }
 
 export type EnoughTime = 'too-little' | 'right' | 'too-much';
@@ -111,6 +117,8 @@ export interface FeedbackRecord {
   grade?: string;
   completed: boolean;
   createdAt: string;
+  /** When this record last changed on any device (set by the database layer; used by sync). */
+  updatedAt?: string;
 }
 
 export interface DayAvailability {
@@ -188,4 +196,6 @@ export interface WeekReport {
   generatedAt: string;
   seenAt?: string;
   data: unknown;
+  /** When this record last changed on any device (set by the database layer; used by sync). */
+  updatedAt?: string;
 }
