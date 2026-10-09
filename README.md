@@ -15,7 +15,7 @@ Interface in Dutch and English.
 | Any browser | <https://briefcasejona.github.io/planora/> |
 | iPhone / iPad | Open the website in Safari > Share > **Add to Home Screen** |
 | Android | Download `Planora.apk` from [Releases](https://github.com/briefcasejona/planora/releases/latest) and allow "install unknown apps" (or install the website from Chrome) |
-| Windows | Download `Planora-Setup.exe` (or the portable `.exe`) from [Releases](https://github.com/briefcasejona/planora/releases/latest). The app is not code-signed, so SmartScreen asks: **More info > Run anyway** |
+| Windows | Download `Planora-Setup-x.y.z.exe` (or the portable `Planora-x.y.z-portable.exe`) from [Releases](https://github.com/briefcasejona/planora/releases/latest). The app is not code-signed, so SmartScreen asks: **More info > Run anyway** |
 
 Everyone's data stays on their own device; nothing is shared or synced between people or devices.
 
