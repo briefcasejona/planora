@@ -8,15 +8,11 @@
 
 ## What needs you (in this order)
 
-1. **Allow GitHub to receive the build workflows.** In a terminal:
-
-   ```
-   & 'C:\Program Files\GitHub CLI\gh.exe' auth refresh -h github.com -s workflow
-   ```
-
-   Then ask Claude to merge the local branch `ci-workflows` into `main` and push. From then on
-   the website deploys automatically and a tag `v0.2.1` builds `Planora.apk` and the `.exe` on GitHub.
-   After that, Pages should be switched to "GitHub Actions" as source (Claude can do this).
+1. **Merge the build workflows.** `.github/workflows/pages.yml` and `release.yml` are on branch
+   `claude/zealous-hamilton-n7xpkp` (recreated; the old local `ci-workflows` branch is no longer needed).
+   Merge it into `main`, then set **Settings > Pages > Source** to **GitHub Actions**. From then on the
+   website deploys on every push to `main`, and a tag `v0.2.1` builds `Planora.apk` and the `.exe` files.
+   The release uses secrets `ANDROID_KEYSTORE_B64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`.
 
 2. **Microsoft app registration** (step-by-step in README.md, "Connecting Microsoft 365").
    Give Claude the Application (client) ID; it goes into `.env` and repo variable `VITE_MS_CLIENT_ID`.
