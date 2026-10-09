@@ -1,13 +1,7 @@
 {
   "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
   "files": {
-    "includes": [
-      "**",
-      "!android/**",
-      "!build/**",
-      "!public/**",
-      "!**/package-lock.json"
-    ]
+    "includes": ["**", "!android/**", "!build/**", "!public/**", "!**/package-lock.json"]
   },
   "formatter": {
     "enabled": true,
@@ -26,7 +20,7 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true
+      "preset": "recommended"
     }
   },
   "assist": {

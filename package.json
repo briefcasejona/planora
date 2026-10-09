@@ -46,6 +46,7 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.5.15",
     "@capacitor/android": "^8.5.3",
     "@capacitor/cli": "^8.5.3",
     "@playwright/test": "^1.64.0",
