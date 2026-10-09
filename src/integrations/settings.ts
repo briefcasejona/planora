@@ -24,6 +24,8 @@ export interface MicrosoftSettings {
 export interface GoogleSettings {
   connected: boolean;
   lastSync?: string;
+  /** When the one-hour Google sign-in on this device ends (the token itself is kept apart). */
+  tokenExpires?: number;
 }
 
 export interface IcsImport {

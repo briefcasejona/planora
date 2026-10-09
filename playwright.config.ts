@@ -13,7 +13,8 @@ export default defineConfig({
   webServer: {
     command: 'npm run build && npx vite preview --port 4174 --strictPort',
     url: 'http://localhost:4174/planora/',
-    env: { VITE_BASE: '/planora/' },
+    // A placeholder Google client id, so the Google button exists; tests answer for Google themselves.
+    env: { VITE_BASE: '/planora/', VITE_GOOGLE_CLIENT_ID: 'e2e-test.apps.googleusercontent.com' },
     reuseExistingServer: false,
     timeout: 180_000,
   },

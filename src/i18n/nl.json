@@ -376,7 +376,9 @@
     "googleIntro": "Gebruik alleen je vrij/bezet-tijden uit Google Agenda. Planora kan geen titels of inhoud zien.",
     "connectGoogle": "Koppelen met Google",
     "error": "Dat lukte niet ({{msg}}).",
-    "googleNative": "Google staat aanmelden binnen apps niet toe. Gebruik Planora via de website om Google te koppelen, of importeer een .ics-bestand."
+    "googleRefresh": "Google vernieuwen",
+    "googleExpired": "Google laat Planora steeds een uur ingelogd. Je opgehaalde bezette tijden blijven staan; vernieuw met één klik als je de nieuwste wilt.",
+    "googleBrowserHint": "Er opent een browservenster om bij Google in te loggen; daarna kom je vanzelf terug in Planora (op de computer: ga zelf terug naar Planora)."
   },
   "ics": {
     "title": "Apple Agenda en andere agenda's (.ics)",

@@ -133,3 +133,29 @@ test('sync is optional: the Sync tab explains it and contacts nobody until you s
   await page.getByRole('link', { name: 'Vandaag' }).last().click();
   expect(external).toEqual([]);
 });
+
+test('Google Calendar: connect in a popup and show busy times (fake Google)', async ({ page, context }) => {
+  // Stand-in for Google: the sign-in page sends straight back with a token, the calendar answers with one busy hour.
+  await context.route('https://accounts.google.com/**', (route) => {
+    const url = new URL(route.request().url());
+    const back = `${url.searchParams.get('redirect_uri')}#access_token=fake-token&expires_in=3600&token_type=Bearer&state=${url.searchParams.get('state')}`;
+    return route.fulfill({ status: 302, headers: { location: back } });
+  });
+  const start = new Date();
+  start.setHours(12, 0, 0, 0);
+  await context.route('https://www.googleapis.com/calendar/v3/freeBusy', (route) =>
+    route.fulfill({
+      contentType: 'application/json',
+      headers: { 'access-control-allow-origin': '*' },
+      body: JSON.stringify({ calendars: { primary: { busy: [{ start: start.toISOString(), end: new Date(start.getTime() + 3600000).toISOString() }] } } }),
+    }),
+  );
+  await onboard(page);
+  await page.getByRole('link', { name: 'Instellingen' }).last().click();
+  await page.getByRole('radio', { name: "Agenda's en koppelingen" }).click();
+  await page.getByRole('button', { name: 'Koppelen met Google' }).click();
+  await expect(page.getByRole('button', { name: 'Ontkoppelen' }).last()).toBeVisible();
+  await expect(page.getByText(/laatst bijgewerkt/).first()).toBeVisible();
+  await page.getByRole('link', { name: 'Agenda' }).last().click();
+  await expect(page.locator('.fc-event', { hasText: 'Google Agenda' }).first()).toBeAttached();
+});

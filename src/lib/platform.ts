@@ -6,6 +6,8 @@ export interface DesktopBridge {
   onOpenFile(cb: (name: string, content: string) => void): void;
   getSettings(): Promise<{ closeToTray: boolean; openAtLogin: boolean; platform?: string }>;
   setSettings(s: { closeToTray?: boolean; openAtLogin?: boolean }): Promise<void>;
+  /** Google sign-in in the system browser (Google refuses app windows); resolves with Google's answer (#…). */
+  googleSignIn?(url: string, state: string): Promise<string>;
 }
 
 declare global {

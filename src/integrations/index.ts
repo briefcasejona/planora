@@ -1,5 +1,5 @@
 import { onPlanChanged } from '../data/store';
-import { pullGoogleBusy } from './google';
+import { completeGoogleRedirect, pullGoogleBusy } from './google';
 import { loadIntegrations, useIntegrations } from './settings';
 import { startDeviceSync } from './deviceSync';
 import { isIosStandalone, isNativeApp } from '../lib/platform';
@@ -30,6 +30,8 @@ export async function startIntegrations(): Promise<void> {
   if (started) return;
   started = true;
   // Native app or iPhone home-screen app: a Microsoft sign-in may just have returned via redirect.
+  // iPhone home-screen app: a Google sign-in may just have returned the same way.
+  if (isIosStandalone()) await completeGoogleRedirect();
   if ((isNativeApp() || isIosStandalone()) && msConfigured) await microsoft().then((m) => m.completeMsRedirect()).catch(console.error);
   let pushTimer: ReturnType<typeof setTimeout> | undefined;
   onPlanChanged(() => {
