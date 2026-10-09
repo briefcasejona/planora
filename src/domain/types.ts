@@ -68,6 +68,10 @@ export interface WorkSession {
 
 export type BusySource = 'local' | 'microsoft' | 'google' | 'ics';
 
+/** What kind of appointment an event is. Events are planned around, never planned themselves. */
+export type EventCategory = 'lesson' | 'meeting' | 'work' | 'sport' | 'personal' | 'test' | 'excursion';
+export const EVENT_CATEGORIES: EventCategory[] = ['lesson', 'test', 'excursion', 'meeting', 'work', 'sport', 'personal'];
+
 export interface BusyBlock {
   id: string;
   start: string;
@@ -77,6 +81,10 @@ export interface BusyBlock {
   source: BusySource;
   /** Groups blocks of one imported .ics file. */
   importId?: string;
+  /** UID of the event in the imported .ics file (shared by all occurrences of a series). */
+  externalUid?: string;
+  /** Unset for events whose kind is unknown, such as free/busy times from Outlook or Google. */
+  category?: EventCategory;
   allDay?: boolean;
   /** Local recurring events: repeat weekly on these weekdays (0 = Sunday) until `repeatUntil`. */
   repeatWeekdays?: number[];
@@ -128,6 +136,8 @@ export interface Preferences {
   minBlockMin: number;
   maxBlockMin: number;
   breakMin: number;
+  /** Minutes kept free after a lesson, test or excursion (travel, a break). 0 = off. */
+  lessonBufferMin: number;
   deadlineBufferDays: number;
   weeklyPlan: WeeklyMoment;
   weeklyReview: WeeklyMoment;
@@ -150,6 +160,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
   minBlockMin: 25,
   maxBlockMin: 90,
   breakMin: 15,
+  lessonBufferMin: 0,
   deadlineBufferDays: 1,
   weeklyPlan: { weekday: 0, time: '19:00' },
   weeklyReview: { weekday: 6, time: '15:00' },

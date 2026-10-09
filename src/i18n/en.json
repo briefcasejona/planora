@@ -132,7 +132,16 @@
     "tomorrow_one": "{{count}} block planned tomorrow.",
     "tomorrow_other": "{{count}} blocks planned tomorrow.",
     "deadlines": "Deadlines in the next 7 days",
-    "noDeadlines": "No deadlines this week."
+    "noDeadlines": "No deadlines this week.",
+    "schedule": "Schedule today",
+    "allDay": "All day",
+    "testsFound_one": "{{count}} test in your calendar",
+    "testsFound_other": "{{count}} tests in your calendar",
+    "testsHint": "Add a study task and Planora plans study sessions before the test.",
+    "addStudyTask": "Add study task",
+    "hideTest": "Hide",
+    "moreTests_one": "And {{count}} more test.",
+    "moreTests_other": "And {{count}} more tests."
   },
   "inbox": {
     "quickAdd": "Quickly add a task",
@@ -238,19 +247,24 @@
   "busy": {
     "new": "New event",
     "edit": "Edit event",
-    "intro": "Time when you can't work, such as classes, sports or a job. Planora plans around it.",
+    "intro": "Time when you can't work, such as lessons, meetings, sports or a job. Planora plans around it.",
     "title": "Description",
     "titlePlaceholder": "E.g. Training",
     "start": "Start",
     "end": "End",
     "repeat": "Repeat every week on",
     "until": "Repeat until",
-    "errTime": "The end must be after the start."
+    "errTime": "The end must be after the start.",
+    "category": "Kind",
+    "externalIntro": "This event comes from {{source}} and can only be changed there. Here you can set what kind of event it is."
   },
   "calendar": {
     "addEvent": "Add event",
     "busy": "Busy",
-    "hint": "Drag across an empty area to add an event. Drag a Planora block to move it; it then stays pinned."
+    "hint": "Drag across an empty area to add an event. Drag a Planora block to move it; it then stays pinned.",
+    "show": "Show in calendar",
+    "study": "Study blocks",
+    "deadlines": "Deadlines"
   },
   "review": {
     "tabPlan": "Weekly plan",
@@ -315,7 +329,11 @@
     "none": "No new tasks found.",
     "add": "Add and plan",
     "ignore": "Ignore",
-    "error": "Fetching failed. Please try again later."
+    "error": "Fetching failed. Please try again later.",
+    "looksLike": "Looks like your task \"{{title}}\".",
+    "link": "Link",
+    "linkHint": "Keeps your estimate and planned blocks.",
+    "addSeparately": "Add separately"
   },
   "log": {
     "connect": "connected",
@@ -403,7 +421,11 @@
     "reminderMin": "{{n}} min before",
     "noReminder": "None",
     "exported": "Calendar file created.",
-    "genericHint": "Shows 'Planora focus' instead of task names in the file."
+    "genericHint": "Shows 'Planora focus' instead of task names in the file.",
+    "category": "Events in this file are",
+    "categoryHint": "Tests (\"toets\", \"tentamen\", …) and excursions are recognised by their name. You can change single events by clicking them in the calendar.",
+    "categoryOf": "Kind of events in {{name}}",
+    "alsoInOutlook": "This file is also in your Outlook calendar. You can remove it if you like; nothing breaks either way."
   },
   "privacy": {
     "badge": "Your data stays on this device",
@@ -464,7 +486,9 @@
     "enableNotifications": "Turn on notifications",
     "notificationsOn": "Notifications are on.",
     "saveReplan": "Save and replan",
-    "saved": "Saved"
+    "saved": "Saved",
+    "lessonBuffer": "Break after lessons",
+    "lessonBufferHint": "Minutes kept free after a lesson, test or excursion. 0 = off."
   },
   "onboarding": {
     "welcome": "Welcome to Planora",
@@ -496,5 +520,14 @@
     "windows": "download Planora-Setup.exe. Windows may warn because the app isn't signed: choose 'More info' and 'Run anyway'.",
     "downloads": "Downloads",
     "ownData": "Data is never shared or synced between devices. To move, use an encrypted backup (Privacy & data)."
+  },
+  "category": {
+    "lesson": "Lesson",
+    "test": "Test",
+    "excursion": "Excursion",
+    "meeting": "Meeting",
+    "work": "Work",
+    "sport": "Sport",
+    "personal": "Personal"
   }
 }

@@ -10,6 +10,7 @@ import type {
 } from './types';
 import { atMinutes, minutesBetween, parseHM, roundUpToSlot, subtractIntervals, type Interval } from './time';
 import { expandBusy } from './busy';
+import { SCHOOL_CATEGORIES } from './categories';
 import { evenDayOffsets, spacedDayOffsets, splitMinutes } from './spacing';
 import { suggestSessionCount } from './estimator';
 
@@ -172,7 +173,10 @@ function buildChunks(task: Task, kept: WorkSession[], input: ScheduleInput, earl
 function buildDays(input: ScheduleInput, kept: WorkSession[], earliest: Date, today: Date, horizonDays: number): DayState[] {
   const { prefs, busy } = input;
   const horizonEnd = addDays(today, horizonDays);
-  const busyIntervals = expandBusy(busy, today, horizonEnd);
+  const lessonPad = prefs.lessonBufferMin * 60000;
+  const busyIntervals = expandBusy(busy, today, horizonEnd).map((x) =>
+    lessonPad && x.block.category && SCHOOL_CATEGORIES.includes(x.block.category) ? { ...x, end: new Date(x.end.getTime() + lessonPad) } : x,
+  );
   const keptActive = kept.filter((s) => s.status === 'planned' || s.status === 'done');
   const pad = prefs.breakMin * 60000;
   const keptCuts: Interval[] = keptActive.map((s) => ({

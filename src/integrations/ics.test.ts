@@ -23,6 +23,14 @@ describe('ics import', () => {
     expect(blocks.every((b) => b.source === 'ics' && b.importId === 'school')).toBe(true);
   });
 
+  it('gives events the chosen category, recognises tests and keeps per-event choices', () => {
+    const withTest = SAMPLE.replace('SUMMARY:Training', 'SUMMARY:Toets Biologie');
+    const blocks = parseIcs(withTest, NOW, 'school', 'lesson', { a2: 'meeting' });
+    expect(blocks.find((b) => b.externalUid === 'a1')?.category).toBe('test');
+    expect(blocks.filter((b) => b.externalUid === 'a2').every((b) => b.category === 'meeting')).toBe(true);
+    expect(parseIcs(SAMPLE, NOW, 'school', 'lesson').find((b) => b.title === 'Training')?.category).toBe('lesson');
+  });
+
   it('derives a stable import id from the file name', () => {
     expect(importIdFor('Rooster School.ics')).toBe('rooster-school');
     expect(importIdFor('rooster school.ICS')).toBe('rooster-school');

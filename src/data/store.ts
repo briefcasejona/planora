@@ -263,6 +263,16 @@ export const actions = {
       await replanNow();
     }),
 
+  /**
+   * Link a task the user entered by hand to the same item in Microsoft Teams or To Do,
+   * so it isn't imported twice. Only the link changes: estimate, plan and progress stay.
+   */
+  linkTask: (id: string, source: TaskSource, externalId: string) =>
+    serial(async () => {
+      const task = get().tasks.find((t) => t.id === id);
+      if (task) await patchTask({ ...task, source, externalId });
+    }),
+
   deleteTask: (id: string) =>
     serial(async () => {
       await repo.deleteTask(id);

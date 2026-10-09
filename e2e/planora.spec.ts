@@ -54,3 +54,48 @@ test('plan a test, complete it, give feedback, switch language, and never call t
 
   expect(external).toEqual([]);
 });
+
+test('timetable import: lessons, tests and excursions are kept apart from study work', async ({ page }) => {
+  await onboard(page);
+
+  const p = (n: number) => String(n).padStart(2, '0');
+  const stamp = (d: Date, h: number) => `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}T${p(h)}0000`;
+  const day = (offset: number) => new Date(Date.now() + offset * 86400000);
+  const event = (uid: string, d: Date, h: number, title: string) =>
+    ['BEGIN:VEVENT', `UID:${uid}`, 'DTSTAMP:20261001T000000Z', `DTSTART:${stamp(d, h)}`, `DTEND:${stamp(d, h + 1)}`, `SUMMARY:${title}`, 'END:VEVENT'];
+  const ics = [
+    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:e2e',
+    ...event('les', day(0), 10, 'Wiskunde'),
+    ...event('toets', day(5), 10, 'Toets Biologie'),
+    ...event('excursie', day(6), 10, 'Excursie Rijksmuseum'),
+    'END:VCALENDAR',
+  ].join('\r\n');
+
+  await page.getByRole('link', { name: 'Instellingen' }).last().click();
+  await page.getByRole('radio', { name: "Agenda's en koppelingen" }).click();
+  await page.locator('input[type="file"][accept*=".ics"]').setInputFiles({ name: 'rooster.ics', mimeType: 'text/calendar', buffer: Buffer.from(ics) });
+  await expect(page.getByText('3 afspraken geïmporteerd.')).toBeVisible();
+
+  await page.getByRole('link', { name: 'Vandaag' }).last().click();
+  await expect(page.getByRole('heading', { name: 'Rooster vandaag' })).toBeVisible();
+  await expect(page.getByText('Wiskunde')).toBeVisible();
+  await expect(page.getByRole('heading', { name: '1 toets in je agenda' })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Leertaak toevoegen' }).click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog.getByPlaceholder('Bijv. Toets geschiedenis, essay Engels')).toHaveValue('Toets Biologie');
+  await expect(dialog.getByRole('radio', { name: 'Toets' })).toBeChecked();
+  await expect(dialog.getByPlaceholder('Bijv. Wiskunde')).toHaveValue('Biologie');
+  await dialog.getByRole('button', { name: 'Toevoegen en plannen' }).click();
+  await expect(dialog).toBeHidden();
+  await expect(page.getByRole('heading', { name: '1 toets in je agenda' })).toBeHidden();
+
+  await page.getByRole('link', { name: 'Agenda' }).last().click();
+  const filters = page.getByRole('group', { name: 'Tonen in agenda' });
+  for (const name of ['Les', 'Toets', 'Excursie', 'Studieblokken', 'Deadlines']) await expect(filters.getByRole('button', { name })).toBeVisible();
+  // Today's lesson is in both the phone (day) and desktop (week) view.
+  const lessons = page.locator('.fc-event.planora-cat-lesson');
+  await expect(lessons).not.toHaveCount(0);
+  await filters.getByRole('button', { name: 'Les' }).click();
+  await expect(lessons).toHaveCount(0);
+});

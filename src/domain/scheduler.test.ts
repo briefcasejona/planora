@@ -160,3 +160,29 @@ describe('schedule: infeasible and replanning', () => {
     expect(result.created).toEqual([]);
   });
 });
+
+describe('schedule: buffer after lessons', () => {
+  const task = makeTask({ deadline: new Date(2026, 9, 19, 9, 0).toISOString(), userEstimateMin: 600, plannedEstimateMin: 600 });
+  const weekly = (category: BusyBlock['category']): BusyBlock => ({
+    id: 'lesson',
+    source: 'ics',
+    category,
+    start: new Date(2026, 9, 12, 16, 0).toISOString(),
+    end: new Date(2026, 9, 12, 17, 0).toISOString(),
+    repeatWeekdays: [0, 1, 2, 3, 4, 5, 6],
+  });
+  const earliestStart = (busy: BusyBlock[], lessonBufferMin: number) => {
+    const result = schedule({ now: NOW, tasks: [task], sessions: [], busy, prefs: prefsEveryEvening({ lessonBufferMin }), feedback: [], newId: seqId });
+    return Math.min(...result.created.map((s) => new Date(s.start).getHours() * 60 + new Date(s.start).getMinutes()));
+  };
+
+  it('keeps the set minutes free after a lesson', () => {
+    expect(earliestStart([weekly('lesson')], 0)).toBe(17 * 60);
+    expect(earliestStart([weekly('lesson')], 30)).toBe(17 * 60 + 30);
+  });
+
+  it('does not add the buffer after other kinds of events', () => {
+    expect(earliestStart([weekly('meeting')], 30)).toBe(17 * 60);
+    expect(earliestStart([weekly(undefined)], 30)).toBe(17 * 60);
+  });
+});

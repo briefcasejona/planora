@@ -1,13 +1,19 @@
 import { useState } from 'react';
 import { addMonths } from 'date-fns';
 import { actions } from '../data/store';
-import type { BusyBlock } from '../domain/types';
+import { EVENT_CATEGORIES, type BusyBlock, type EventCategory } from '../domain/types';
+import { setEventCategory } from '../integrations/calendarFiles';
 import { useFormat } from '../lib/format';
-import { Field, Modal, toLocalInput } from '../components/ui';
+import { Chips, Field, Modal, toLocalInput } from '../components/ui';
 
-/** Create or edit an event in the in-app calendar (time when you cannot work). */
+/**
+ * Create or edit an event in the in-app calendar (time when you cannot work).
+ * Events from other calendars can't be edited here; only their category can be changed.
+ */
 export function BusyDialog({ block, start, end, onClose }: { block?: BusyBlock; start?: Date; end?: Date; onClose: () => void }) {
   const { t, locale } = useFormat();
+  const external = !!block && block.source !== 'local';
+  const [category, setCategory] = useState<EventCategory>(block?.category ?? (external ? 'lesson' : 'personal'));
   const [title, setTitle] = useState(block?.title ?? '');
   const [from, setFrom] = useState(toLocalInput(block ? new Date(block.start) : start ?? new Date()));
   const [to, setTo] = useState(toLocalInput(block ? new Date(block.end) : end ?? new Date(Date.now() + 3600000)));
@@ -17,6 +23,33 @@ export function BusyDialog({ block, start, end, onClose }: { block?: BusyBlock; 
   const days = [1, 2, 3, 4, 5, 6, 0];
   const dayName = (d: number) => locale.localize.day(d as 0, { width: 'short' });
 
+  const categoryChips = (
+    <div className="mb-3">
+      <span className="label">{t('busy.category')}</span>
+      <Chips label={t('busy.category')} value={category} onChange={setCategory}
+        options={EVENT_CATEGORIES.map((c) => ({ value: c, label: t('category.' + c) }))} />
+    </div>
+  );
+
+  if (external) {
+    return (
+      <Modal
+        open
+        onClose={onClose}
+        title={block.title ?? t('calendar.busy')}
+        footer={
+          <>
+            <button className="btn-secondary" onClick={onClose}>{t('common.cancel')}</button>
+            <button className="btn-primary" onClick={async () => { await setEventCategory(block, category); onClose(); }}>{t('common.save')}</button>
+          </>
+        }
+      >
+        <p className="mb-3 text-sm text-slate-600 dark:text-slate-300">{t('busy.externalIntro', { source: t('source.' + block.source) })}</p>
+        {categoryChips}
+      </Modal>
+    );
+  }
+
   const save = async () => {
     const s = new Date(from);
     const e = new Date(to);
@@ -25,6 +58,7 @@ export function BusyDialog({ block, start, end, onClose }: { block?: BusyBlock; 
       {
         id: block?.id ?? crypto.randomUUID(),
         source: 'local',
+        category,
         title: title.trim() || undefined,
         start: s.toISOString(),
         end: e.toISOString(),
@@ -56,6 +90,7 @@ export function BusyDialog({ block, start, end, onClose }: { block?: BusyBlock; 
       <Field label={t('busy.title')}>
         <input className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t('busy.titlePlaceholder')} maxLength={80} />
       </Field>
+      {categoryChips}
       <div className="grid gap-x-3 sm:grid-cols-2">
         <Field label={t('busy.start')}>
           <input className="input" type="datetime-local" value={from} onChange={(e) => setFrom(e.target.value)} />

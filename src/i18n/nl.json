@@ -132,7 +132,16 @@
     "tomorrow_one": "Morgen staat er {{count}} blok gepland.",
     "tomorrow_other": "Morgen staan er {{count}} blokken gepland.",
     "deadlines": "Deadlines komende 7 dagen",
-    "noDeadlines": "Geen deadlines deze week."
+    "noDeadlines": "Geen deadlines deze week.",
+    "schedule": "Rooster vandaag",
+    "allDay": "Hele dag",
+    "testsFound_one": "{{count}} toets in je agenda",
+    "testsFound_other": "{{count}} toetsen in je agenda",
+    "testsHint": "Voeg een leertaak toe en Planora plant leermomenten vóór de toets.",
+    "addStudyTask": "Leertaak toevoegen",
+    "hideTest": "Verbergen",
+    "moreTests_one": "En nog {{count}} toets.",
+    "moreTests_other": "En nog {{count}} toetsen."
   },
   "inbox": {
     "quickAdd": "Snel een taak toevoegen",
@@ -238,19 +247,24 @@
   "busy": {
     "new": "Nieuwe afspraak",
     "edit": "Afspraak bewerken",
-    "intro": "Tijd waarin je niet kunt werken, zoals les, sport of een bijbaan. Planora plant hier omheen.",
+    "intro": "Tijd waarin je niet kunt werken, zoals les, afspraken, sport of een bijbaan. Planora plant hier omheen.",
     "title": "Omschrijving",
     "titlePlaceholder": "Bijv. Training",
     "start": "Begin",
     "end": "Einde",
     "repeat": "Elke week herhalen op",
     "until": "Herhalen tot en met",
-    "errTime": "Het einde moet na het begin liggen."
+    "errTime": "Het einde moet na het begin liggen.",
+    "category": "Soort",
+    "externalIntro": "Deze afspraak komt uit {{source}} en kan alleen daar worden aangepast. Hier kies je wat voor afspraak het is."
   },
   "calendar": {
     "addEvent": "Afspraak toevoegen",
     "busy": "Bezet",
-    "hint": "Sleep over een leeg stuk om een afspraak toe te voegen. Sleep een Planora-blok om het te verplaatsen; het blijft dan vastgepind."
+    "hint": "Sleep over een leeg stuk om een afspraak toe te voegen. Sleep een Planora-blok om het te verplaatsen; het blijft dan vastgepind.",
+    "show": "Tonen in agenda",
+    "study": "Studieblokken",
+    "deadlines": "Deadlines"
   },
   "review": {
     "tabPlan": "Weekplanning",
@@ -315,7 +329,11 @@
     "none": "Geen nieuwe taken gevonden.",
     "add": "Toevoegen en plannen",
     "ignore": "Negeren",
-    "error": "Ophalen is mislukt. Probeer het later opnieuw."
+    "error": "Ophalen is mislukt. Probeer het later opnieuw.",
+    "looksLike": "Lijkt op je taak \"{{title}}\".",
+    "link": "Koppelen",
+    "linkHint": "Je schatting en geplande blokken blijven.",
+    "addSeparately": "Apart toevoegen"
   },
   "integrations": {
     "builtin": "Planora-agenda",
@@ -379,7 +397,11 @@
     "reminderMin": "{{n}} min vooraf",
     "noReminder": "Geen",
     "exported": "Agendabestand gemaakt.",
-    "genericHint": "Toont ‘Planora focus’ in plaats van taaknamen in het bestand."
+    "genericHint": "Toont ‘Planora focus’ in plaats van taaknamen in het bestand.",
+    "category": "Afspraken in dit bestand zijn",
+    "categoryHint": "Toetsen (\"toets\", \"tentamen\", …) en excursies worden aan hun naam herkend. Losse afspraken pas je aan door erop te klikken in de agenda.",
+    "categoryOf": "Soort afspraken in {{name}}",
+    "alsoInOutlook": "Dit bestand staat ook in je Outlook-agenda. Je kunt het weghalen als je wilt; er gaat niets mis als je het laat staan."
   },
   "log": {
     "connect": "gekoppeld",
@@ -458,7 +480,9 @@
     "enableNotifications": "Meldingen aanzetten",
     "notificationsOn": "Meldingen staan aan.",
     "saveReplan": "Opslaan en opnieuw plannen",
-    "saved": "Opgeslagen"
+    "saved": "Opgeslagen",
+    "lessonBuffer": "Pauze na lessen",
+    "lessonBufferHint": "Minuten vrij na een les, toets of excursie. 0 = uit."
   },
   "onboarding": {
     "welcome": "Welkom bij Planora",
@@ -496,5 +520,14 @@
     "windows": "download Planora-Setup.exe. Windows kan waarschuwen omdat de app niet ondertekend is: kies ‘Meer info’ en ‘Toch uitvoeren’.",
     "downloads": "Downloads",
     "ownData": "Gegevens worden niet gedeeld of gesynchroniseerd tussen apparaten. Verhuizen kan met een versleutelde back-up (Privacy en gegevens)."
+  },
+  "category": {
+    "lesson": "Les",
+    "test": "Toets",
+    "excursion": "Excursie",
+    "meeting": "Afspraak",
+    "work": "Werk",
+    "sport": "Sport",
+    "personal": "Privé"
   }
 }

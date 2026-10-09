@@ -3,6 +3,7 @@ import { addDays } from 'date-fns';
 import { actions, useStore } from '../data/store';
 import { repo } from '../data/repo';
 import { STUDENT_TYPES, TEACHER_TYPES, type TaskType } from '../domain/types';
+import { findManualMatch } from '../domain/matching';
 import { useFormat } from '../lib/format';
 import { DurationInput, toLocalInput } from '../components/ui';
 import { Icon } from '../components/Icon';
@@ -74,6 +75,11 @@ export function ImportPanel() {
     });
     setItems((list) => list?.filter((x) => x.externalId !== d.externalId) ?? null);
   };
+  /** The user already added this item by hand: link it instead of planning the work twice. */
+  const link = async (d: Draft, taskId: string) => {
+    await actions.linkTask(taskId, d.source, d.externalId);
+    setItems((list) => list?.filter((x) => x.externalId !== d.externalId) ?? null);
+  };
   const ignore = async (d: Draft) => {
     const next = [...ignored, d.externalId];
     setIgnored(next);
@@ -93,10 +99,21 @@ export function ImportPanel() {
       {items && items.length === 0 && <p className="mt-2 text-sm text-slate-500">{t('import.none')}</p>}
       {items && items.length > 0 && (
         <ul className="mt-3 space-y-3">
-          {items.map((d) => (
+          {items.map((d) => {
+            const match = findManualMatch(d, tasks);
+            return (
             <li key={d.externalId} className="rounded-xl border border-slate-200 p-3 dark:border-slate-800">
               <p className="font-medium">{d.title}</p>
               <p className="mb-2 text-xs text-slate-500">{t('source.' + d.source)}</p>
+              {match && (
+                <div className="mb-2 flex flex-wrap items-center gap-2 rounded-xl bg-brand-50 p-2 text-sm dark:bg-brand-700/20">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium">{t('import.looksLike', { title: match.title })}</p>
+                    <p className="text-xs text-slate-600 dark:text-slate-300">{t('import.linkHint')}</p>
+                  </div>
+                  <button className="btn-primary" onClick={() => link(d, match.id)}>{t('import.link')}</button>
+                </div>
+              )}
               <div className="grid gap-2 sm:grid-cols-2">
                 <select className="input" value={d.type} aria-label={t('form.type')} onChange={(e) => update(d.externalId, { type: e.target.value as TaskType })}>
                   {types.map((x) => <option key={x} value={x}>{t('type.' + x)}</option>)}
@@ -106,10 +123,11 @@ export function ImportPanel() {
               <div className="mt-2"><DurationInput value={d.estimate} onChange={(v) => update(d.externalId, { estimate: v })} /></div>
               <div className="mt-2 flex justify-end gap-2">
                 <button className="btn-ghost" onClick={() => ignore(d)}>{t('import.ignore')}</button>
-                <button className="btn-primary" onClick={() => add(d)}>{t('import.add')}</button>
+                <button className={match ? 'btn-secondary' : 'btn-primary'} onClick={() => add(d)}>{match ? t('import.addSeparately') : t('import.add')}</button>
               </div>
             </li>
-          ))}
+            );
+          })}
         </ul>
       )}
     </div>

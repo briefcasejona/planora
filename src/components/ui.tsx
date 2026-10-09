@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Icon, type IconName } from './Icon';
-import type { TaskType } from '../domain/types';
+import type { EventCategory, TaskType } from '../domain/types';
 
 export function Modal({ open, onClose, title, children, footer, wide }: {
   open: boolean;
@@ -142,6 +142,40 @@ export const TYPE_HEX: Record<TaskType, string> = {
   grading: '#059669',
   lessonprep: '#0d9488',
 };
+
+/** Colours of appointment categories; chosen to stay apart from the task-type colours above. */
+export const CATEGORY_HEX: Record<EventCategory, string> = {
+  lesson: '#2563eb',
+  test: '#e11d48',
+  excursion: '#0891b2',
+  meeting: '#c026d3',
+  work: '#78716c',
+  sport: '#65a30d',
+  personal: '#db2777',
+};
+/** Events whose kind is unknown (free/busy from Outlook or Google). */
+export const BUSY_HEX = '#64748b';
+
+/** Light fill with a coloured edge, so appointments never look like (solid) study blocks. */
+export function eventColors(category?: EventCategory) {
+  const hex = category ? CATEGORY_HEX[category] : BUSY_HEX;
+  return {
+    backgroundColor: `color-mix(in srgb, ${hex} 18%, var(--planora-event-base))`,
+    borderColor: hex,
+    textColor: 'var(--planora-event-text)',
+  };
+}
+
+export function CategoryBadge({ category }: { category?: EventCategory }) {
+  const { t } = useTranslation();
+  const hex = category ? CATEGORY_HEX[category] : BUSY_HEX;
+  return (
+    <span className="inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium" style={{ borderColor: hex, color: hex }}>
+      <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: hex }} aria-hidden />
+      {category ? t('category.' + category) : t('calendar.busy')}
+    </span>
+  );
+}
 
 export function TypeBadge({ type }: { type: TaskType }) {
   const { t } = useTranslation();

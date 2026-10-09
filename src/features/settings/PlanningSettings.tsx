@@ -93,6 +93,9 @@ export function PlanningSettings() {
           <Field label={t('settings.break')} hint={t('settings.minutes')}>
             <input className="input" type="number" min={0} max={60} step={5} value={draft.breakMin} onChange={(e) => set({ breakMin: num(e.target.value, 0, 60) })} />
           </Field>
+          <Field label={t('settings.lessonBuffer')} hint={t('settings.lessonBufferHint')}>
+            <input className="input" type="number" min={0} max={60} step={5} value={draft.lessonBufferMin} onChange={(e) => set({ lessonBufferMin: num(e.target.value, 0, 60) })} />
+          </Field>
         </div>
       </div>
 
