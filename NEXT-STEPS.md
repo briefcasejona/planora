@@ -1,30 +1,25 @@
-# Where we left off (9 October 2026)
+# Where we are (9 October 2026)
 
-## Done and online
-- Website: <https://briefcasejona.github.io/planora/> (also installable on iPhone and Android)
-- Windows downloads: <https://github.com/briefcasejona/planora/releases/tag/v0.2.0>
-- Code on GitHub (`main`, public). Website published from the `gh-pages` branch.
-- Apple Calendar via .ics import/export, desktop app, Android release config, all tests green.
+## Done
+- Website: <https://briefcasejona.github.io/planora/>, deployed automatically from `main` (GitHub Actions).
+- Microsoft sign-in works with personal accounts (client ID in repo variable `VITE_MS_CLIENT_ID`).
+- On branch `claude/zealous-hamilton-n7xpkp` (ready for v0.3.0):
+  - Event categories (lesson, test, excursion, ...), test suggestions, break after lessons.
+  - Safe for a later school Microsoft approval (no duplicates, Teams items can be linked).
+  - Installers for Windows (one click), Mac (.dmg) and Linux (AppImage); download page for every device.
+  - Optional sync between your own devices through your OneDrive (end-to-end encrypted).
 
-## What needs you (in this order)
-
-1. **Merge the build workflows.** `.github/workflows/pages.yml` and `release.yml` are on branch
-   `claude/zealous-hamilton-n7xpkp` (recreated; the old local `ci-workflows` branch is no longer needed).
-   Merge it into `main`, then set **Settings > Pages > Source** to **GitHub Actions**. From then on the
-   website deploys on every push to `main`, and a tag `v0.2.1` builds `Planora.apk` and the `.exe` files.
-   The release uses secrets `ANDROID_KEYSTORE_B64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`.
-
-2. ~~**Microsoft app registration**~~ Done. Registered in your own Entra directory (free Azure
-   sign-up). Client ID `f2aa1c0a-90b3-421a-b981-3b8da10908e6`. Still to do: add it as repository
-   **variable** `VITE_MS_CLIENT_ID` (Settings > Secrets and variables > Actions > Variables), and for
-   local development in `.env`.
-
-3. **Google Cloud OAuth client** (README.md, "Connecting Google Calendar"), with your friends added as
-   test users. Give Claude the client ID (repo variable `VITE_GOOGLE_CLIENT_ID`).
-
-4. Then: release `v0.2.1` with sign-in enabled + `Planora.apk`, and test signing in yourself.
+## What needs you
+1. **Merge the branch** into `main` (pull request), or ask Claude to.
+2. **Release v0.3.0**: ask Claude to push the tag `v0.3.0` (or `git tag v0.3.0 && git push origin v0.3.0`).
+   GitHub then builds all installers and the APK (about 15 minutes).
+3. **Test sync yourself**: Settings > Sync on the laptop (choose a passphrase), then on the phone
+   (same Microsoft account and passphrase). Add a task on the phone; it should appear on the laptop
+   within a minute. Report any error text to Claude.
+4. Optional: school IT approval for Outlook/Teams (request text is in the chat history), Google OAuth client.
 
 ## Keep safe
 - `C:\Users\haasn\planora-android-key\` holds the Android signing key (also stored as GitHub Secrets).
   Do not delete it and never put it in the repository; without it, app updates can't be installed
   over older versions.
+- Your sync passphrase: without it the synced data can't be read (data on your devices stays readable).

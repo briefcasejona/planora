@@ -48,6 +48,17 @@ describe('store: plan, learn, replan', () => {
     expect(next.plannedEstimateMin).toBe(s.suggestedMin);
   });
 
+  it('links a hand-made task to Teams without touching its plan', async () => {
+    const task = await actions.addTask({
+      title: 'Essay Engels', type: 'assignment', deadline: new Date(2026, 9, 28, 17).toISOString(), userEstimateMin: 180, useSuggestion: false,
+    });
+    const before = useStore.getState().sessions.filter((s) => s.taskId === task.id);
+    await actions.linkTask(task.id, 'ms-teams', 'teams:abc');
+    const linked = useStore.getState().tasks.find((t) => t.id === task.id)!;
+    expect(linked).toMatchObject({ source: 'ms-teams', externalId: 'teams:abc', userEstimateMin: 180, plannedEstimateMin: 180 });
+    expect(useStore.getState().sessions.filter((s) => s.taskId === task.id)).toEqual(before);
+  });
+
   it('replans a missed session into the future', async () => {
     const task = useStore.getState().tasks.find((t) => t.title === 'Biologie H1')!;
     const first = useStore.getState().sessions.filter((s) => s.taskId === task.id).sort((a, b) => a.start.localeCompare(b.start))[0];

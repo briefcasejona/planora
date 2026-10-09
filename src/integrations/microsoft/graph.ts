@@ -1,4 +1,5 @@
 import type { BusyBlock } from '../../domain/types';
+import { detectCategory } from '../../domain/categories';
 
 const GRAPH = 'https://graph.microsoft.com/v1.0';
 
@@ -65,6 +66,7 @@ export async function fetchBusy(
         end: utc(e.end.dateTime).toISOString(),
         allDay: e.isAllDay || undefined,
         title: opts.showTitles ? e.subject : undefined,
+        category: opts.showTitles ? detectCategory(e.subject) : undefined,
       });
     }
     url = data['@odata.nextLink'];

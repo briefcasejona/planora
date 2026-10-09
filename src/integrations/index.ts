@@ -1,7 +1,8 @@
 import { onPlanChanged } from '../data/store';
 import { pullGoogleBusy } from './google';
 import { loadIntegrations, useIntegrations } from './settings';
-import { isNativeApp } from '../lib/platform';
+import { startDeviceSync } from './deviceSync';
+import { isIosStandalone, isNativeApp } from '../lib/platform';
 
 /** Same check as microsoft/auth.ts, without loading the Microsoft library. */
 const msConfigured = !!import.meta.env.VITE_MS_CLIENT_ID;
@@ -28,8 +29,8 @@ export async function startIntegrations(): Promise<void> {
   await loadIntegrations();
   if (started) return;
   started = true;
-  // Native app: a Microsoft sign-in may just have returned via redirect.
-  if (isNativeApp() && msConfigured) await microsoft().then((m) => m.completeMsRedirect()).catch(console.error);
+  // Native app or iPhone home-screen app: a Microsoft sign-in may just have returned via redirect.
+  if ((isNativeApp() || isIosStandalone()) && msConfigured) await microsoft().then((m) => m.completeMsRedirect()).catch(console.error);
   let pushTimer: ReturnType<typeof setTimeout> | undefined;
   onPlanChanged(() => {
     const ms = useIntegrations.getState().microsoft;
@@ -39,6 +40,7 @@ export async function startIntegrations(): Promise<void> {
   });
   pullAll();
   setInterval(pullAll, PULL_EVERY_MS);
+  void startDeviceSync();
   window.addEventListener('focus', () => {
     if (Date.now() - lastPull > 2 * 60 * 1000) pullAll();
   });

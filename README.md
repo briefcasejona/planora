@@ -10,14 +10,20 @@ Interface in Dutch and English.
 
 ## Download and share
 
+**<https://briefcasejona.github.io/planora/download.html>** recognises your device and shows the right
+download with step-by-step install instructions. Direct links (always the newest release):
+
 | Device | How |
 | --- | --- |
 | Any browser | <https://briefcasejona.github.io/planora/> |
 | iPhone / iPad | Open the website in Safari > Share > **Add to Home Screen** |
-| Android | Download `Planora.apk` from [Releases](https://github.com/briefcasejona/planora/releases/latest) and allow "install unknown apps" (or install the website from Chrome) |
-| Windows | Download `Planora-Setup-x.y.z.exe` (or the portable `Planora-x.y.z-portable.exe`) from [Releases](https://github.com/briefcasejona/planora/releases/latest). The app is not code-signed, so SmartScreen asks: **More info > Run anyway** |
+| Android | [`Planora.apk`](https://github.com/briefcasejona/planora/releases/latest/download/Planora.apk) and allow "install unknown apps" (or install the website from Chrome) |
+| Windows | [`Planora-Setup.exe`](https://github.com/briefcasejona/planora/releases/latest/download/Planora-Setup.exe): one click, no questions, starts Planora. Not code-signed, so SmartScreen asks once: **More info > Run anyway**. Also a [portable .exe](https://github.com/briefcasejona/planora/releases/latest/download/Planora-portable.exe). |
+| Mac | [Apple chip](https://github.com/briefcasejona/planora/releases/latest/download/Planora-Mac-AppleSilicon.dmg) or [Intel](https://github.com/briefcasejona/planora/releases/latest/download/Planora-Mac-Intel.dmg): drag to Applications. Not notarised, so the first time: **System Settings > Privacy & Security > Open Anyway**. |
+| Linux | [`Planora.AppImage`](https://github.com/briefcasejona/planora/releases/latest/download/Planora.AppImage): make it executable and run it |
 
-Everyone's data stays on their own device; nothing is shared or synced between people or devices.
+Everyone's data stays on their own device. If you use Planora on several devices yourself, you can
+optionally sync them through your own OneDrive (see below); nothing is ever shared between people.
 
 ## Features
 
@@ -50,16 +56,39 @@ Everyone's data stays on their own device; nothing is shared or synced between p
   plan (or one task) to Apple Calendar. Exports use stable event ids, so importing a newer export updates
   events instead of duplicating them; blocks that disappeared are sent as cancelled.
 
+## Sync between your own devices (optional)
+
+Off by default; Planora works fully on one device without any account. In **Settings > Sync** you can
+turn it on to keep e.g. your phone and laptop the same:
+
+- Sign in with a Microsoft account (a free personal outlook.com account works; no school approval
+  needed). This sign-in is separate from the Outlook/Teams connection, so you can sync with a personal
+  account and connect a school account for your calendar.
+- Planora asks only for `Files.ReadWrite.AppFolder`: its own hidden folder (Apps/Planora) in your
+  OneDrive. It can't see your other files.
+- All data is encrypted on the device (PBKDF2 + AES-GCM) with a sync passphrase you choose; the same
+  passphrase is entered on every device. Microsoft only stores unreadable data. The passphrase is never
+  stored; a non-extractable key derived from it stays on the device.
+- Synced: tasks, feedback, weekly reports, settings, your own and imported (.ics) events with their
+  categories, and study blocks that are done, missed, skipped or moved. Ordinary planned blocks are
+  recomputed on each device; Outlook/Google busy time is fetched by each device itself.
+- Every record carries a change time; the newest version wins and deletions are remembered, so a
+  change or deletion on one device reaches the others. Planora syncs on start, when it comes back into
+  view, every 5 minutes and a few seconds after a change.
+- With sync on, only one device writes study blocks to Outlook (the last one where you turned it on),
+  so they never appear twice.
+
 ## Privacy model
 
 Privacy is the main design constraint:
 
 - **No server, no account.** All data lives on the device in IndexedDB. There is no Planora backend,
-  so nothing can leak from one.
+  so nothing can leak from one. Optional sync uses your own OneDrive, end-to-end encrypted.
 - **No third parties.** No analytics, trackers, CDNs or remote fonts. A strict Content-Security-Policy
   only allows connections to the app itself, `login.microsoftonline.com`, `graph.microsoft.com`,
-  `www.googleapis.com` and `oauth2.googleapis.com`. Those hosts are only contacted after you link an
-  account. The end-to-end test asserts that an unlinked session makes no external requests.
+  `www.googleapis.com`, `oauth2.googleapis.com` and OneDrive's download hosts (`*.1drv.com`,
+  `*.microsoftpersonalcontent.com`, `*.sharepoint.com`). Those hosts are only contacted after you link an
+  account or turn on sync. The end-to-end test asserts that an unlinked session makes no external requests.
 - **Integrations talk directly** from the device to Microsoft or Google (OAuth with PKCE / public
   client, no client secret, no proxy).
 - **Least privilege, asked only when needed.** Each feature asks for its own permission, the moment
@@ -72,6 +101,7 @@ Privacy is the main design constraint:
   | Import from To Do | `Tasks.Read` | Open task titles and due dates; you choose what to import. |
   | Import Teams assignments | `EduAssignments.ReadBasic` | Assignment names and due dates. |
   | Google Calendar | `calendar.freebusy` | Busy intervals only; Google never returns titles for this scope. |
+  | Sync between your devices | `Files.ReadWrite.AppFolder` | One encrypted file in Planora's own OneDrive folder. |
 
 - **Disconnecting** forgets the sign-in, deletes all imported data from the device, can remove
   Planora's Outlook events, and links to the page where you revoke consent at Microsoft.
@@ -108,18 +138,21 @@ headers support extra protections such as `frame-ancestors 'none'` that a meta t
 
 ```bash
 npm run desktop     # run the desktop app
-npm run dist:win    # build release/Planora-Setup-x.y.z.exe and a portable .exe
+npm run dist:win    # build release/Planora-Setup-x.y.z.exe and a portable .exe (on Windows)
+npm run dist:mac    # build the .dmg files (on a Mac)
+npm run dist:linux  # build the AppImage (on Linux)
 npm run e2e:desktop # end-to-end test of the desktop app
 ```
 
 The desktop app serves Planora from a local server on `127.0.0.1:47823` (never reachable from other
 computers), with the CSP as an HTTP header, a sandboxed window without Node.js access, close-to-tray so
-reminders keep working, optional start with Windows, and `.ics` file association.
+reminders keep working, optional start with the computer (Windows and Mac), and `.ics` file association.
 
 ### Releases
 
-Pushing a tag `vX.Y.Z` runs `.github/workflows/release.yml`: it builds the Windows installer and a signed
-Android APK and publishes them as a GitHub Release. Every push to `main` deploys the website
+Pushing a tag `vX.Y.Z` runs `.github/workflows/release.yml`: it builds the Windows installer and portable
+.exe, the Mac .dmg files (Apple chip and Intel), the Linux AppImage and a signed Android APK, and publishes
+them as a GitHub Release with stable file names, so `releases/latest/download/<name>` always works. Every push to `main` deploys the website
 (`.github/workflows/pages.yml`). The Android signing key is stored in repository secrets; a backup copy
 must be kept privately outside the repository.
 

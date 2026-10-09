@@ -13,22 +13,31 @@ interface StepDraft {
   done?: boolean;
 }
 
-export function TaskForm({ open, onClose, initialTitle = '', task }: { open: boolean; onClose: () => void; initialTitle?: string; task?: Task }) {
+/** Values to start a new task with, e.g. a test found in the timetable. */
+export type TaskPrefill = Partial<Pick<Task, 'title' | 'type' | 'deadline' | 'subject' | 'source' | 'externalId'>>;
+
+export function TaskForm({ open, onClose, initialTitle = '', initial, task }: {
+  open: boolean;
+  onClose: () => void;
+  initialTitle?: string;
+  initial?: TaskPrefill;
+  task?: Task;
+}) {
   if (!open) return null;
-  return <TaskFormInner onClose={onClose} initialTitle={initialTitle} task={task} />;
+  return <TaskFormInner onClose={onClose} initial={{ title: initialTitle, ...initial }} task={task} />;
 }
 
-function TaskFormInner({ onClose, initialTitle, task }: { onClose: () => void; initialTitle: string; task?: Task }) {
+function TaskFormInner({ onClose, initial, task }: { onClose: () => void; initial: TaskPrefill; task?: Task }) {
   const { t, duration, msg } = useFormat();
   const prefs = useStore((s) => s.prefs);
   const allTasks = useStore((s) => s.tasks);
   const types = prefs.role === 'teacher' ? TEACHER_TYPES : STUDENT_TYPES;
   const defaultDeadline = setMinutes(setHours(startOfDay(addDays(new Date(), 7)), 9), 0);
 
-  const [title, setTitle] = useState(task?.title ?? initialTitle);
-  const [type, setType] = useState<TaskType>(task?.type ?? types[0]);
-  const [subject, setSubject] = useState(task?.subject ?? '');
-  const [deadline, setDeadline] = useState(toLocalInput(task ? new Date(task.deadline) : defaultDeadline));
+  const [title, setTitle] = useState(task?.title ?? initial.title ?? '');
+  const [type, setType] = useState<TaskType>(task?.type ?? initial.type ?? types[0]);
+  const [subject, setSubject] = useState(task?.subject ?? initial.subject ?? '');
+  const [deadline, setDeadline] = useState(toLocalInput(new Date(task?.deadline ?? initial.deadline ?? defaultDeadline)));
   const [estimate, setEstimate] = useState(task?.userEstimateMin ?? 120);
   const [difficulty, setDifficulty] = useState<number>(task?.difficulty ?? 3);
   const [notes, setNotes] = useState(task?.notes ?? '');
@@ -78,6 +87,8 @@ function TaskFormInner({ onClose, initialTitle, task }: { onClose: () => void; i
         difficulty: difficulty as Task['difficulty'],
         notes: notes.trim() || undefined,
         steps: isProject ? validSteps.map((s) => ({ title: s.title.trim(), estimateMin: s.estimateMin })) : undefined,
+        source: initial.source,
+        externalId: initial.externalId,
       };
       await actions.addTask(input);
     }

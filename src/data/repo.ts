@@ -2,6 +2,7 @@ import type { BusyBlock, FeedbackRecord, Preferences, Task, WeekReport, WorkSess
 import { DEFAULT_PREFERENCES } from '../domain/types';
 import { db, type PlanoraDB, type StoredRow, type SyncLogEntry } from './db';
 import { decryptJSON, encryptJSON, type CryptoConfig } from './crypto';
+import { isSyncedBusy, isSyncedSession, sameContent, type SyncRecords, type SyncTable } from './sync/merge';
 
 type TableName = 'tasks' | 'sessions' | 'busy' | 'feedback' | 'reports';
 
@@ -63,29 +64,82 @@ async function listAll<T>(table: TableName): Promise<T[]> {
   return Promise.all(rows.map((r) => decode<T>(r)));
 }
 
-async function putAll(table: TableName, values: object[]): Promise<void> {
+/**
+ * Store records. Each gets `updatedAt` = now, but only when its content really
+ * changed, so replanning doesn't make unchanged records look new to sync.
+ * `keepStamp` stores records exactly as given (used when applying synced data).
+ */
+async function putAll(table: TableName, values: { id: string; updatedAt?: string }[], keepStamp = false): Promise<void> {
   if (values.length === 0) return;
-  const rows = await Promise.all(values.map((v) => encode(table, v)));
+  let stamped = values;
+  if (!keepStamp) {
+    const now = new Date().toISOString();
+    const existing = await database[table].bulkGet(values.map((v) => v.id));
+    stamped = await Promise.all(
+      values.map(async (v, i) => {
+        const row = existing[i];
+        const old = row ? await decode<{ updatedAt?: string }>(row).catch(() => undefined) : undefined;
+        return old?.updatedAt && sameContent(old, v) ? { ...v, updatedAt: old.updatedAt } : { ...v, updatedAt: now };
+      }),
+    );
+  }
+  const rows = await Promise.all(stamped.map((v) => encode(table, v)));
   await database[table].bulkPut(rows);
+  if (!keepStamp) await clearTombstones(values.map((v) => table + ':' + v.id));
+}
+
+// ---------- deletions remembered for sync ----------
+const TOMBSTONES = 'sync-tombstones';
+/** A record stored again after it was deleted (e.g. a re-imported .ics event) is no longer deleted. */
+async function clearTombstones(keys: string[]): Promise<void> {
+  const current = await repo.getKv<Record<string, string>>(TOMBSTONES, {});
+  let changed = false;
+  for (const k of keys) {
+    if (k in current) {
+      delete current[k];
+      changed = true;
+    }
+  }
+  if (changed) await repo.setKv(TOMBSTONES, current);
+}
+async function addTombstones(keys: string[]): Promise<void> {
+  if (!keys.length) return;
+  const now = new Date().toISOString();
+  const current = await repo.getKv<Record<string, string>>(TOMBSTONES, {});
+  for (const k of keys) current[k] = now;
+  await repo.setKv(TOMBSTONES, current);
 }
 
 export const repo = {
   listTasks: () => listAll<Task>('tasks'),
   putTasks: (tasks: Task[]) => putAll('tasks', tasks),
   deleteTask: async (id: string) => {
+    const sessions = (await database.sessions.where('taskId').equals(id).toArray()) as unknown as WorkSession[];
     await database.transaction('rw', database.tasks, database.sessions, async () => {
       await database.tasks.delete(id);
       await database.sessions.where('taskId').equals(id).delete();
     });
+    await addTombstones(['tasks:' + id, ...sessions.filter(isSyncedSession).map((s) => 'sessions:' + s.id)]);
   },
 
   listSessions: () => listAll<WorkSession>('sessions'),
   putSessions: (sessions: WorkSession[]) => putAll('sessions', sessions),
-  deleteSessions: (ids: string[]) => database.sessions.bulkDelete(ids),
+  deleteSessions: async (ids: string[]) => {
+    if (!ids.length) return;
+    const rows = (await database.sessions.bulkGet(ids)) as unknown as (WorkSession | undefined)[];
+    await database.sessions.bulkDelete(ids);
+    await addTombstones(rows.filter((s): s is WorkSession => !!s && isSyncedSession(s)).map((s) => 'sessions:' + s.id));
+  },
 
   listBusy: () => listAll<BusyBlock>('busy'),
   putBusy: (blocks: BusyBlock[]) => putAll('busy', blocks),
-  deleteBusy: (ids: string[]) => database.busy.bulkDelete(ids),
+  deleteBusy: async (ids: string[]) => {
+    if (!ids.length) return;
+    const rows = await database.busy.bulkGet(ids);
+    await database.busy.bulkDelete(ids);
+    // `source` stays readable even with encryption on.
+    await addTombstones(rows.filter((r) => r && isSyncedBusy(r as unknown as BusyBlock)).map((r) => 'busy:' + r!.id));
+  },
   deleteBusyBySource: (source: BusyBlock['source']) => database.busy.where('source').equals(source).delete(),
 
   listFeedback: () => listAll<FeedbackRecord>('feedback'),
@@ -105,7 +159,37 @@ export const repo = {
     const stored = await repo.getKv<Partial<Preferences>>('prefs', {});
     return { ...DEFAULT_PREFERENCES, ...stored };
   },
-  savePrefs: (prefs: Preferences) => database.kv.put({ key: 'prefs', value: prefs }),
+  async savePrefs(prefs: Preferences, updatedAt?: string): Promise<void> {
+    const old = await repo.getKv<Preferences | null>('prefs', null);
+    await database.kv.put({ key: 'prefs', value: prefs });
+    if (updatedAt) await repo.setKv('prefs-updatedAt', updatedAt);
+    else if (!old || !sameContent(old, prefs)) await repo.setKv('prefs-updatedAt', new Date().toISOString());
+  },
+  getPrefsUpdatedAt: () => repo.getKv<string | null>('prefs-updatedAt', null),
+
+  addTombstones,
+  getTombstones: () => repo.getKv<Record<string, string>>(TOMBSTONES, {}),
+  setTombstones: (t: Record<string, string>) => repo.setKv(TOMBSTONES, t),
+
+  /** Everything that is shared between devices when sync is on. */
+  async syncRecords(): Promise<SyncRecords> {
+    return {
+      tasks: await repo.listTasks(),
+      sessions: (await repo.listSessions()).filter(isSyncedSession),
+      busy: (await repo.listBusy()).filter(isSyncedBusy),
+      feedback: await repo.listFeedback(),
+      reports: await repo.listReports(),
+    };
+  },
+
+  /** Apply data merged from another device, exactly as given (no new stamps, no tombstones). */
+  async applySynced(put: Partial<Record<SyncTable, { id: string }[]>>, del: Partial<Record<SyncTable, string[]>>): Promise<void> {
+    for (const [table, ids] of Object.entries(del) as [SyncTable, string[]][]) await database[table].bulkDelete(ids);
+    for (const [table, rows] of Object.entries(put) as [SyncTable, { id: string }[]][]) await putAll(table, rows, true);
+  },
+
+  /** Remove this device's own planned blocks without telling other devices (they're recomputed anyway). */
+  dropLocalSessions: (ids: string[]) => database.sessions.bulkDelete(ids),
 
   getCryptoConfig: () => repo.getKv<CryptoConfig | null>('crypto', null),
 

@@ -65,7 +65,7 @@ export default defineConfig({
     }),
   ],
   build: {
-    rollupOptions: { input: { main: 'index.html', authRedirect: 'auth-redirect.html' } },
+    rollupOptions: { input: { main: 'index.html', authRedirect: 'auth-redirect.html', download: 'download.html' } },
   },
   test: {
     environment: 'node',

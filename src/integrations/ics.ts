@@ -1,13 +1,22 @@
 import ICAL from 'ical.js';
 import { addDays } from 'date-fns';
-import type { BusyBlock, Task, WorkSession } from '../domain/types';
+import type { BusyBlock, EventCategory, Task, WorkSession } from '../domain/types';
+import { detectCategory } from '../domain/categories';
 
 /**
  * Parse an .ics file entirely on this device into busy blocks. Recurring
  * events are expanded within a window around today. `importId` groups the
  * blocks of one imported file so it can be replaced or removed on its own.
+ * Every event gets `category` (what the user picked for the file), unless its
+ * title says it is a test or excursion, or `overrides` has a choice for its UID.
  */
-export function parseIcs(text: string, now = new Date(), importId?: string): BusyBlock[] {
+export function parseIcs(
+  text: string,
+  now = new Date(),
+  importId?: string,
+  category?: EventCategory,
+  overrides: Record<string, EventCategory> = {},
+): BusyBlock[] {
   const from = addDays(now, -14);
   const to = addDays(now, 180);
   const root = new ICAL.Component(ICAL.parse(text));
@@ -17,13 +26,17 @@ export function parseIcs(text: string, now = new Date(), importId?: string): Bus
     const transp = vevent.getFirstPropertyValue('transp');
     if (transp === 'TRANSPARENT') continue; // marked as "free"
     if (vevent.getFirstPropertyValue('status') === 'CANCELLED') continue;
+    const title = event.summary || undefined;
+    const eventCategory = overrides[event.uid] ?? detectCategory(title, category);
     const push = (start: Date, end: Date, allDay: boolean) => {
       if (end <= from || start >= to) return;
       out.push({
         id: 'ics:' + (importId ? importId + ':' : '') + event.uid + ':' + start.toISOString(),
         source: 'ics',
         importId,
-        title: event.summary || undefined,
+        externalUid: event.uid,
+        category: eventCategory,
+        title,
         start: start.toISOString(),
         end: end.toISOString(),
         allDay: allDay || undefined,

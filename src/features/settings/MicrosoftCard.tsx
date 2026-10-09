@@ -4,7 +4,7 @@ import { repo } from '../../data/repo';
 import { useFormat } from '../../lib/format';
 import { Modal } from '../../components/ui';
 import { MS_REVOKE_URL, MS_SCOPES, msConfigured, msSignIn, msSignOut } from '../../integrations/microsoft/auth';
-import { forgetMicrosoftEvents, microsoftToken, pullMicrosoftBusy, pushMicrosoftSessions, removeMicrosoftEvents } from '../../integrations/microsoft/sync';
+import { claimOutlookWriter, forgetMicrosoftEvents, microsoftToken, pullMicrosoftBusy, pushMicrosoftSessions, removeMicrosoftEvents } from '../../integrations/microsoft/sync';
 import { patchMicrosoft, useIntegrations, type MicrosoftSettings } from '../../integrations/settings';
 import { Toggle } from './Toggle';
 
@@ -43,7 +43,10 @@ export function MicrosoftCard() {
       if (key === 'writeSessions' && !value) await removeMicrosoftEvents();
       await patchMicrosoft({ [key]: value });
       if (key === 'readBusy' && !value) await actions.replaceBusySource('microsoft', []);
-      if (key === 'writeSessions' && value) await pushMicrosoftSessions(true);
+      if (key === 'writeSessions' && value) {
+        await claimOutlookWriter();
+        await pushMicrosoftSessions(true);
+      }
       if (key === 'genericTitles') await pushMicrosoftSessions(true);
       const affectsBusy = key === 'showTitles' || key === 'includeTentative' || (key === 'readBusy' && value);
       if (affectsBusy) await pullMicrosoftBusy(true);
@@ -59,7 +62,7 @@ export function MicrosoftCard() {
     run(async () => {
       if (removeEvents) await removeMicrosoftEvents().catch(() => 0);
       await forgetMicrosoftEvents();
-      await msSignOut();
+      await msSignOut('calendar');
       await actions.replaceBusySource('microsoft', []);
       await repo.clearLog('microsoft');
       await patchMicrosoft({ connected: false, accountLabel: undefined, lastSync: undefined, writeSessions: false, importTodo: false, importTeams: false });

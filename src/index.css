@@ -82,12 +82,26 @@ body {
 .fc-event.planora-locked .fc-event-title::before {
   content: '📌 ';
 }
+/* Appointments (lessons, meetings, …) are light with a coloured edge; study blocks are solid. */
+.fc {
+  --planora-event-base: #fff;
+  --planora-event-text: var(--color-slate-900);
+}
+.fc-event.planora-event {
+  border-left-width: 4px;
+}
+.fc-event.planora-cat-test {
+  font-weight: 600;
+  background-image: repeating-linear-gradient(135deg, transparent 0 6px, rgb(225 29 72 / 0.12) 6px 12px);
+}
 @media (prefers-color-scheme: dark) {
   .fc {
     --fc-border-color: var(--color-slate-800);
     --fc-neutral-bg-color: var(--color-slate-900);
     --fc-today-bg-color: rgb(99 102 241 / 0.12);
     --fc-list-event-hover-bg-color: var(--color-slate-800);
+    --planora-event-base: var(--color-slate-900);
+    --planora-event-text: var(--color-slate-100);
   }
 }
 @media (max-width: 640px) {

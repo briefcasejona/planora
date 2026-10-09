@@ -95,7 +95,8 @@
     "google": "Google Agenda",
     "ics": "Agendabestand",
     "ms-todo": "Microsoft To Do",
-    "ms-teams": "Teams-opdracht"
+    "ms-teams": "Teams-opdracht",
+    "onedrive": "OneDrive (synchroniseren)"
   },
   "estimate": {
     "noData": "Nog geen vergelijkbare taken: Planora leert van je feedback.",
@@ -132,7 +133,19 @@
     "tomorrow_one": "Morgen staat er {{count}} blok gepland.",
     "tomorrow_other": "Morgen staan er {{count}} blokken gepland.",
     "deadlines": "Deadlines komende 7 dagen",
-    "noDeadlines": "Geen deadlines deze week."
+    "noDeadlines": "Geen deadlines deze week.",
+    "schedule": "Rooster vandaag",
+    "allDay": "Hele dag",
+    "testsFound_one": "{{count}} toets in je agenda",
+    "testsFound_other": "{{count}} toetsen in je agenda",
+    "testsHint": "Voeg een leertaak toe en Planora plant leermomenten vóór de toets.",
+    "addStudyTask": "Leertaak toevoegen",
+    "hideTest": "Verbergen",
+    "moreTests_one": "En nog {{count}} toets.",
+    "moreTests_other": "En nog {{count}} toetsen.",
+    "iosHint": "Zet Planora op je beginscherm",
+    "iosHintText": "Tik in Safari op de deelknop en kies ‘Zet op beginscherm’. Dan werkt Planora als een gewone app, ook offline.",
+    "iosHintDismiss": "Niet meer tonen"
   },
   "inbox": {
     "quickAdd": "Snel een taak toevoegen",
@@ -238,19 +251,24 @@
   "busy": {
     "new": "Nieuwe afspraak",
     "edit": "Afspraak bewerken",
-    "intro": "Tijd waarin je niet kunt werken, zoals les, sport of een bijbaan. Planora plant hier omheen.",
+    "intro": "Tijd waarin je niet kunt werken, zoals les, afspraken, sport of een bijbaan. Planora plant hier omheen.",
     "title": "Omschrijving",
     "titlePlaceholder": "Bijv. Training",
     "start": "Begin",
     "end": "Einde",
     "repeat": "Elke week herhalen op",
     "until": "Herhalen tot en met",
-    "errTime": "Het einde moet na het begin liggen."
+    "errTime": "Het einde moet na het begin liggen.",
+    "category": "Soort",
+    "externalIntro": "Deze afspraak komt uit {{source}} en kan alleen daar worden aangepast. Hier kies je wat voor afspraak het is."
   },
   "calendar": {
     "addEvent": "Afspraak toevoegen",
     "busy": "Bezet",
-    "hint": "Sleep over een leeg stuk om een afspraak toe te voegen. Sleep een Planora-blok om het te verplaatsen; het blijft dan vastgepind."
+    "hint": "Sleep over een leeg stuk om een afspraak toe te voegen. Sleep een Planora-blok om het te verplaatsen; het blijft dan vastgepind.",
+    "show": "Tonen in agenda",
+    "study": "Studieblokken",
+    "deadlines": "Deadlines"
   },
   "review": {
     "tabPlan": "Weekplanning",
@@ -315,7 +333,11 @@
     "none": "Geen nieuwe taken gevonden.",
     "add": "Toevoegen en plannen",
     "ignore": "Negeren",
-    "error": "Ophalen is mislukt. Probeer het later opnieuw."
+    "error": "Ophalen is mislukt. Probeer het later opnieuw.",
+    "looksLike": "Lijkt op je taak \"{{title}}\".",
+    "link": "Koppelen",
+    "linkHint": "Je schatting en geplande blokken blijven.",
+    "addSeparately": "Apart toevoegen"
   },
   "integrations": {
     "builtin": "Planora-agenda",
@@ -379,7 +401,11 @@
     "reminderMin": "{{n}} min vooraf",
     "noReminder": "Geen",
     "exported": "Agendabestand gemaakt.",
-    "genericHint": "Toont ‘Planora focus’ in plaats van taaknamen in het bestand."
+    "genericHint": "Toont ‘Planora focus’ in plaats van taaknamen in het bestand.",
+    "category": "Afspraken in dit bestand zijn",
+    "categoryHint": "Toetsen (\"toets\", \"tentamen\", …) en excursies worden aan hun naam herkend. Losse afspraken pas je aan door erop te klikken in de agenda.",
+    "categoryOf": "Soort afspraken in {{name}}",
+    "alsoInOutlook": "Dit bestand staat ook in je Outlook-agenda. Je kunt het weghalen als je wilt; er gaat niets mis als je het laat staan."
   },
   "log": {
     "connect": "gekoppeld",
@@ -390,7 +416,9 @@
     "import-file": "{{count}} afspraken uit bestand",
     "read-freebusy": "{{count}} bezette tijden gelezen",
     "ok": "gelukt",
-    "failed": "mislukt"
+    "failed": "mislukt",
+    "sync": "gegevens gesynchroniseerd ({{count}} items)",
+    "sync-delete": "syncgegevens verwijderd uit OneDrive"
   },
   "privacy": {
     "badge": "Je gegevens blijven op dit apparaat",
@@ -458,7 +486,10 @@
     "enableNotifications": "Meldingen aanzetten",
     "notificationsOn": "Meldingen staan aan.",
     "saveReplan": "Opslaan en opnieuw plannen",
-    "saved": "Opgeslagen"
+    "saved": "Opgeslagen",
+    "lessonBuffer": "Pauze na lessen",
+    "lessonBufferHint": "Minuten vrij na een les, toets of excursie. 0 = uit.",
+    "tabSync": "Synchroniseren"
   },
   "onboarding": {
     "welcome": "Welkom bij Planora",
@@ -491,10 +522,54 @@
     "title": "Planora op andere apparaten / delen",
     "intro": "Stuur deze links naar vrienden of gebruik ze zelf. Iedereen gebruikt Planora met eigen gegevens op het eigen apparaat.",
     "web": "Website (werkt overal):",
-    "iphone": "open de website in Safari, tik op Delen en kies ‘Zet op beginscherm’.",
-    "android": "download Planora.apk en sta ‘Installeren van onbekende apps’ toe, of installeer via de website in Chrome.",
-    "windows": "download Planora-Setup.exe. Windows kan waarschuwen omdat de app niet ondertekend is: kies ‘Meer info’ en ‘Toch uitvoeren’.",
-    "downloads": "Downloads",
-    "ownData": "Gegevens worden niet gedeeld of gesynchroniseerd tussen apparaten. Verhuizen kan met een versleutelde back-up (Privacy en gegevens)."
+    "ownData": "Iedereen heeft eigen gegevens op het eigen apparaat. Zelf meerdere apparaten? Zet dan (optioneel) Synchroniseren aan.",
+    "page": "Downloadpagina:",
+    "pageHint": "Herkent zelf je apparaat (Windows, Mac, Linux, Android, iPhone) en legt stap voor stap uit hoe je installeert."
+  },
+  "category": {
+    "lesson": "Les",
+    "test": "Toets",
+    "excursion": "Excursie",
+    "meeting": "Afspraak",
+    "work": "Werk",
+    "sport": "Sport",
+    "personal": "Privé"
+  },
+  "sync": {
+    "title": "Synchroniseren tussen je apparaten (optioneel)",
+    "intro": "Gebruik je Planora op meer apparaten, zoals je telefoon en je laptop? Dan kun je ze hier gelijk houden. Gebruik je maar één apparaat, dan heb je dit niet nodig.",
+    "point1": "Planora bewaart één versleuteld bestand in een eigen, verborgen map in jouw OneDrive. Planora ziet je andere bestanden niet en heeft geen eigen server.",
+    "point2": "Alles wordt op je apparaat versleuteld met een wachtwoordzin die alleen jij kent. Microsoft ziet alleen onleesbare gegevens.",
+    "point3": "Werkt met een gratis persoonlijk Microsoft-account (outlook.com/hotmail). Toestemming van school is niet nodig. Dit account staat los van de Outlook/Teams-koppeling.",
+    "notAvailable": "Synchroniseren is in deze versie van Planora niet beschikbaar.",
+    "signIn": "Inloggen met Microsoft",
+    "signInHint": "Microsoft vraagt toestemming voor toegang tot de eigen map van de app (Files.ReadWrite.AppFolder).",
+    "as": "Account: {{account}}",
+    "otherAccount": "ander account",
+    "createIntro": "Dit is je eerste apparaat met synchroniseren. Kies een wachtwoordzin; die vul je straks op je andere apparaten ook in.",
+    "joinIntro": "Er synchroniseert al een ander apparaat. Vul dezelfde wachtwoordzin in als daar.",
+    "passphrase": "Wachtwoordzin voor synchroniseren",
+    "passphraseAgain": "Wachtwoordzin nog een keer",
+    "passHint": "Minstens 8 tekens. Kwijt is kwijt: zonder deze wachtwoordzin kan niemand de gegevens lezen, ook Planora niet.",
+    "passTooShort": "Kies minstens {{n}} tekens.",
+    "passMismatch": "De twee wachtwoordzinnen zijn niet gelijk.",
+    "turnOn": "Synchroniseren aanzetten",
+    "running": "Bezig met synchroniseren…",
+    "last": "Laatst gesynchroniseerd: {{when}}",
+    "never": "Nog niet gesynchroniseerd.",
+    "now": "Nu synchroniseren",
+    "stop": "Stoppen op dit apparaat",
+    "stopHint": "Stoppen laat je gegevens op dit apparaat en in OneDrive staan.",
+    "deleteRemote": "Syncgegevens uit OneDrive verwijderen",
+    "deleteRemoteIntro": "Het versleutelde bestand in OneDrive wordt verwijderd en synchroniseren stopt. De gegevens op je apparaten blijven staan. Andere apparaten melden daarna dat synchroniseren opnieuw ingesteld moet worden.",
+    "signInAgain": "Opnieuw inloggen",
+    "retry": "Opnieuw proberen",
+    "errors": {
+      "wrong-passphrase": "De wachtwoordzin klopt niet (meer). Is synchroniseren op een ander apparaat opnieuw ingesteld? Vul de nieuwe wachtwoordzin in.",
+      "signed-out": "Je bent niet meer ingelogd bij Microsoft voor synchroniseren.",
+      "too-large": "Je gegevens zijn te groot om te synchroniseren (meer dan 4 MB).",
+      "offline": "Geen internet. Planora probeert het later opnieuw.",
+      "failed": "Synchroniseren is mislukt. Planora probeert het later opnieuw."
+    }
   }
 }

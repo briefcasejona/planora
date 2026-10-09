@@ -27,3 +27,34 @@ export function expandBusy(blocks: BusyBlock[], from: Date, to: Date): (Interval
   }
   return out.sort((a, b) => +a.start - +b.start);
 }
+
+const SOURCE_RANK: Record<BusyBlock['source'], number> = { local: 0, ics: 1, microsoft: 2, google: 3 };
+const normalize = (title?: string) => title?.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '') || undefined;
+
+/**
+ * The same appointment can arrive twice, e.g. a lesson from an imported timetable
+ * and again from Outlook. Occurrences with the same start and end (within a
+ * minute) and the same title (when both have one) are shown once, keeping the
+ * one with the most information: your own events, then .ics, then Outlook, then Google.
+ * Planning doesn't need this: overlapping busy time is simply busy.
+ */
+export function dedupeBusy<T extends Interval & { block: BusyBlock }>(items: T[]): T[] {
+  const kept: T[] = [];
+  const sorted = [...items].sort((a, b) => +a.start - +b.start || SOURCE_RANK[a.block.source] - SOURCE_RANK[b.block.source]);
+  for (const item of sorted) {
+    let duplicate = false;
+    for (let i = kept.length - 1; i >= 0 && +item.start - +kept[i].start <= 60000; i--) {
+      const other = kept[i];
+      const sameTime = Math.abs(+item.end - +other.end) <= 60000 && Math.abs(+item.start - +other.start) <= 60000;
+      const a = normalize(item.block.title);
+      const b = normalize(other.block.title);
+      if (sameTime && (!a || !b || a === b) && item.block.source !== other.block.source) {
+        if (SOURCE_RANK[item.block.source] < SOURCE_RANK[other.block.source]) kept[i] = item;
+        duplicate = true;
+        break;
+      }
+    }
+    if (!duplicate) kept.push(item);
+  }
+  return kept;
+}

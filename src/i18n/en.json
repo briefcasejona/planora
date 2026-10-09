@@ -95,7 +95,8 @@
     "google": "Google Calendar",
     "ics": "Calendar file",
     "ms-todo": "Microsoft To Do",
-    "ms-teams": "Teams assignment"
+    "ms-teams": "Teams assignment",
+    "onedrive": "OneDrive (sync)"
   },
   "estimate": {
     "noData": "No comparable tasks yet: Planora learns from your feedback.",
@@ -132,7 +133,19 @@
     "tomorrow_one": "{{count}} block planned tomorrow.",
     "tomorrow_other": "{{count}} blocks planned tomorrow.",
     "deadlines": "Deadlines in the next 7 days",
-    "noDeadlines": "No deadlines this week."
+    "noDeadlines": "No deadlines this week.",
+    "schedule": "Schedule today",
+    "allDay": "All day",
+    "testsFound_one": "{{count}} test in your calendar",
+    "testsFound_other": "{{count}} tests in your calendar",
+    "testsHint": "Add a study task and Planora plans study sessions before the test.",
+    "addStudyTask": "Add study task",
+    "hideTest": "Hide",
+    "moreTests_one": "And {{count}} more test.",
+    "moreTests_other": "And {{count}} more tests.",
+    "iosHint": "Add Planora to your home screen",
+    "iosHintText": "In Safari, tap the share button and choose ‘Add to Home Screen’. Planora then works like a normal app, also offline.",
+    "iosHintDismiss": "Don't show again"
   },
   "inbox": {
     "quickAdd": "Quickly add a task",
@@ -238,19 +251,24 @@
   "busy": {
     "new": "New event",
     "edit": "Edit event",
-    "intro": "Time when you can't work, such as classes, sports or a job. Planora plans around it.",
+    "intro": "Time when you can't work, such as lessons, meetings, sports or a job. Planora plans around it.",
     "title": "Description",
     "titlePlaceholder": "E.g. Training",
     "start": "Start",
     "end": "End",
     "repeat": "Repeat every week on",
     "until": "Repeat until",
-    "errTime": "The end must be after the start."
+    "errTime": "The end must be after the start.",
+    "category": "Kind",
+    "externalIntro": "This event comes from {{source}} and can only be changed there. Here you can set what kind of event it is."
   },
   "calendar": {
     "addEvent": "Add event",
     "busy": "Busy",
-    "hint": "Drag across an empty area to add an event. Drag a Planora block to move it; it then stays pinned."
+    "hint": "Drag across an empty area to add an event. Drag a Planora block to move it; it then stays pinned.",
+    "show": "Show in calendar",
+    "study": "Study blocks",
+    "deadlines": "Deadlines"
   },
   "review": {
     "tabPlan": "Weekly plan",
@@ -315,7 +333,11 @@
     "none": "No new tasks found.",
     "add": "Add and plan",
     "ignore": "Ignore",
-    "error": "Fetching failed. Please try again later."
+    "error": "Fetching failed. Please try again later.",
+    "looksLike": "Looks like your task \"{{title}}\".",
+    "link": "Link",
+    "linkHint": "Keeps your estimate and planned blocks.",
+    "addSeparately": "Add separately"
   },
   "log": {
     "connect": "connected",
@@ -326,7 +348,9 @@
     "import-file": "{{count}} events from file",
     "read-freebusy": "{{count}} busy times read",
     "ok": "ok",
-    "failed": "failed"
+    "failed": "failed",
+    "sync": "data synced ({{count}} items)",
+    "sync-delete": "sync data deleted from OneDrive"
   },
   "lock": {
     "title": "Planora is locked",
@@ -403,7 +427,11 @@
     "reminderMin": "{{n}} min before",
     "noReminder": "None",
     "exported": "Calendar file created.",
-    "genericHint": "Shows 'Planora focus' instead of task names in the file."
+    "genericHint": "Shows 'Planora focus' instead of task names in the file.",
+    "category": "Events in this file are",
+    "categoryHint": "Tests (\"toets\", \"tentamen\", …) and excursions are recognised by their name. You can change single events by clicking them in the calendar.",
+    "categoryOf": "Kind of events in {{name}}",
+    "alsoInOutlook": "This file is also in your Outlook calendar. You can remove it if you like; nothing breaks either way."
   },
   "privacy": {
     "badge": "Your data stays on this device",
@@ -464,7 +492,10 @@
     "enableNotifications": "Turn on notifications",
     "notificationsOn": "Notifications are on.",
     "saveReplan": "Save and replan",
-    "saved": "Saved"
+    "saved": "Saved",
+    "lessonBuffer": "Break after lessons",
+    "lessonBufferHint": "Minutes kept free after a lesson, test or excursion. 0 = off.",
+    "tabSync": "Sync"
   },
   "onboarding": {
     "welcome": "Welcome to Planora",
@@ -491,10 +522,54 @@
     "title": "Planora on other devices / share",
     "intro": "Send these links to friends or use them yourself. Everyone uses Planora with their own data on their own device.",
     "web": "Website (works everywhere):",
-    "iphone": "open the website in Safari, tap Share and choose 'Add to Home Screen'.",
-    "android": "download Planora.apk and allow 'Install unknown apps', or install from the website in Chrome.",
-    "windows": "download Planora-Setup.exe. Windows may warn because the app isn't signed: choose 'More info' and 'Run anyway'.",
-    "downloads": "Downloads",
-    "ownData": "Data is never shared or synced between devices. To move, use an encrypted backup (Privacy & data)."
+    "ownData": "Everyone has their own data on their own device. Several devices yourself? Turn on Sync (optional).",
+    "page": "Download page:",
+    "pageHint": "Recognises your device (Windows, Mac, Linux, Android, iPhone) and explains installing step by step."
+  },
+  "category": {
+    "lesson": "Lesson",
+    "test": "Test",
+    "excursion": "Excursion",
+    "meeting": "Meeting",
+    "work": "Work",
+    "sport": "Sport",
+    "personal": "Personal"
+  },
+  "sync": {
+    "title": "Sync between your devices (optional)",
+    "intro": "Using Planora on more than one device, like your phone and your laptop? Keep them the same here. If you only use one device, you don't need this.",
+    "point1": "Planora keeps one encrypted file in its own hidden folder in your OneDrive. Planora can't see your other files and has no server of its own.",
+    "point2": "Everything is encrypted on your device with a passphrase only you know. Microsoft only sees unreadable data.",
+    "point3": "Works with a free personal Microsoft account (outlook.com/hotmail). No permission from school needed. This account is separate from the Outlook/Teams connection.",
+    "notAvailable": "Sync is not available in this version of Planora.",
+    "signIn": "Sign in with Microsoft",
+    "signInHint": "Microsoft asks permission to access the app's own folder (Files.ReadWrite.AppFolder).",
+    "as": "Account: {{account}}",
+    "otherAccount": "other account",
+    "createIntro": "This is your first device with sync. Choose a passphrase; you'll enter it on your other devices too.",
+    "joinIntro": "Another device already syncs. Enter the same passphrase as there.",
+    "passphrase": "Sync passphrase",
+    "passphraseAgain": "Passphrase again",
+    "passHint": "At least 8 characters. Lost means lost: without this passphrase nobody can read the data, not even Planora.",
+    "passTooShort": "Use at least {{n}} characters.",
+    "passMismatch": "The two passphrases don't match.",
+    "turnOn": "Turn on sync",
+    "running": "Syncing…",
+    "last": "Last synced: {{when}}",
+    "never": "Not synced yet.",
+    "now": "Sync now",
+    "stop": "Stop on this device",
+    "stopHint": "Stopping keeps your data on this device and in OneDrive.",
+    "deleteRemote": "Delete sync data from OneDrive",
+    "deleteRemoteIntro": "The encrypted file in OneDrive is deleted and sync stops. Data on your devices stays. Other devices will then say that sync needs to be set up again.",
+    "signInAgain": "Sign in again",
+    "retry": "Try again",
+    "errors": {
+      "wrong-passphrase": "The passphrase is not (or no longer) right. Was sync set up again on another device? Enter the new passphrase.",
+      "signed-out": "You are no longer signed in to Microsoft for sync.",
+      "too-large": "Your data is too large to sync (over 4 MB).",
+      "offline": "No internet. Planora will try again later.",
+      "failed": "Sync failed. Planora will try again later."
+    }
   }
 }

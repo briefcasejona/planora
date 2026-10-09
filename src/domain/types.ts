@@ -46,6 +46,8 @@ export interface Task {
   completedAt?: string;
   feedbackGiven: boolean;
   redoCount: number;
+  /** When this record last changed on any device (set by the database layer; used by sync). */
+  updatedAt?: string;
 }
 
 export type SessionStatus = 'planned' | 'done' | 'missed' | 'skipped';
@@ -64,9 +66,15 @@ export interface WorkSession {
   actualMin?: number;
   /** Id of the event Planora created in an external calendar (Outlook). */
   externalEventId?: string;
+  /** When this record last changed on any device (set by the database layer; used by sync). */
+  updatedAt?: string;
 }
 
 export type BusySource = 'local' | 'microsoft' | 'google' | 'ics';
+
+/** What kind of appointment an event is. Events are planned around, never planned themselves. */
+export type EventCategory = 'lesson' | 'meeting' | 'work' | 'sport' | 'personal' | 'test' | 'excursion';
+export const EVENT_CATEGORIES: EventCategory[] = ['lesson', 'test', 'excursion', 'meeting', 'work', 'sport', 'personal'];
 
 export interface BusyBlock {
   id: string;
@@ -77,10 +85,16 @@ export interface BusyBlock {
   source: BusySource;
   /** Groups blocks of one imported .ics file. */
   importId?: string;
+  /** UID of the event in the imported .ics file (shared by all occurrences of a series). */
+  externalUid?: string;
+  /** Unset for events whose kind is unknown, such as free/busy times from Outlook or Google. */
+  category?: EventCategory;
   allDay?: boolean;
   /** Local recurring events: repeat weekly on these weekdays (0 = Sunday) until `repeatUntil`. */
   repeatWeekdays?: number[];
   repeatUntil?: string;
+  /** When this record last changed on any device (set by the database layer; used by sync). */
+  updatedAt?: string;
 }
 
 export type EnoughTime = 'too-little' | 'right' | 'too-much';
@@ -103,6 +117,8 @@ export interface FeedbackRecord {
   grade?: string;
   completed: boolean;
   createdAt: string;
+  /** When this record last changed on any device (set by the database layer; used by sync). */
+  updatedAt?: string;
 }
 
 export interface DayAvailability {
@@ -128,6 +144,8 @@ export interface Preferences {
   minBlockMin: number;
   maxBlockMin: number;
   breakMin: number;
+  /** Minutes kept free after a lesson, test or excursion (travel, a break). 0 = off. */
+  lessonBufferMin: number;
   deadlineBufferDays: number;
   weeklyPlan: WeeklyMoment;
   weeklyReview: WeeklyMoment;
@@ -150,6 +168,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
   minBlockMin: 25,
   maxBlockMin: 90,
   breakMin: 15,
+  lessonBufferMin: 0,
   deadlineBufferDays: 1,
   weeklyPlan: { weekday: 0, time: '19:00' },
   weeklyReview: { weekday: 6, time: '15:00' },
@@ -177,4 +196,6 @@ export interface WeekReport {
   generatedAt: string;
   seenAt?: string;
   data: unknown;
+  /** When this record last changed on any device (set by the database layer; used by sync). */
+  updatedAt?: string;
 }

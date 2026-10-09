@@ -6,7 +6,7 @@ import { Toggle } from './Toggle';
 export function DesktopCard() {
   const { t } = useFormat();
   const bridge = window.planoraDesktop;
-  const [s, setS] = useState<{ closeToTray: boolean; openAtLogin: boolean } | null>(null);
+  const [s, setS] = useState<{ closeToTray: boolean; openAtLogin: boolean; platform?: string } | null>(null);
   useEffect(() => {
     void bridge?.getSettings().then(setS);
   }, [bridge]);
@@ -19,7 +19,7 @@ export function DesktopCard() {
     <div className="card mb-4">
       <h3 className="mb-1 font-semibold">{t('desktop.title')}</h3>
       <Toggle checked={s.closeToTray} onChange={(v) => update({ closeToTray: v })} label={t('desktop.closeToTray')} description={t('desktop.closeToTrayHint')} />
-      <Toggle checked={s.openAtLogin} onChange={(v) => update({ openAtLogin: v })} label={t('desktop.openAtLogin')} description={t('desktop.openAtLoginHint')} />
+      {s.platform !== 'linux' && <Toggle checked={s.openAtLogin} onChange={(v) => update({ openAtLogin: v })} label={t('desktop.openAtLogin')} description={t('desktop.openAtLoginHint')} />}
     </div>
   );
 }

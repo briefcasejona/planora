@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { repo } from '../data/repo';
+import type { EventCategory } from '../domain/types';
 
 export interface MicrosoftSettings {
   connected: boolean;
@@ -30,6 +31,12 @@ export interface IcsImport {
   name: string;
   importedAt: string;
   count: number;
+  /** What the events of this file are, unless their title says otherwise (default: lessons). */
+  category?: EventCategory;
+  /** Categories the user set on single events, by event UID; kept when the file is imported again. */
+  overrides?: Record<string, EventCategory>;
+  /** Last change to this entry (for sync between devices). */
+  updatedAt?: string;
 }
 
 export interface IcsExportSettings {
@@ -45,6 +52,10 @@ export interface IntegrationSettings {
   google: GoogleSettings;
   icsImports: IcsImport[];
   icsExport: IcsExportSettings;
+  /** Tests in the calendar the user chose not to make a study task for (see eventKey). */
+  dismissedTests: string[];
+  /** With sync on: the device that writes study blocks to Outlook, so they are written only once. */
+  outlookWriter?: { device: string; at: string };
 }
 
 export const DEFAULT_INTEGRATIONS: IntegrationSettings = {
@@ -62,6 +73,7 @@ export const DEFAULT_INTEGRATIONS: IntegrationSettings = {
   google: { connected: false },
   icsImports: [],
   icsExport: { generic: true, deadlines: true, reminderMin: 10, lastUids: [] },
+  dismissedTests: [],
 };
 
 export const useIntegrations = create<IntegrationSettings>(() => DEFAULT_INTEGRATIONS);
@@ -75,6 +87,7 @@ export async function loadIntegrations(): Promise<void> {
     google: { ...DEFAULT_INTEGRATIONS.google, ...stored.google },
     icsImports: stored.icsImports ?? [],
     icsExport: { ...DEFAULT_INTEGRATIONS.icsExport, ...stored.icsExport },
+    dismissedTests: stored.dismissedTests ?? [],
   });
 }
 

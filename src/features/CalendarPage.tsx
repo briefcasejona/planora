@@ -9,10 +9,10 @@ import type { DateSelectArg, EventClickArg, EventDropArg, EventInput } from '@fu
 import type { EventResizeDoneArg } from '@fullcalendar/interaction';
 import { addDays } from 'date-fns';
 import { actions, useStore } from '../data/store';
-import { expandBusy } from '../domain/busy';
-import type { BusyBlock } from '../domain/types';
+import { dedupeBusy, expandBusy } from '../domain/busy';
+import { EVENT_CATEGORIES, type BusyBlock } from '../domain/types';
 import { useFormat } from '../lib/format';
-import { TYPE_HEX } from '../components/ui';
+import { CATEGORY_HEX, BUSY_HEX, TYPE_HEX, eventColors } from '../components/ui';
 import { BusyDialog } from './BusyDialog';
 import { SessionDialog } from './SessionDialog';
 import { TaskDetail } from './TaskDetail';
@@ -24,17 +24,44 @@ type Dialog =
   | { kind: 'task'; id: string }
   | null;
 
+/** What can be hidden in the calendar: each event category, events of unknown kind, study blocks and deadlines. */
+const FILTERS = [...EVENT_CATEGORIES, 'busy', 'study', 'deadlines'] as const;
+type Filter = (typeof FILTERS)[number];
+const HIDDEN_KEY = 'planora-calendar-hidden';
+
+function loadHidden(): Filter[] {
+  try {
+    const v = JSON.parse(localStorage.getItem(HIDDEN_KEY) ?? '[]');
+    return Array.isArray(v) ? v.filter((x): x is Filter => (FILTERS as readonly string[]).includes(x)) : [];
+  } catch {
+    return [];
+  }
+}
+
 export function CalendarPage() {
   const { t, lang } = useFormat();
   const { tasks, sessions, busy } = useStore();
   const [dialog, setDialog] = useState<Dialog>(null);
+  const [hidden, setHidden] = useState<Filter[]>(loadHidden);
+  const toggle = (f: Filter) => {
+    const next = hidden.includes(f) ? hidden.filter((x) => x !== f) : [...hidden, f];
+    setHidden(next);
+    try {
+      localStorage.setItem(HIDDEN_KEY, JSON.stringify(next));
+    } catch {
+      // Not remembered (e.g. private mode); the filter still works for now.
+    }
+  };
+  const present = useMemo(() => new Set(busy.map((b) => b.category ?? 'busy')), [busy]);
+  const filters = FILTERS.filter((f) => f === 'study' || f === 'deadlines' || present.has(f) || hidden.includes(f));
   const narrow = typeof window !== 'undefined' && window.innerWidth < 640;
 
   const events = useMemo<EventInput[]>(() => {
     const byId = new Map(tasks.map((x) => [x.id, x]));
     const now = new Date();
     const out: EventInput[] = [];
-    for (const s of sessions) {
+    const show = (f: Filter) => !hidden.includes(f);
+    for (const s of show('study') ? sessions : []) {
       const task = byId.get(s.taskId);
       if (!task || s.status === 'skipped') continue;
       const step = task.steps?.find((x) => x.id === s.stepId);
@@ -51,27 +78,29 @@ export function CalendarPage() {
         classNames: [s.locked ? 'planora-locked' : '', s.status === 'done' ? 'opacity-60' : '', s.status === 'missed' ? 'line-through' : ''],
       });
     }
-    for (const x of expandBusy(busy, addDays(now, -90), addDays(now, 240))) {
+    for (const x of dedupeBusy(expandBusy(busy, addDays(now, -90), addDays(now, 240)))) {
+      const category = x.block.category;
+      if (!show(category ?? 'busy')) continue;
       const local = x.block.source === 'local';
+      const name = category ? t('category.' + category) : t('calendar.busy');
       out.push({
         id: 'b:' + x.block.id + ':' + x.start.getTime(),
-        title: x.block.title ?? t('calendar.busy') + (local ? '' : ' (' + t('source.' + x.block.source) + ')'),
+        title: x.block.title ?? name + (local ? '' : ' (' + t('source.' + x.block.source) + ')'),
         start: x.start,
         end: x.end,
         allDay: x.block.allDay,
-        backgroundColor: local ? '#94a3b8' : '#cbd5e1',
-        borderColor: '#94a3b8',
-        textColor: '#0f172a',
+        ...eventColors(category),
+        classNames: ['planora-event', category ? 'planora-cat-' + category : ''],
         editable: local && !x.block.repeatWeekdays?.length,
         extendedProps: { blockId: x.block.id },
       });
     }
-    for (const task of tasks) {
+    for (const task of show('deadlines') ? tasks : []) {
       if (task.status !== 'open' && task.status !== 'overdue') continue;
       out.push({ id: 'd:' + task.id, title: '⏰ ' + task.title, start: task.deadline, allDay: true, backgroundColor: '#fee2e2', borderColor: '#f87171', textColor: '#991b1b', editable: false });
     }
     return out;
-  }, [tasks, sessions, busy, t]);
+  }, [tasks, sessions, busy, hidden, t]);
 
   const findBlock = (id: string) => busy.find((b) => b.id === id);
 
@@ -81,7 +110,7 @@ export function CalendarPage() {
     else if (kind === 'd') setDialog({ kind: 'task', id });
     else {
       const block = findBlock(arg.event.extendedProps.blockId as string);
-      if (block?.source === 'local') setDialog({ kind: 'busy', block });
+      if (block?.source === 'local' || block?.source === 'ics') setDialog({ kind: 'busy', block });
     }
   };
 
@@ -112,6 +141,18 @@ export function CalendarPage() {
         </button>
       </div>
       <p className="mb-3 text-sm text-slate-600 dark:text-slate-300">{t('calendar.hint')}</p>
+      <div role="group" aria-label={t('calendar.show')} className="mb-3 flex flex-wrap gap-1.5">
+        {filters.map((f) => {
+          const on = !hidden.includes(f);
+          const hex = f === 'study' ? '#4f46e5' : f === 'deadlines' ? '#f87171' : f === 'busy' ? BUSY_HEX : CATEGORY_HEX[f];
+          return (
+            <button key={f} type="button" aria-pressed={on} className={`chip gap-1.5 ${on ? '' : 'opacity-50 line-through'}`} onClick={() => toggle(f)}>
+              <span className="h-2 w-2 rounded-full" style={{ backgroundColor: hex }} aria-hidden />
+              {f === 'study' ? t('calendar.study') : f === 'deadlines' ? t('calendar.deadlines') : f === 'busy' ? t('calendar.busy') : t('category.' + f)}
+            </button>
+          );
+        })}
+      </div>
       <div className="card p-2 sm:p-4">
         <FullCalendar
           plugins={[timeGridPlugin, dayGridPlugin, interactionPlugin]}

@@ -1,9 +1,10 @@
-import { useRef, useState } from 'react';
-import { actions } from '../../data/store';
+import { useMemo, useRef, useState } from 'react';
+import { actions, useStore } from '../../data/store';
 import { repo } from '../../data/repo';
 import { useFormat } from '../../lib/format';
 import { googleConfigured, googleDisconnect, googleSignIn, pullGoogleBusy } from '../../integrations/google';
-import { exportPlan, importCalendarFile, removeCalendarImport } from '../../integrations/calendarFiles';
+import { exportPlan, importCalendarFile, removeCalendarImport, setImportCategory } from '../../integrations/calendarFiles';
+import { EVENT_CATEGORIES, type EventCategory } from '../../domain/types';
 import { Chips } from '../../components/ui';
 import { patchGoogle, saveIntegrations, useIntegrations } from '../../integrations/settings';
 import { isNativeApp, platform } from '../../lib/platform';
@@ -69,13 +70,26 @@ export function IcsCard() {
   const { t, date } = useFormat();
   const imports = useIntegrations((s) => s.icsImports);
   const exp = useIntegrations((s) => s.icsExport);
+  const busy = useStore((s) => s.busy);
+  const alsoInOutlook = useMemo(() => {
+    const outlook = new Set(busy.filter((b) => b.source === 'microsoft').map((b) => b.start + b.end));
+    const result = new Set<string>();
+    if (!outlook.size) return result;
+    for (const i of imports) {
+      const own = busy.filter((b) => b.source === 'ics' && b.importId === i.id);
+      if (own.length && own.filter((b) => outlook.has(b.start + b.end)).length / own.length >= 0.8) result.add(i.id);
+    }
+    return result;
+  }, [busy, imports]);
   const fileRef = useRef<HTMLInputElement>(null);
   const [msg, setMsg] = useState('');
+  const [category, setCategory] = useState<EventCategory>('lesson');
+  const categoryOptions = EVENT_CATEGORIES.map((c) => <option key={c} value={c}>{t('category.' + c)}</option>);
   const setExport = (patch: Partial<typeof exp>) => saveIntegrations({ icsExport: { ...exp, ...patch } });
 
   const onFile = async (file: File) => {
     try {
-      setMsg(t('ics.imported', { count: await importCalendarFile(file.name, await file.text()) }));
+      setMsg(t('ics.imported', { count: await importCalendarFile(file.name, await file.text(), category) }));
     } catch {
       setMsg(t('ics.invalid'));
     }
@@ -102,14 +116,24 @@ export function IcsCard() {
       </ul>
       <input ref={fileRef} type="file" accept=".ics,text/calendar" className="hidden"
         onChange={(e) => { const f = e.target.files?.[0]; if (f) void onFile(f); e.target.value = ''; }} />
-      <button className="btn-secondary" onClick={() => fileRef.current?.click()}>{t('ics.import')}</button>
+      <div className="flex flex-wrap items-end gap-2">
+        <label className="min-w-40">
+          <span className="label">{t('ics.category')}</span>
+          <select className="input" value={category} onChange={(e) => setCategory(e.target.value as EventCategory)}>{categoryOptions}</select>
+        </label>
+        <button className="btn-secondary" onClick={() => fileRef.current?.click()}>{t('ics.import')}</button>
+      </div>
+      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{t('ics.categoryHint')}</p>
       {imports.length > 0 && (
         <ul className="mt-3 divide-y divide-slate-100 text-sm dark:divide-slate-800">
           {imports.map((i) => (
-            <li key={i.id} className="flex items-center gap-2 py-1.5">
+            <li key={i.id} className="flex flex-wrap items-center gap-2 py-1.5">
               <span className="min-w-0 flex-1 truncate font-medium">{i.name}</span>
               <span className="text-xs text-slate-500">{t('ics.status', { count: i.count, when: date(i.importedAt, 'd MMM HH:mm') })}</span>
+              <select className="input w-auto py-1 text-xs" aria-label={t('ics.categoryOf', { name: i.name })} value={i.category ?? 'lesson'}
+                onChange={(e) => void setImportCategory(i.id, e.target.value as EventCategory)}>{categoryOptions}</select>
               <button className="btn-ghost px-2 py-1 text-rose-600" onClick={() => removeCalendarImport(i.id)}>{t('common.remove')}</button>
+              {alsoInOutlook.has(i.id) && <span className="basis-full text-xs text-slate-500 dark:text-slate-400">{t('ics.alsoInOutlook')}</span>}
             </li>
           ))}
         </ul>

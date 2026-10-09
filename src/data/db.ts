@@ -15,7 +15,7 @@ export interface KvRow {
 export interface SyncLogEntry {
   id?: number;
   at: string;
-  provider: 'microsoft' | 'google' | 'ics';
+  provider: 'microsoft' | 'google' | 'ics' | 'onedrive';
   action: string;
   /** Counts only; never content. */
   count: number;
