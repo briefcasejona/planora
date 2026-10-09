@@ -15,11 +15,15 @@ import { Icon } from '../components/Icon';
 import { TaskDetail } from './TaskDetail';
 import { FeedbackDialog } from './FeedbackDialog';
 import { TaskForm, type TaskPrefill } from './TaskForm';
+import { installUpdate, useUpdates } from '../integrations/updates';
+import { updateAction } from './settings/UpdatesCard';
 
 export function TodayPage() {
   const { t, date, time, duration, relativeDay } = useFormat();
   const { tasks, sessions, warnings, reports, busy } = useStore();
   const dismissedTests = useIntegrations((s) => s.dismissedTests);
+  const update = useUpdates();
+  const showUpdate = update.supported && (update.state === 'ready' || update.state === 'available');
   const [openTask, setOpenTask] = useState<string | null>(null);
   const [prefill, setPrefill] = useState<TaskPrefill | null>(null);
   const [iosHint, setIosHint] = useState(() => {
@@ -73,6 +77,12 @@ export function TodayPage() {
       </header>
 
       <div className="mb-5 space-y-2">
+        {showUpdate && (
+          <Banner icon="download" tone="success" action={<button className="btn-primary" onClick={() => void installUpdate()}>{t(updateAction(update.kind, update.state))}</button>}>
+            <p className="font-medium">{t('updates.found', { version: update.version })}</p>
+            <p className="text-sm">{t(update.kind === 'android' ? 'updates.androidHint' : update.kind === 'install' ? 'updates.restartHint' : 'updates.downloadHint')}</p>
+          </Banner>
+        )}
         {iosHint && (
           <Banner icon="download" action={<button className="btn-ghost" onClick={hideIosHint}>{t('today.iosHintDismiss')}</button>}>
             <p className="font-medium">{t('today.iosHint')}</p>

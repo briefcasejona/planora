@@ -7,6 +7,7 @@ const http = require('node:http');
 const path = require('node:path');
 const CSP = require('../csp.cjs');
 const { createGoogleWaiter } = require('./oauth.cjs');
+const { createUpdater, DOWNLOAD_PAGE } = require('./updater.cjs');
 
 const IS_MAC = process.platform === 'darwin';
 const PORT = 47823; // fixed, so stored data and the sign-in redirect address stay the same
@@ -32,9 +33,9 @@ let pendingFiles = [];
 const settingsFile = () => path.join(app.getPath('userData'), 'desktop-settings.json');
 function readSettings() {
   try {
-    return { closeToTray: true, openAtLogin: false, ...JSON.parse(fs.readFileSync(settingsFile(), 'utf8')) };
+    return { closeToTray: true, openAtLogin: false, autoUpdate: true, ...JSON.parse(fs.readFileSync(settingsFile(), 'utf8')) };
   } catch {
-    return { closeToTray: true, openAtLogin: false };
+    return { closeToTray: true, openAtLogin: false, autoUpdate: true };
   }
 }
 function writeSettings(patch) {
@@ -184,11 +185,37 @@ ipcMain.handle('google-sign-in', async (_e, url, state) => {
   await shell.openExternal(String(url));
   return answer;
 });
+// ---------- updates (see updater.cjs) ----------
+const UPDATE_EVERY_MS = 6 * 60 * 60 * 1000;
+const updater = createUpdater({ app, send: (status) => { if (win && !win.isDestroyed()) win.webContents.send('update-status', status); } });
+let updateUnattended = false;
+ipcMain.handle('update-status', () => updater.status());
+ipcMain.handle('check-update', () => updater.check().then(() => updater.status()));
+ipcMain.handle('install-update', () => {
+  if (updater.status().state === 'available') {
+    void shell.openExternal(DOWNLOAD_PAGE);
+    return false;
+  }
+  if (!updater.install(true)) return false;
+  updateUnattended = true;
+  quitting = true;
+  app.quit();
+  return true;
+});
+function scheduleUpdateChecks() {
+  const tick = () => {
+    if (readSettings().autoUpdate) void updater.check();
+  };
+  setTimeout(tick, 30_000);
+  setInterval(tick, UPDATE_EVERY_MS);
+}
+
 ipcMain.handle('get-settings', () => ({ ...readSettings(), platform: process.platform }));
 ipcMain.handle('set-settings', (_e, patch) => {
   const clean = {};
   if (typeof patch?.closeToTray === 'boolean') clean.closeToTray = patch.closeToTray;
   if (typeof patch?.openAtLogin === 'boolean') clean.openAtLogin = patch.openAtLogin;
+  if (typeof patch?.autoUpdate === 'boolean') clean.autoUpdate = patch.autoUpdate;
   writeSettings(clean);
 });
 
@@ -222,8 +249,13 @@ if (!app.requestSingleInstanceLock()) {
     Menu.setApplicationMenu(IS_MAC ? Menu.buildFromTemplate([{ role: 'appMenu' }, { role: 'editMenu' }, { role: 'windowMenu' }]) : null);
     createWindow(process.argv.includes('--hidden'));
     createTray();
+    scheduleUpdateChecks();
   });
-  app.on('before-quit', () => { quitting = true; });
+  app.on('before-quit', () => {
+    quitting = true;
+    // An update that was downloaded but not installed yet is installed while quitting.
+    if (!updateUnattended && updater.status().state === 'ready') updater.install(false);
+  });
   // Mac: clicking the Dock icon brings the (hidden) window back.
   app.on('activate', () => {
     if (win) show();
