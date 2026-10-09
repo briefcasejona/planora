@@ -9,7 +9,13 @@
   - Installers for Windows (one click), Mac (.dmg) and Linux (AppImage); download page for every device.
   - Optional sync between your own devices through your OneDrive (end-to-end encrypted).
 
+- Pull request #15 (Claude Code setup + automatic code formatting) is checked and ready for you to merge:
+  all tests pass, including the desktop app test. The "new review" dot in the menu is now read out
+  by screen readers on phones too, not only on computers.
+
 ## What needs you
+0. **Merge pull request #15**: <https://github.com/briefcasejona/planora/pull/15>. It reformats
+   `electron/updater.cjs` (layout only, no behavior change), which needs your OK.
 1. **Merge the branch** into `main` (pull request), or ask Claude to.
 2. **Release v0.3.0**: ask Claude to push the tag `v0.3.0` (or `git tag v0.3.0 && git push origin v0.3.0`).
    GitHub then builds all installers and the APK (about 15 minutes).
