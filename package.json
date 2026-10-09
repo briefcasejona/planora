@@ -16,7 +16,9 @@
     "icons": "node scripts/icons.mjs",
     "desktop": "npm run build && electron .",
     "dist:win": "npm run build && electron-builder --win --publish never",
-    "e2e:desktop": "npm run build && playwright test -c playwright.desktop.config.ts"
+    "e2e:desktop": "npm run build && playwright test -c playwright.desktop.config.ts",
+    "dist:mac": "npm run build && electron-builder --mac --publish never -c.electronDist=",
+    "dist:linux": "npm run build && electron-builder --linux --publish never -c.electronDist="
   },
   "dependencies": {
     "@azure/msal-browser": "^5.25.0",
@@ -88,23 +90,42 @@
       "icon": "build/icon.png"
     },
     "nsis": {
-      "oneClick": false,
+      "oneClick": true,
       "perMachine": false,
-      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "runAfterFinish": true,
+      "shortcutName": "Planora",
+      "deleteAppDataOnUninstall": false,
       "artifactName": "Planora-Setup-${version}.exe"
     },
     "portable": {
       "artifactName": "Planora-${version}-portable.exe"
     },
     "mac": {
-      "target": "dmg",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ],
       "category": "public.app-category.productivity",
-      "artifactName": "Planora-${version}.dmg"
+      "icon": "build/icon.png",
+      "identity": "-",
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false,
+      "artifactName": "Planora-${version}-${arch}.${ext}"
     },
     "linux": {
       "target": "AppImage",
       "category": "Office",
-      "artifactName": "Planora-${version}.AppImage"
+      "icon": "build/icon.png",
+      "artifactName": "Planora-${version}.AppImage",
+      "desktopName": "planora",
+      "syncDesktopName": true
     },
     "fileAssociations": [
       {
@@ -114,6 +135,21 @@
         "role": "Viewer"
       }
     ],
-    "electronDist": "node_modules/electron/dist"
+    "electronDist": "node_modules/electron/dist",
+    "dmg": {
+      "title": "Planora",
+      "contents": [
+        {
+          "x": 150,
+          "y": 190
+        },
+        {
+          "x": 390,
+          "y": 190,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    }
   }
 }

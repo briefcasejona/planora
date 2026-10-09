@@ -7,6 +7,7 @@ const http = require('node:http');
 const path = require('node:path');
 const CSP = require('../csp.cjs');
 
+const IS_MAC = process.platform === 'darwin';
 const PORT = 47823; // fixed, so stored data and the sign-in redirect address stay the same
 const ORIGIN = `http://localhost:${PORT}`;
 const DIST = path.join(__dirname, '..', 'dist');
@@ -37,7 +38,8 @@ function readSettings() {
 function writeSettings(patch) {
   const next = { ...readSettings(), ...patch };
   fs.writeFileSync(settingsFile(), JSON.stringify(next));
-  app.setLoginItemSettings({ openAtLogin: next.openAtLogin, args: ['--hidden'] });
+  // Starting with the computer is supported on Windows and Mac only.
+  if (process.platform !== 'linux') app.setLoginItemSettings({ openAtLogin: next.openAtLogin, openAsHidden: true, args: ['--hidden'] });
   return next;
 }
 
@@ -137,7 +139,8 @@ function show() {
 }
 
 function createTray() {
-  tray = new Tray(nativeImage.createFromPath(ICON).resize({ width: 16, height: 16 }));
+  const image = nativeImage.createFromPath(ICON).resize({ width: IS_MAC ? 18 : 16, height: IS_MAC ? 18 : 16 });
+  tray = new Tray(image);
   tray.setToolTip('Planora');
   tray.setContextMenu(
     Menu.buildFromTemplate([
@@ -156,7 +159,7 @@ ipcMain.handle('save-file', async (_e, name, content) => {
   await fs.promises.writeFile(filePath, String(content), 'utf8');
   return true;
 });
-ipcMain.handle('get-settings', () => readSettings());
+ipcMain.handle('get-settings', () => ({ ...readSettings(), platform: process.platform }));
 ipcMain.handle('set-settings', (_e, patch) => {
   const clean = {};
   if (typeof patch?.closeToTray === 'boolean') clean.closeToTray = patch.closeToTray;
@@ -190,10 +193,14 @@ if (!app.requestSingleInstanceLock()) {
       app.exit(1);
       return;
     }
-    Menu.setApplicationMenu(null);
+    // Windows/Linux: no menu bar. Mac: the standard app and Edit menus, so Cmd+Q, Cmd+C/V and Cmd+W work.
+    Menu.setApplicationMenu(IS_MAC ? Menu.buildFromTemplate([{ role: 'appMenu' }, { role: 'editMenu' }, { role: 'windowMenu' }]) : null);
     createWindow(process.argv.includes('--hidden'));
     createTray();
   });
   app.on('before-quit', () => { quitting = true; });
-  app.on('activate', show);
+  // Mac: clicking the Dock icon brings the (hidden) window back.
+  app.on('activate', () => {
+    if (win) show();
+  });
 }

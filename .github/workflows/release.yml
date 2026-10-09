@@ -1,5 +1,6 @@
-# Pushing a tag vX.Y.Z builds the Windows installer and a signed Android APK
-# and publishes them as a GitHub Release.
+# Pushing a tag vX.Y.Z builds the installers for Windows, Mac and Linux and a
+# signed Android APK, and publishes them as a GitHub Release with stable file
+# names, so releases/latest/download/<name> always points at the newest one.
 name: Release
 
 on:
@@ -33,6 +34,38 @@ jobs:
           path: |
             release/Planora-Setup-*.exe
             release/Planora-*-portable.exe
+
+  mac:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run dist:mac
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mac
+          if-no-files-found: error
+          path: release/Planora-*.dmg
+
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run dist:linux
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          if-no-files-found: error
+          path: release/Planora-*.AppImage
 
   android:
     runs-on: ubuntu-latest
@@ -81,13 +114,22 @@ jobs:
           path: Planora.apk
 
   publish:
-    needs: [windows, android]
+    needs: [windows, mac, linux, android]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
         with:
           path: out
           merge-multiple: true
+      - name: Give the files stable names
+        working-directory: out
+        run: |
+          mv Planora-Setup-*.exe Planora-Setup.exe
+          mv Planora-*-portable.exe Planora-portable.exe
+          mv Planora-*-arm64.dmg Planora-Mac-AppleSilicon.dmg
+          mv Planora-*-x64.dmg Planora-Mac-Intel.dmg
+          mv Planora-*.AppImage Planora.AppImage
+          ls -la
       - uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true

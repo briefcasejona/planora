@@ -1,5 +1,8 @@
 import { InteractionRequiredAuthError, PublicClientApplication, type AccountInfo } from '@azure/msal-browser';
-import { appUrl, isNativeApp } from '../../lib/platform';
+import { appUrl, isIosStandalone, isNativeApp } from '../../lib/platform';
+
+/** Popups don't work in the native app or in an iPhone home-screen app: sign in by redirect there. */
+const signInByRedirect = () => isNativeApp() || isIosStandalone();
 
 const clientId = import.meta.env.VITE_MS_CLIENT_ID as string | undefined;
 const tenant = (import.meta.env.VITE_MS_TENANT as string | undefined) || 'common';
@@ -63,7 +66,7 @@ async function redirectTo(scopes: readonly string[], persist: boolean, pending: 
 
 /** Call once at startup in the native app; returns what was pending, if a redirect just completed. */
 export async function msHandleRedirect(persist: boolean): Promise<{ account: AccountInfo; pending: MsPending | null } | null> {
-  if (!clientId || !isNativeApp()) return null;
+  if (!clientId || !signInByRedirect()) return null;
   const app = await client(persist);
   const result = await app.handleRedirectPromise();
   const raw = sessionStorage.getItem(PENDING_KEY);
@@ -75,7 +78,7 @@ export async function msHandleRedirect(persist: boolean): Promise<{ account: Acc
 
 export async function msSignIn(scopes: readonly string[], persist: boolean, pending: MsPending = { kind: 'connect' }): Promise<AccountInfo> {
   const app = await client(persist);
-  if (isNativeApp()) return redirectTo(scopes, persist, pending);
+  if (signInByRedirect()) return redirectTo(scopes, persist, pending);
   const result = await app.loginPopup({ scopes: [...scopes], prompt: 'select_account' });
   app.setActiveAccount(result.account);
   return result.account;
@@ -94,7 +97,7 @@ export async function msToken(scopes: readonly string[], persist: boolean, inter
     return (await app.acquireTokenSilent({ scopes: [...scopes], account: acc })).accessToken;
   } catch (e) {
     if (interactive && e instanceof InteractionRequiredAuthError) {
-      if (isNativeApp()) return redirectTo(scopes, persist, pending, acc);
+      if (signInByRedirect()) return redirectTo(scopes, persist, pending, acc);
       return (await app.acquireTokenPopup({ scopes: [...scopes], account: acc })).accessToken;
     }
     throw e;

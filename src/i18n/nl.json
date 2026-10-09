@@ -141,7 +141,10 @@
     "addStudyTask": "Leertaak toevoegen",
     "hideTest": "Verbergen",
     "moreTests_one": "En nog {{count}} toets.",
-    "moreTests_other": "En nog {{count}} toetsen."
+    "moreTests_other": "En nog {{count}} toetsen.",
+    "iosHint": "Zet Planora op je beginscherm",
+    "iosHintText": "Tik in Safari op de deelknop en kies ‘Zet op beginscherm’. Dan werkt Planora als een gewone app, ook offline.",
+    "iosHintDismiss": "Niet meer tonen"
   },
   "inbox": {
     "quickAdd": "Snel een taak toevoegen",
@@ -515,11 +518,9 @@
     "title": "Planora op andere apparaten / delen",
     "intro": "Stuur deze links naar vrienden of gebruik ze zelf. Iedereen gebruikt Planora met eigen gegevens op het eigen apparaat.",
     "web": "Website (werkt overal):",
-    "iphone": "open de website in Safari, tik op Delen en kies ‘Zet op beginscherm’.",
-    "android": "download Planora.apk en sta ‘Installeren van onbekende apps’ toe, of installeer via de website in Chrome.",
-    "windows": "download Planora-Setup.exe. Windows kan waarschuwen omdat de app niet ondertekend is: kies ‘Meer info’ en ‘Toch uitvoeren’.",
-    "downloads": "Downloads",
-    "ownData": "Gegevens worden niet gedeeld of gesynchroniseerd tussen apparaten. Verhuizen kan met een versleutelde back-up (Privacy en gegevens)."
+    "ownData": "Iedereen heeft eigen gegevens op het eigen apparaat. Zelf meerdere apparaten? Zet dan (optioneel) Synchroniseren aan.",
+    "page": "Downloadpagina:",
+    "pageHint": "Herkent zelf je apparaat (Windows, Mac, Linux, Android, iPhone) en legt stap voor stap uit hoe je installeert."
   },
   "category": {
     "lesson": "Les",

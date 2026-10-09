@@ -141,7 +141,10 @@
     "addStudyTask": "Add study task",
     "hideTest": "Hide",
     "moreTests_one": "And {{count}} more test.",
-    "moreTests_other": "And {{count}} more tests."
+    "moreTests_other": "And {{count}} more tests.",
+    "iosHint": "Add Planora to your home screen",
+    "iosHintText": "In Safari, tap the share button and choose ‘Add to Home Screen’. Planora then works like a normal app, also offline.",
+    "iosHintDismiss": "Don't show again"
   },
   "inbox": {
     "quickAdd": "Quickly add a task",
@@ -515,11 +518,9 @@
     "title": "Planora on other devices / share",
     "intro": "Send these links to friends or use them yourself. Everyone uses Planora with their own data on their own device.",
     "web": "Website (works everywhere):",
-    "iphone": "open the website in Safari, tap Share and choose 'Add to Home Screen'.",
-    "android": "download Planora.apk and allow 'Install unknown apps', or install from the website in Chrome.",
-    "windows": "download Planora-Setup.exe. Windows may warn because the app isn't signed: choose 'More info' and 'Run anyway'.",
-    "downloads": "Downloads",
-    "ownData": "Data is never shared or synced between devices. To move, use an encrypted backup (Privacy & data)."
+    "ownData": "Everyone has their own data on their own device. Several devices yourself? Turn on Sync (optional).",
+    "page": "Download page:",
+    "pageHint": "Recognises your device (Windows, Mac, Linux, Android, iPhone) and explains installing step by step."
   },
   "category": {
     "lesson": "Lesson",

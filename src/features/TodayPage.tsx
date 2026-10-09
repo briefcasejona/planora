@@ -9,6 +9,7 @@ import { sessionMinutes } from '../domain/scheduler';
 import type { WorkSession } from '../domain/types';
 import { saveIntegrations, useIntegrations } from '../integrations/settings';
 import { useFormat } from '../lib/format';
+import { isIos, isIosStandalone, isNativeApp } from '../lib/platform';
 import { Banner, CategoryBadge, Empty, Section, TypeBadge } from '../components/ui';
 import { Icon } from '../components/Icon';
 import { TaskDetail } from './TaskDetail';
@@ -21,6 +22,21 @@ export function TodayPage() {
   const dismissedTests = useIntegrations((s) => s.dismissedTests);
   const [openTask, setOpenTask] = useState<string | null>(null);
   const [prefill, setPrefill] = useState<TaskPrefill | null>(null);
+  const [iosHint, setIosHint] = useState(() => {
+    try {
+      return isIos() && !isIosStandalone() && !isNativeApp() && localStorage.getItem('planora-ios-hint') !== 'hidden';
+    } catch {
+      return false;
+    }
+  });
+  const hideIosHint = () => {
+    setIosHint(false);
+    try {
+      localStorage.setItem('planora-ios-hint', 'hidden');
+    } catch {
+      // Not remembered; hidden for now.
+    }
+  };
   const [feedbackFor, setFeedbackFor] = useState<string | null>(null);
   const now = new Date();
   const byId = new Map(tasks.map((x) => [x.id, x]));
@@ -57,6 +73,12 @@ export function TodayPage() {
       </header>
 
       <div className="mb-5 space-y-2">
+        {iosHint && (
+          <Banner icon="download" action={<button className="btn-ghost" onClick={hideIosHint}>{t('today.iosHintDismiss')}</button>}>
+            <p className="font-medium">{t('today.iosHint')}</p>
+            <p className="text-sm">{t('today.iosHintText')}</p>
+          </Banner>
+        )}
         {unseen.map((r) => (
           <Banner key={r.id} icon="review" action={<Link className="btn-primary" to={'/review?report=' + encodeURIComponent(r.id)}>{t('common.open')}</Link>}>
             <p className="font-medium">{r.kind === 'plan' ? t('today.planReady') : t('today.reviewReady')}</p>
