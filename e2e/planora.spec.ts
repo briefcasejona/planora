@@ -143,19 +143,25 @@ test('Google Calendar: connect in a popup and show busy times (fake Google)', as
   });
   const start = new Date();
   start.setHours(12, 0, 0, 0);
-  await context.route('https://www.googleapis.com/calendar/v3/freeBusy', (route) =>
-    route.fulfill({
-      contentType: 'application/json',
-      headers: { 'access-control-allow-origin': '*' },
-      body: JSON.stringify({ calendars: { primary: { busy: [{ start: start.toISOString(), end: new Date(start.getTime() + 3600000).toISOString() }] } } }),
-    }),
-  );
+  await context.route('https://www.googleapis.com/calendar/v3/freeBusy', (route) => {
+    const cors = { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*' };
+    if (route.request().method() === 'OPTIONS') return route.fulfill({ status: 204, headers: cors });
+    const q = route.request().postDataJSON() as { timeMin: string; timeMax: string };
+    // Like the real Google: long ranges in one request are refused.
+    if (Date.parse(q.timeMax) - Date.parse(q.timeMin) > 60 * 86400000) {
+      return route.fulfill({ status: 400, contentType: 'application/json', headers: cors, body: JSON.stringify({ error: { code: 400, message: 'The requested time range is too long.', errors: [{ reason: 'timeRangeTooLong' }] } }) });
+    }
+    const inRange = start >= new Date(q.timeMin) && start < new Date(q.timeMax);
+    const busy = inRange ? [{ start: start.toISOString(), end: new Date(start.getTime() + 3600000).toISOString() }] : [];
+    return route.fulfill({ contentType: 'application/json', headers: cors, body: JSON.stringify({ calendars: { primary: { busy } } }) });
+  });
   await onboard(page);
   await page.getByRole('link', { name: 'Instellingen' }).last().click();
   await page.getByRole('radio', { name: "Agenda's en koppelingen" }).click();
   await page.getByRole('button', { name: 'Koppelen met Google' }).click();
   await expect(page.getByRole('button', { name: 'Ontkoppelen' }).last()).toBeVisible();
   await expect(page.getByText(/laatst bijgewerkt/).first()).toBeVisible();
+  await expect(page.getByText(/Dat lukte niet/)).toHaveCount(0);
   await page.getByRole('link', { name: 'Agenda' }).last().click();
   await expect(page.locator('.fc-event', { hasText: 'Google Agenda' }).first()).toBeAttached();
 });

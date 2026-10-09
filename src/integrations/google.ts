@@ -187,6 +187,25 @@ async function token(interactive: boolean): Promise<string | null> {
   return googleSignIn();
 }
 
+const WINDOW_DAYS = 45;
+
+/** The period Planora reads (a week back, 90 days ahead), in windows Google accepts. */
+export function freeBusyWindows(now: Date, from = -7, to = 90): { start: Date; end: Date }[] {
+  const out: { start: Date; end: Date }[] = [];
+  for (let d = from; d < to; d += WINDOW_DAYS) out.push({ start: addDays(now, d), end: addDays(now, Math.min(d + WINDOW_DAYS, to)) });
+  return out;
+}
+
+/** Google's own explanation of an error (e.g. "timeRangeTooLong"), so a failure says what went wrong. */
+async function googleErrorReason(res: Response): Promise<string> {
+  try {
+    const body = (await res.json()) as { error?: { message?: string; errors?: { reason?: string }[] } };
+    return body.error?.errors?.[0]?.reason ?? body.error?.message ?? '';
+  } catch {
+    return '';
+  }
+}
+
 export async function pullGoogleBusy(interactive = false): Promise<void> {
   if (!useIntegrations.getState().google.connected || !useStore.getState().ready || useStore.getState().locked) return;
   try {
@@ -194,27 +213,34 @@ export async function pullGoogleBusy(interactive = false): Promise<void> {
     // Sign-in expired: keep the busy times already fetched; the user refreshes with one click.
     if (!access) return;
     const now = new Date();
-    const res = await fetch('https://www.googleapis.com/calendar/v3/freeBusy', {
-      method: 'POST',
-      credentials: 'omit',
-      referrerPolicy: 'no-referrer',
-      headers: { Authorization: 'Bearer ' + access, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ timeMin: addDays(now, -7).toISOString(), timeMax: addDays(now, 90).toISOString(), items: [{ id: 'primary' }] }),
-    });
-    if (res.status === 401) {
-      localStorage.removeItem(TOKEN_KEY);
-      await patchGoogle({ tokenExpires: undefined });
-      if (interactive) return pullGoogleBusy(true);
-      return;
+    const byId = new Map<string, BusyBlock>();
+    // Google refuses long ranges in one request (timeRangeTooLong), so ask per window.
+    for (const w of freeBusyWindows(now)) {
+      const res = await fetch('https://www.googleapis.com/calendar/v3/freeBusy', {
+        method: 'POST',
+        credentials: 'omit',
+        referrerPolicy: 'no-referrer',
+        headers: { Authorization: 'Bearer ' + access, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ timeMin: w.start.toISOString(), timeMax: w.end.toISOString(), items: [{ id: 'primary' }] }),
+      });
+      if (res.status === 401) {
+        localStorage.removeItem(TOKEN_KEY);
+        await patchGoogle({ tokenExpires: undefined });
+        if (interactive) return pullGoogleBusy(true);
+        return;
+      }
+      if (!res.ok) throw new Error(('google-' + res.status + ' ' + (await googleErrorReason(res))).trim());
+      const data = (await res.json()) as {
+        calendars: Record<string, { busy?: { start: string; end: string }[]; errors?: { reason: string }[] }>;
+      };
+      const cal = data.calendars.primary;
+      if (cal?.errors?.length) throw new Error('google-' + cal.errors[0].reason);
+      for (const b of cal?.busy ?? []) {
+        const id = 'g:' + b.start + ':' + b.end;
+        byId.set(id, { id, source: 'google', start: new Date(b.start).toISOString(), end: new Date(b.end).toISOString() });
+      }
     }
-    if (!res.ok) throw new Error('google-' + res.status);
-    const data = (await res.json()) as { calendars: Record<string, { busy: { start: string; end: string }[] }> };
-    const blocks: BusyBlock[] = (data.calendars.primary?.busy ?? []).map((b) => ({
-      id: 'g:' + b.start + ':' + b.end,
-      source: 'google',
-      start: new Date(b.start).toISOString(),
-      end: new Date(b.end).toISOString(),
-    }));
+    const blocks = [...byId.values()];
     const current = useStore.getState().busy.filter((b) => b.source === 'google');
     if (JSON.stringify(current.map((b) => b.id).sort()) !== JSON.stringify(blocks.map((b) => b.id).sort())) {
       await actions.replaceBusySource('google', blocks);
