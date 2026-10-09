@@ -32,7 +32,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
-      - run: npm run dist:win
+      # electronDist in package.json points at a local Electron copy; on CI electron-builder downloads it.
+      - run: npm run build && npx electron-builder --win --publish never -c.electronDist=
       - uses: actions/upload-artifact@v4
         with:
           name: windows
@@ -104,6 +105,15 @@ jobs:
           [ -n "$PASSWORD" ] || missing="$missing ANDROID_KEYSTORE_PASSWORD"
           [ -n "$ALIAS" ] || missing="$missing ANDROID_KEY_ALIAS"
           if [ -n "$missing" ]; then echo "::error::Missing or empty repository secret(s):$missing"; exit 1; fi
+      - name: Version number for Android
+        env:
+          VERSION: ${{ inputs.version || github.ref_name }}
+        run: |
+          v="${VERSION#v}"
+          IFS=. read -r major minor patch <<< "$v"
+          # v0.3.0 -> 300, v0.3.1 -> 301, v1.0.0 -> 10000: always higher than the previous release.
+          echo "PLANORA_VERSION_NAME=$v" >> "$GITHUB_ENV"
+          echo "PLANORA_VERSION_CODE=$((major * 10000 + minor * 100 + patch))" >> "$GITHUB_ENV"
       - name: Build signed APK
         working-directory: android
         env:

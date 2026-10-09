@@ -8,8 +8,9 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         // CI passes a growing build number so every release installs over the previous one.
-        versionCode (System.getenv("PLANORA_VERSION_CODE") ?: "2").toInteger()
-        versionName System.getenv("PLANORA_VERSION_NAME") ?: "0.2.0"
+        // Assigned with "=": without it Groovy reads `versionCode (x).toInteger()` as `versionCode(x).toInteger()`.
+        versionCode = Integer.parseInt(System.getenv("PLANORA_VERSION_CODE") ?: "2")
+        versionName = System.getenv("PLANORA_VERSION_NAME") ?: "0.2.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
