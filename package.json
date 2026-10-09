@@ -123,9 +123,7 @@
       "target": "AppImage",
       "category": "Office",
       "icon": "build/icon.png",
-      "artifactName": "Planora-${version}.AppImage",
-      "desktopName": "planora",
-      "syncDesktopName": true
+      "artifactName": "Planora-${version}.AppImage"
     },
     "fileAssociations": [
       {
