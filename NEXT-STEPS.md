@@ -14,8 +14,10 @@
    website deploys on every push to `main`, and a tag `v0.2.1` builds `Planora.apk` and the `.exe` files.
    The release uses secrets `ANDROID_KEYSTORE_B64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`.
 
-2. **Microsoft app registration** (step-by-step in README.md, "Connecting Microsoft 365").
-   Give Claude the Application (client) ID; it goes into `.env` and repo variable `VITE_MS_CLIENT_ID`.
+2. ~~**Microsoft app registration**~~ Done. Registered in your own Entra directory (free Azure
+   sign-up). Client ID `f2aa1c0a-90b3-421a-b981-3b8da10908e6`. Still to do: add it as repository
+   **variable** `VITE_MS_CLIENT_ID` (Settings > Secrets and variables > Actions > Variables), and for
+   local development in `.env`.
 
 3. **Google Cloud OAuth client** (README.md, "Connecting Google Calendar"), with your friends added as
    test users. Give Claude the client ID (repo variable `VITE_GOOGLE_CLIENT_ID`).
