@@ -5,8 +5,14 @@ estimated duration) and Planora plans the moments to work on them, before the de
 calendar or (optionally) in Outlook. After every task it asks a few questions and learns how much
 time **you** really need, so the next prediction is better.
 
-Runs on desktop and phone as an installable web app (PWA), and as an Android/iOS app via Capacitor.
-Interface in Dutch and English.
+Runs on Windows, Mac, Linux, Android and iPhone. Interface in Dutch and English.
+
+> **Want to use Planora? You don't need to install anything technical.**
+> Open **<https://briefcasejona.github.io/planora/download.html>**: it recognises your device and shows the
+> right download with step-by-step instructions. Or use it straight in your browser at
+> <https://briefcasejona.github.io/planora/>. Free, no account.
+>
+> The sections further down about Node.js and `npm` are only for developers who want to change Planora's code.
 
 ## Download and share
 
@@ -131,7 +137,10 @@ Privacy is the main design constraint:
 - **Privacy center** in Settings shows active connections, an activity log of every contact with
   Microsoft or Google (counts only, never content), and a "delete everything" button.
 
-## Getting started
+## For developers (building Planora yourself)
+
+Only needed if you want to change Planora's code. **Users don't need any of this**: the website and the
+installed apps already contain everything they need.
 
 Requirements: Node.js 20+.
 
