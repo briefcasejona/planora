@@ -11,6 +11,8 @@
     "test:watch": "vitest",
     "e2e": "playwright test",
     "typecheck": "tsc -b --noEmit",
+    "lint": "biome check .",
+    "format": "biome check --write .",
     "cap:sync": "npm run build && cap sync",
     "android": "cap open android",
     "icons": "node scripts/icons.mjs",
