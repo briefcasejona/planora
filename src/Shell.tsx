@@ -1,5 +1,5 @@
 import { lazy, Suspense, useState } from 'react';
-import { NavLink, Navigate, Route, Routes } from 'react-router-dom';
+import { Link, NavLink, Navigate, Route, Routes } from 'react-router-dom';
 import { useStore } from './data/store';
 import { asset } from './lib/platform';
 import { useFormat } from './lib/format';
@@ -53,6 +53,9 @@ export function Shell() {
           <Icon name="shield" className="h-4 w-4 text-emerald-600" />
           {t('privacy.badge')}
         </p>
+        <Link to="/settings?tab=privacy#report" className="mt-2 px-2 text-xs text-slate-500 underline hover:text-slate-700 dark:hover:text-slate-300">
+          {t('report.title')}
+        </Link>
       </aside>
 
       <main className="min-w-0 flex-1 px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-28 md:px-8 md:py-8">

@@ -1,0 +1,54 @@
+name: Probleem melden / Report a problem
+description: Iets werkt niet zoals verwacht in Planora. / Something in Planora doesn't work as expected.
+title: "[Bug] "
+labels: ["bug-report"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Dank je! Deze melding is **openbaar**. Zet er geen persoonlijke gegevens in (geen taken, namen of e-mailadressen).
+        Thank you! This report is **public**. Don't include personal information (no tasks, names or e-mail addresses).
+  - type: textarea
+    id: what
+    attributes:
+      label: Wat gebeurde er? / What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Wat verwachtte je? / What did you expect?
+  - type: textarea
+    id: steps
+    attributes:
+      label: Stappen om het na te doen / Steps to reproduce
+      placeholder: "1. Open Instellingen\n2. ..."
+  - type: input
+    id: version
+    attributes:
+      label: Planora-versie / version
+      placeholder: "0.3.4"
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Apparaat / Device
+      options:
+        - Website
+        - Windows
+        - Mac
+        - Linux
+        - Android
+        - iPhone / iPad
+  - type: textarea
+    id: details
+    attributes:
+      label: Technische details / Technical details
+      description: Door Planora ingevuld (versie, apparaat, foutcodes). Nooit je taken of agenda. / Filled in by Planora (version, device, error codes). Never your tasks or calendar.
+      render: text
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy
+      options:
+        - label: Ik heb geen persoonlijke gegevens toegevoegd. / I didn't include personal information.
+          required: true

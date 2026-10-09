@@ -592,5 +592,20 @@
     "restartHint": "De update is al gedownload en gecontroleerd. Herstart nu, of hij wordt geïnstalleerd als je Planora afsluit.",
     "downloadHint": "Download de nieuwe versie en installeer hem over de oude heen; je gegevens blijven bewaard.",
     "androidHint": "Tik op Bijwerken, open de download en kies Bijwerken. Je gegevens blijven bewaard."
+  },
+  "report": {
+    "title": "Een probleem melden",
+    "intro": "Werkt iets niet goed? Meld het en het wordt zo snel mogelijk opgelost.",
+    "what": "Wat gebeurde er?",
+    "expected": "Wat verwachtte je?",
+    "steps": "Hoe kan het opnieuw gebeuren? (optioneel)",
+    "stepsPlaceholder": "1. Open Instellingen\n2. …",
+    "attach": "Technische details meesturen (versie, apparaat, foutcodes; nooit je taken of agenda)",
+    "preview": "Bekijk wat er meegestuurd wordt",
+    "public": "Je melding komt openbaar op GitHub te staan. Zet er geen persoonlijke gegevens in, zoals namen, taken of e-mailadressen.",
+    "send": "Melden via GitHub",
+    "copy": "Kopiëren voor e-mail",
+    "copied": "Gekopieerd!",
+    "noGithub": "Geen GitHub-account (gratis aan te maken)? Kopieer je melding en mail hem naar {{email}}."
   }
 }

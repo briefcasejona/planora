@@ -188,3 +188,23 @@ test('installed app: an update that is ready shows a banner and installs on clic
   await expect(page.getByRole('heading', { name: 'Updates' })).toBeVisible();
   await expect(page.getByText('Automatisch op updates controleren')).toBeVisible();
 });
+
+test('report a problem: a pre-filled GitHub report with technical details, never personal data', async ({ page }) => {
+  await onboard(page);
+  // Reachable from Settings on every screen size (the sidebar link only exists on wide screens).
+  await page.getByRole('link', { name: 'Instellingen' }).last().click();
+  await page.getByRole('button', { name: 'Een probleem melden' }).click();
+  await expect(page.getByRole('heading', { name: 'Een probleem melden' })).toBeVisible();
+  await page.getByLabel('Wat gebeurde er?').fill('De knop Google vernieuwen doet niets');
+  await page.getByLabel('Wat verwachtte je?').fill('Nieuwe bezette tijden');
+  const link = page.getByRole('link', { name: 'Melden via GitHub' });
+  const href = (await link.getAttribute('href'))!;
+  const url = new URL(href);
+  expect(url.origin + url.pathname).toBe('https://github.com/briefcasejona/planora/issues/new');
+  expect(url.searchParams.get('template')).toBe('bug_report.yml');
+  expect(url.searchParams.get('what')).toBe('De knop Google vernieuwen doet niets');
+  expect(url.searchParams.get('platform')).toBe('Website');
+  expect(url.searchParams.get('details')).toContain('Planora ');
+  await page.getByLabel(/Technische details meesturen/).uncheck();
+  expect(new URL((await link.getAttribute('href'))!).searchParams.has('details')).toBe(false);
+});

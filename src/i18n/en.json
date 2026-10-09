@@ -592,5 +592,20 @@
     "restartHint": "The update is downloaded and checked. Restart now, or it's installed when you quit Planora.",
     "downloadHint": "Download the new version and install it over the old one; your data is kept.",
     "androidHint": "Tap Update, open the download and choose Update. Your data is kept."
+  },
+  "report": {
+    "title": "Report a problem",
+    "intro": "Something not working right? Report it and it'll be fixed as soon as possible.",
+    "what": "What happened?",
+    "expected": "What did you expect?",
+    "steps": "How can it happen again? (optional)",
+    "stepsPlaceholder": "1. Open Settings\n2. …",
+    "attach": "Attach technical details (version, device, error codes; never your tasks or calendar)",
+    "preview": "See what will be attached",
+    "public": "Your report will be public on GitHub. Don't include personal information such as names, tasks or e-mail addresses.",
+    "send": "Report via GitHub",
+    "copy": "Copy for e-mail",
+    "copied": "Copied!",
+    "noGithub": "No GitHub account (free to create)? Copy your report and e-mail it to {{email}}."
   }
 }
