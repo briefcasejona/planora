@@ -1,4 +1,4 @@
-import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+import { Directory, Encoding, Filesystem } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { platform } from './platform';
 
@@ -14,7 +14,12 @@ export async function exportFile(name: string, content: string, mime: string): P
     return;
   }
   if (p === 'android' || p === 'ios') {
-    const written = await Filesystem.writeFile({ path: name, data: content, directory: Directory.Cache, encoding: Encoding.UTF8 });
+    const written = await Filesystem.writeFile({
+      path: name,
+      data: content,
+      directory: Directory.Cache,
+      encoding: Encoding.UTF8,
+    });
     await Share.share({ title: name, url: written.uri, dialogTitle: name });
     return;
   }

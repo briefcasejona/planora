@@ -1,11 +1,20 @@
 import { describe, expect, it } from 'vitest';
 import { detectCategory, eventKey, guessSubject, testSuggestions } from './categories';
-import type { BusyBlock } from './types';
 import { makeTask } from './testUtils';
+import type { BusyBlock } from './types';
 
 describe('detectCategory', () => {
   it('recognises tests, also inside Dutch compounds', () => {
-    for (const title of ['Toets Biologie H3', 'Wiskundetoets', 'Hertentamen Statistiek', 'Proefwerk Duits', 'Eindexamen Nederlands', 'SO Frans', 'Exam Physics', 'Chemistry quiz']) {
+    for (const title of [
+      'Toets Biologie H3',
+      'Wiskundetoets',
+      'Hertentamen Statistiek',
+      'Proefwerk Duits',
+      'Eindexamen Nederlands',
+      'SO Frans',
+      'Exam Physics',
+      'Chemistry quiz',
+    ]) {
       expect(detectCategory(title, 'lesson'), title).toBe('test');
     }
   });
@@ -55,7 +64,10 @@ describe('testSuggestions', () => {
   it('lists upcoming tests without a study task, earliest first', () => {
     const later = at(20, 'Toets Duits');
     const sooner = at(15, 'Toets Biologie');
-    expect(testSuggestions([later, sooner], [], [], now).map((b) => b.title)).toEqual(['Toets Biologie', 'Toets Duits']);
+    expect(testSuggestions([later, sooner], [], [], now).map((b) => b.title)).toEqual([
+      'Toets Biologie',
+      'Toets Duits',
+    ]);
   });
 
   it('skips past tests, lessons, dismissed tests and tests that already have a task', () => {

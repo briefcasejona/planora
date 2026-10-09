@@ -1,8 +1,8 @@
-import { describe, expect, it } from 'vitest';
 import { differenceInCalendarDays, startOfDay } from 'date-fns';
+import { describe, expect, it } from 'vitest';
 import { schedule, sessionMinutes } from './scheduler';
-import type { BusyBlock, WorkSession } from './types';
 import { makeTask, prefsEveryEvening, seqId } from './testUtils';
+import type { BusyBlock, WorkSession } from './types';
 
 // Monday 12 October 2026, 09:00 local time.
 const NOW = new Date(2026, 9, 12, 9, 0);
@@ -20,7 +20,12 @@ describe('schedule: test in two weeks', () => {
     plannedEstimateMin: 360,
   });
   const busy: BusyBlock[] = [
-    { id: 'b1', source: 'local', start: new Date(2026, 9, 14, 16, 0).toISOString(), end: new Date(2026, 9, 14, 21, 0).toISOString() },
+    {
+      id: 'b1',
+      source: 'local',
+      start: new Date(2026, 9, 14, 16, 0).toISOString(),
+      end: new Date(2026, 9, 14, 21, 0).toISOString(),
+    },
     {
       id: 'b2',
       source: 'local',
@@ -88,7 +93,15 @@ describe('schedule: project in seven weeks', () => {
     plannedEstimateMin: total,
     deadline: new Date(2026, 10, 30, 23, 59).toISOString(),
   });
-  const result = schedule({ now: NOW, tasks: [project], sessions: [], busy: [], prefs: prefsEveryEvening(), feedback: [], newId: seqId });
+  const result = schedule({
+    now: NOW,
+    tasks: [project],
+    sessions: [],
+    busy: [],
+    prefs: prefsEveryEvening(),
+    feedback: [],
+    newId: seqId,
+  });
 
   it('plans every step and keeps steps in order', () => {
     expect(result.warnings).toEqual([]);
@@ -106,12 +119,21 @@ describe('schedule: project in seven weeks', () => {
     const weeks = new Set(result.created.map((s) => Math.floor(differenceInCalendarDays(new Date(s.start), NOW) / 7)));
     expect(weeks.size).toBeGreaterThanOrEqual(5);
     const deadline = new Date(project.deadline);
-    for (const s of result.created) expect(differenceInCalendarDays(deadline, new Date(s.end))).toBeGreaterThanOrEqual(1);
+    for (const s of result.created)
+      expect(differenceInCalendarDays(deadline, new Date(s.end))).toBeGreaterThanOrEqual(1);
   });
 
   it('scales step estimates with the learned correction', () => {
     const scaled = { ...project, plannedEstimateMin: Math.round(total * 1.5) };
-    const r = schedule({ now: NOW, tasks: [scaled], sessions: [], busy: [], prefs: prefsEveryEvening(), feedback: [], newId: seqId });
+    const r = schedule({
+      now: NOW,
+      tasks: [scaled],
+      sessions: [],
+      busy: [],
+      prefs: prefsEveryEvening(),
+      feedback: [],
+      newId: seqId,
+    });
     const planned = r.created.reduce((a, s) => a + sessionMinutes(s), 0);
     expect(planned).toBeGreaterThanOrEqual(total * 1.5 - 30);
   });
@@ -119,8 +141,20 @@ describe('schedule: project in seven weeks', () => {
 
 describe('schedule: infeasible and replanning', () => {
   it('reports work that does not fit before the deadline', () => {
-    const task = makeTask({ deadline: new Date(2026, 9, 14, 12, 0).toISOString(), userEstimateMin: 900, plannedEstimateMin: 900 });
-    const result = schedule({ now: NOW, tasks: [task], sessions: [], busy: [], prefs: prefsEveryEvening(), feedback: [], newId: seqId });
+    const task = makeTask({
+      deadline: new Date(2026, 9, 14, 12, 0).toISOString(),
+      userEstimateMin: 900,
+      plannedEstimateMin: 900,
+    });
+    const result = schedule({
+      now: NOW,
+      tasks: [task],
+      sessions: [],
+      busy: [],
+      prefs: prefsEveryEvening(),
+      feedback: [],
+      newId: seqId,
+    });
     const warning = result.warnings.find((w) => w.kind === 'infeasible');
     expect(warning?.taskId).toBe(task.id);
     expect(warning?.unplacedMin).toBeGreaterThan(0);
@@ -129,11 +163,43 @@ describe('schedule: infeasible and replanning', () => {
   it('keeps locked and missed sessions, replaces future planned ones', () => {
     const task = makeTask({ userEstimateMin: 180, plannedEstimateMin: 180 });
     const at = (d: number, h: number) => new Date(2026, 9, d, h, 0).toISOString();
-    const locked: WorkSession = { id: 'L', taskId: task.id, start: at(15, 18), end: at(15, 19), status: 'planned', kind: 'work', locked: true };
-    const missed: WorkSession = { id: 'M', taskId: task.id, start: at(11, 16), end: at(11, 17), status: 'missed', kind: 'work', locked: false };
-    const future: WorkSession = { id: 'F', taskId: task.id, start: at(20, 16), end: at(20, 17), status: 'planned', kind: 'work', locked: false };
+    const locked: WorkSession = {
+      id: 'L',
+      taskId: task.id,
+      start: at(15, 18),
+      end: at(15, 19),
+      status: 'planned',
+      kind: 'work',
+      locked: true,
+    };
+    const missed: WorkSession = {
+      id: 'M',
+      taskId: task.id,
+      start: at(11, 16),
+      end: at(11, 17),
+      status: 'missed',
+      kind: 'work',
+      locked: false,
+    };
+    const future: WorkSession = {
+      id: 'F',
+      taskId: task.id,
+      start: at(20, 16),
+      end: at(20, 17),
+      status: 'planned',
+      kind: 'work',
+      locked: false,
+    };
     const sessions = [locked, missed, future];
-    const result = schedule({ now: NOW, tasks: [task], sessions, busy: [], prefs: prefsEveryEvening(), feedback: [], newId: seqId });
+    const result = schedule({
+      now: NOW,
+      tasks: [task],
+      sessions,
+      busy: [],
+      prefs: prefsEveryEvening(),
+      feedback: [],
+      newId: seqId,
+    });
     expect(result.keep.map((s) => s.id).sort()).toEqual(['L', 'M']);
     expect(result.removedIds).toEqual(['F']);
     // 180 total minus 60 locked = 120 still to plan; the missed hour does not count as done.
@@ -155,14 +221,26 @@ describe('schedule: infeasible and replanning', () => {
 
   it('warns for open tasks whose deadline already passed', () => {
     const task = makeTask({ deadline: new Date(2026, 9, 10).toISOString() });
-    const result = schedule({ now: NOW, tasks: [task], sessions: [], busy: [], prefs: prefsEveryEvening(), feedback: [], newId: seqId });
+    const result = schedule({
+      now: NOW,
+      tasks: [task],
+      sessions: [],
+      busy: [],
+      prefs: prefsEveryEvening(),
+      feedback: [],
+      newId: seqId,
+    });
     expect(result.warnings).toEqual([{ taskId: task.id, kind: 'deadline-passed' }]);
     expect(result.created).toEqual([]);
   });
 });
 
 describe('schedule: buffer after lessons', () => {
-  const task = makeTask({ deadline: new Date(2026, 9, 19, 9, 0).toISOString(), userEstimateMin: 600, plannedEstimateMin: 600 });
+  const task = makeTask({
+    deadline: new Date(2026, 9, 19, 9, 0).toISOString(),
+    userEstimateMin: 600,
+    plannedEstimateMin: 600,
+  });
   const weekly = (category: BusyBlock['category']): BusyBlock => ({
     id: 'lesson',
     source: 'ics',
@@ -172,7 +250,15 @@ describe('schedule: buffer after lessons', () => {
     repeatWeekdays: [0, 1, 2, 3, 4, 5, 6],
   });
   const earliestStart = (busy: BusyBlock[], lessonBufferMin: number) => {
-    const result = schedule({ now: NOW, tasks: [task], sessions: [], busy, prefs: prefsEveryEvening({ lessonBufferMin }), feedback: [], newId: seqId });
+    const result = schedule({
+      now: NOW,
+      tasks: [task],
+      sessions: [],
+      busy,
+      prefs: prefsEveryEvening({ lessonBufferMin }),
+      feedback: [],
+      newId: seqId,
+    });
     return Math.min(...result.created.map((s) => new Date(s.start).getHours() * 60 + new Date(s.start).getMinutes()));
   };
 

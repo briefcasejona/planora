@@ -1,6 +1,6 @@
 import { addDays, differenceInMinutes, startOfDay } from 'date-fns';
-import type { BusyBlock } from './types';
 import type { Interval } from './time';
+import type { BusyBlock } from './types';
 
 /** Expand weekly-recurring local events into concrete intervals within [from, to). */
 export function expandBusy(blocks: BusyBlock[], from: Date, to: Date): (Interval & { block: BusyBlock })[] {
@@ -40,7 +40,9 @@ const normalize = (title?: string) => title?.toLowerCase().replace(/[^\p{L}\p{N}
  */
 export function dedupeBusy<T extends Interval & { block: BusyBlock }>(items: T[]): T[] {
   const kept: T[] = [];
-  const sorted = [...items].sort((a, b) => +a.start - +b.start || SOURCE_RANK[a.block.source] - SOURCE_RANK[b.block.source]);
+  const sorted = [...items].sort(
+    (a, b) => +a.start - +b.start || SOURCE_RANK[a.block.source] - SOURCE_RANK[b.block.source],
+  );
   for (const item of sorted) {
     let duplicate = false;
     for (let i = kept.length - 1; i >= 0 && +item.start - +kept[i].start <= 60000; i--) {

@@ -1,10 +1,10 @@
 import { addDays } from 'date-fns';
-import { actions, useStore } from '../../data/store';
 import { repo } from '../../data/repo';
-import { MS_SCOPES, msHandleRedirect, msToken, type MsPending } from './auth';
-import { createEvent, deleteEvent, fetchBusy, updateEvent, type OutlookEventInput } from './graph';
-import { patchMicrosoft, saveIntegrations, useIntegrations } from '../settings';
+import { actions, useStore } from '../../data/store';
 import { deviceId, useSync } from '../../data/sync/engine';
+import { patchMicrosoft, saveIntegrations, useIntegrations } from '../settings';
+import { MS_SCOPES, type MsPending, msHandleRedirect, msToken } from './auth';
+import { createEvent, deleteEvent, fetchBusy, type OutlookEventInput, updateEvent } from './graph';
 
 interface MappedEvent {
   taskId: string;
@@ -41,7 +41,11 @@ function scopesFor(): string[] {
   ];
 }
 
-export async function microsoftToken(interactive = false, extra: readonly string[] = [], pending?: MsPending): Promise<string> {
+export async function microsoftToken(
+  interactive = false,
+  extra: readonly string[] = [],
+  pending?: MsPending,
+): Promise<string> {
   const s = useIntegrations.getState().microsoft;
   return msToken([...new Set([...scopesFor(), ...extra])], s.staySignedIn, interactive, pending);
 }
@@ -76,12 +80,19 @@ export async function pullMicrosoftBusy(interactive = false): Promise<void> {
       ownEventIds: new Set(Object.keys(map)),
     });
     const current = useStore.getState().busy.filter((b) => b.source === 'microsoft');
-    const key = (list: typeof blocks) => JSON.stringify([...list].sort((a, b) => a.id.localeCompare(b.id) || a.start.localeCompare(b.start)));
+    const key = (list: typeof blocks) =>
+      JSON.stringify([...list].sort((a, b) => a.id.localeCompare(b.id) || a.start.localeCompare(b.start)));
     if (key(current) !== key(blocks)) await actions.replaceBusySource('microsoft', blocks);
     await patchMicrosoft({ lastSync: now.toISOString() });
     await repo.addLog({ provider: 'microsoft', action: 'read-busy', count: blocks.length, ok: true });
   } catch (e) {
-    await repo.addLog({ provider: 'microsoft', action: 'read-busy', count: 0, ok: false, detail: String((e as Error).message ?? e) });
+    await repo.addLog({
+      provider: 'microsoft',
+      action: 'read-busy',
+      count: 0,
+      ok: false,
+      detail: String((e as Error).message ?? e),
+    });
     if (interactive) throw e;
   }
 }
@@ -98,7 +109,9 @@ export async function pushMicrosoftSessions(interactive = false): Promise<void> 
   const now = new Date();
   const horizon = addDays(now, PUSH_DAYS);
   const desired: (OutlookEventInput & { taskId: string })[] = sessions
-    .filter((x) => x.status === 'planned' && new Date(x.start) > now && new Date(x.start) < horizon && byId.has(x.taskId))
+    .filter(
+      (x) => x.status === 'planned' && new Date(x.start) > now && new Date(x.start) < horizon && byId.has(x.taskId),
+    )
     .map((x) => ({
       sessionId: x.id,
       taskId: x.taskId,
@@ -114,7 +127,9 @@ export async function pushMicrosoftSessions(interactive = false): Promise<void> 
     const pending: typeof desired = [];
     // 1. Exact matches stay; fix subjects if needed.
     for (const d of desired) {
-      const hit = [...free].find((id) => map[id].taskId === d.taskId && map[id].start === d.start && map[id].end === d.end);
+      const hit = [...free].find(
+        (id) => map[id].taskId === d.taskId && map[id].start === d.start && map[id].end === d.end,
+      );
       if (!hit) {
         pending.push(d);
         continue;
@@ -149,9 +164,20 @@ export async function pushMicrosoftSessions(interactive = false): Promise<void> 
       delete map[id];
     }
     await saveEventMap(map);
-    await repo.addLog({ provider: 'microsoft', action: 'write-sessions', count: Math.min(writes, MAX_WRITES), ok: true });
+    await repo.addLog({
+      provider: 'microsoft',
+      action: 'write-sessions',
+      count: Math.min(writes, MAX_WRITES),
+      ok: true,
+    });
   } catch (e) {
-    await repo.addLog({ provider: 'microsoft', action: 'write-sessions', count: 0, ok: false, detail: String((e as Error).message ?? e) });
+    await repo.addLog({
+      provider: 'microsoft',
+      action: 'write-sessions',
+      count: 0,
+      ok: false,
+      detail: String((e as Error).message ?? e),
+    });
     if (interactive) throw e;
   }
 }

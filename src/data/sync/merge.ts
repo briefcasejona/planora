@@ -98,11 +98,15 @@ const SESSION_RANK: Record<WorkSession['status'], number> = { done: 0, skipped: 
  */
 function dedupeSessions(sessions: WorkSession[], tombstones: Record<string, string>, nowIso: string): WorkSession[] {
   const better = (a: WorkSession, b: WorkSession) =>
-    SESSION_RANK[a.status] - SESSION_RANK[b.status] || (b.updatedAt ?? '').localeCompare(a.updatedAt ?? '') || a.id.localeCompare(b.id);
+    SESSION_RANK[a.status] - SESSION_RANK[b.status] ||
+    (b.updatedAt ?? '').localeCompare(a.updatedAt ?? '') ||
+    a.id.localeCompare(b.id);
   const sorted = [...sessions].sort(better);
   const kept: WorkSession[] = [];
   for (const s of sorted) {
-    const clash = kept.some((k) => k.taskId === s.taskId && k.stepId === s.stepId && k.start < s.end && s.start < k.end);
+    const clash = kept.some(
+      (k) => k.taskId === s.taskId && k.stepId === s.stepId && k.start < s.end && s.start < k.end,
+    );
     if (clash) {
       const at = s.updatedAt && s.updatedAt > nowIso ? s.updatedAt : nowIso;
       tombstones['sessions:' + s.id] = at;
@@ -112,7 +116,12 @@ function dedupeSessions(sessions: WorkSession[], tombstones: Record<string, stri
 }
 
 export function emptySnapshot(): SyncSnapshot {
-  return { tables: { tasks: [], sessions: [], busy: [], feedback: [], reports: [] }, icsImports: [], dismissedTests: [], tombstones: {} };
+  return {
+    tables: { tasks: [], sessions: [], busy: [], feedback: [], reports: [] },
+    icsImports: [],
+    dismissedTests: [],
+    tombstones: {},
+  };
 }
 
 /** Combine this device's data with the sync file. Commutative: merge(a, b) equals merge(b, a). */
@@ -141,7 +150,13 @@ export function mergeSnapshots(a: SyncSnapshot, b: SyncSnapshot, now = new Date(
   );
 
   const prefs = !a.prefs ? b.prefs : !b.prefs ? a.prefs : a.prefs.updatedAt >= b.prefs.updatedAt ? a.prefs : b.prefs;
-  const outlookWriter = !a.outlookWriter ? b.outlookWriter : !b.outlookWriter ? a.outlookWriter : a.outlookWriter.at >= b.outlookWriter.at ? a.outlookWriter : b.outlookWriter;
+  const outlookWriter = !a.outlookWriter
+    ? b.outlookWriter
+    : !b.outlookWriter
+      ? a.outlookWriter
+      : a.outlookWriter.at >= b.outlookWriter.at
+        ? a.outlookWriter
+        : b.outlookWriter;
 
   return {
     tables: {
@@ -160,7 +175,10 @@ export function mergeSnapshots(a: SyncSnapshot, b: SyncSnapshot, now = new Date(
 }
 
 /** What has to change on this device to match the merged data. */
-export function diffTables(local: SyncRecords, merged: SyncRecords): { put: Partial<Record<SyncTable, Stamped[]>>; del: Partial<Record<SyncTable, string[]>> } {
+export function diffTables(
+  local: SyncRecords,
+  merged: SyncRecords,
+): { put: Partial<Record<SyncTable, Stamped[]>>; del: Partial<Record<SyncTable, string[]>> } {
   const put: Partial<Record<SyncTable, Stamped[]>> = {};
   const del: Partial<Record<SyncTable, string[]>> = {};
   for (const table of SYNC_TABLES) {

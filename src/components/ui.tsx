@@ -1,9 +1,16 @@
-import { useEffect, useId, useRef, type ReactNode } from 'react';
+import { type ReactNode, useEffect, useId, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Icon, type IconName } from './Icon';
 import type { EventCategory, TaskType } from '../domain/types';
+import { Icon, type IconName } from './Icon';
 
-export function Modal({ open, onClose, title, children, footer, wide }: {
+export function Modal({
+  open,
+  onClose,
+  title,
+  children,
+  footer,
+  wide,
+}: {
   open: boolean;
   onClose: () => void;
   title: string;
@@ -39,14 +46,18 @@ export function Modal({ open, onClose, title, children, footer, wide }: {
         className={`flex max-h-[92vh] w-full flex-col rounded-t-3xl bg-white shadow-xl sm:rounded-3xl dark:bg-slate-900 ${wide ? 'sm:max-w-2xl' : 'sm:max-w-lg'}`}
       >
         <div className="flex items-center justify-between border-b border-slate-200 px-5 py-3 dark:border-slate-800">
-          <h2 id={titleId} className="text-base font-semibold">{title}</h2>
+          <h2 id={titleId} className="text-base font-semibold">
+            {title}
+          </h2>
           <button data-close className="btn-ghost -mr-2 p-2" onClick={onClose} aria-label={t('common.close')}>
             <Icon name="x" />
           </button>
         </div>
         <div className="overflow-y-auto px-5 py-4">{children}</div>
         {footer && (
-          <div className="flex flex-wrap justify-end gap-2 border-t border-slate-200 px-5 py-3 dark:border-slate-800">{footer}</div>
+          <div className="flex flex-wrap justify-end gap-2 border-t border-slate-200 px-5 py-3 dark:border-slate-800">
+            {footer}
+          </div>
         )}
       </div>
     </div>
@@ -63,7 +74,12 @@ export function Field({ label, children, hint }: { label: string; children: Reac
   );
 }
 
-export function Chips<T extends string | number>({ options, value, onChange, label }: {
+export function Chips<T extends string | number>({
+  options,
+  value,
+  onChange,
+  label,
+}: {
   options: { value: T; label: string }[];
   value: T;
   onChange: (v: T) => void;
@@ -88,7 +104,15 @@ export function Chips<T extends string | number>({ options, value, onChange, lab
 }
 
 /** Minutes input as hours + minutes with quick picks. */
-export function DurationInput({ value, onChange, id }: { value: number; onChange: (min: number) => void; id?: string }) {
+export function DurationInput({
+  value,
+  onChange,
+  id,
+}: {
+  value: number;
+  onChange: (min: number) => void;
+  id?: string;
+}) {
   const { t } = useTranslation();
   const h = Math.floor(value / 60);
   const m = value % 60;
@@ -107,16 +131,28 @@ export function DurationInput({ value, onChange, id }: { value: number; onChange
           onChange={(e) => onChange(Math.max(0, Number(e.target.value) || 0) * 60 + m)}
         />
         <span className="text-sm text-slate-500">{t('units.hours')}</span>
-        <select className="input w-24" value={m - (m % 5)} aria-label={t('units.minutes')} onChange={(e) => onChange(h * 60 + Number(e.target.value))}>
+        <select
+          className="input w-24"
+          value={m - (m % 5)}
+          aria-label={t('units.minutes')}
+          onChange={(e) => onChange(h * 60 + Number(e.target.value))}
+        >
           {Array.from({ length: 12 }, (_, i) => i * 5).map((x) => (
-            <option key={x} value={x}>{x}</option>
+            <option key={x} value={x}>
+              {x}
+            </option>
           ))}
         </select>
         <span className="text-sm text-slate-500">{t('units.minutes')}</span>
       </div>
       <div className="mt-2 flex flex-wrap gap-1.5">
         {quick.map((q) => (
-          <button type="button" key={q} className={`chip px-2.5 py-0.5 text-xs ${value === q ? 'chip-active' : ''}`} onClick={() => onChange(q)}>
+          <button
+            type="button"
+            key={q}
+            className={`chip px-2.5 py-0.5 text-xs ${value === q ? 'chip-active' : ''}`}
+            onClick={() => onChange(q)}
+          >
             {q < 60 ? q + 'm' : q / 60 + t('units.hour')}
           </button>
         ))}
@@ -170,7 +206,10 @@ export function CategoryBadge({ category }: { category?: EventCategory }) {
   const { t } = useTranslation();
   const hex = category ? CATEGORY_HEX[category] : BUSY_HEX;
   return (
-    <span className="inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium" style={{ borderColor: hex, color: hex }}>
+    <span
+      className="inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium"
+      style={{ borderColor: hex, color: hex }}
+    >
       <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: hex }} aria-hidden />
       {category ? t('category.' + category) : t('calendar.busy')}
     </span>
@@ -179,7 +218,11 @@ export function CategoryBadge({ category }: { category?: EventCategory }) {
 
 export function TypeBadge({ type }: { type: TaskType }) {
   const { t } = useTranslation();
-  return <span className={`inline-flex shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${TYPE_COLORS[type]}`}>{t('type.' + type)}</span>;
+  return (
+    <span className={`inline-flex shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${TYPE_COLORS[type]}`}>
+      {t('type.' + type)}
+    </span>
+  );
 }
 
 export function Progress({ value, label }: { value: number; label: string }) {
@@ -208,7 +251,12 @@ export function Empty({ icon, title, children }: { icon: IconName; title: string
   );
 }
 
-export function Banner({ tone = 'info', icon, children, action }: {
+export function Banner({
+  tone = 'info',
+  icon,
+  children,
+  action,
+}: {
   tone?: 'info' | 'warn' | 'success';
   icon: IconName;
   children: ReactNode;
@@ -217,7 +265,8 @@ export function Banner({ tone = 'info', icon, children, action }: {
   const tones = {
     info: 'border-brand-200 bg-brand-50 text-brand-700 dark:border-brand-700 dark:bg-brand-700/20 dark:text-brand-100',
     warn: 'border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100',
-    success: 'border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-100',
+    success:
+      'border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-100',
   };
   return (
     <div className={`flex flex-wrap items-start gap-3 rounded-2xl border p-3 text-sm ${tones[tone]}`}>

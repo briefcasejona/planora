@@ -1,10 +1,13 @@
-import { _electron as electron, expect, test } from '@playwright/test';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { _electron as electron, expect, test } from '@playwright/test';
 
 test('desktop app starts, serves the app locally with CSP, and plans a task', async () => {
-  const app = await electron.launch({ args: ['.'], env: { ...process.env, PLANORA_USER_DATA: mkdtempSync(join(tmpdir(), 'planora-')) } });
+  const app = await electron.launch({
+    args: ['.'],
+    env: { ...process.env, PLANORA_USER_DATA: mkdtempSync(join(tmpdir(), 'planora-')) },
+  });
   const page = await app.firstWindow();
   expect(page.url()).toBe('http://localhost:47823/');
 

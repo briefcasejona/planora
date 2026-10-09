@@ -1,4 +1,4 @@
-import { InteractionRequiredAuthError, PublicClientApplication, type AccountInfo } from '@azure/msal-browser';
+import { type AccountInfo, InteractionRequiredAuthError, PublicClientApplication } from '@azure/msal-browser';
 import { appUrl, isIosStandalone, isNativeApp } from '../../lib/platform';
 
 /** Popups don't work in the native app or in an iPhone home-screen app: sign in by redirect there. */
@@ -95,10 +95,19 @@ function assign(app: PublicClientApplication, acc: AccountInfo, slot: AccountSlo
  * Microsoft and back (redirect). What the user was doing is remembered here and
  * finished by completeMsRedirect() after the app reloads.
  */
-export type MsPending = { kind: 'connect' } | { kind: 'feature'; key: string } | { kind: 'sync' } | { kind: 'syncSetup' };
+export type MsPending =
+  | { kind: 'connect' }
+  | { kind: 'feature'; key: string }
+  | { kind: 'sync' }
+  | { kind: 'syncSetup' };
 const PENDING_KEY = 'planora-ms-pending';
 
-async function redirectTo(scopes: readonly string[], persist: boolean, pending: MsPending, acc?: AccountInfo | null): Promise<never> {
+async function redirectTo(
+  scopes: readonly string[],
+  persist: boolean,
+  pending: MsPending,
+  acc?: AccountInfo | null,
+): Promise<never> {
   if (pending.kind === 'syncSetup') persist = true;
   const app = await client(persist);
   sessionStorage.setItem(PENDING_KEY, JSON.stringify(pending));
@@ -108,7 +117,9 @@ async function redirectTo(scopes: readonly string[], persist: boolean, pending: 
 }
 
 /** Call once at startup in the native app; returns what was pending, if a redirect just completed. */
-export async function msHandleRedirect(persist: boolean): Promise<{ account: AccountInfo; pending: MsPending | null } | null> {
+export async function msHandleRedirect(
+  persist: boolean,
+): Promise<{ account: AccountInfo; pending: MsPending | null } | null> {
   if (!clientId || !signInByRedirect()) return null;
   const app = await client(persist);
   const result = await app.handleRedirectPromise();

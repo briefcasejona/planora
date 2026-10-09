@@ -1,5 +1,9 @@
-import { create } from 'zustand';
 import { addDays, addHours } from 'date-fns';
+import { create } from 'zustand';
+import { suggestEstimate } from '../domain/estimator';
+import { buildWeeklyPlan, buildWeeklyReview, type WeeklyReviewData } from '../domain/insights';
+import { reopenTask as reopen } from '../domain/replan';
+import { schedule } from '../domain/scheduler';
 import type {
   BusyBlock,
   FeedbackRecord,
@@ -14,13 +18,9 @@ import type {
   WorkSession,
 } from '../domain/types';
 import { DEFAULT_PREFERENCES } from '../domain/types';
-import { schedule } from '../domain/scheduler';
-import { suggestEstimate } from '../domain/estimator';
-import { reopenTask as reopen } from '../domain/replan';
-import { buildWeeklyPlan, buildWeeklyReview, type WeeklyReviewData } from '../domain/insights';
-import { repo, setEncryptionKey, setRequireKey } from './repo';
 import { unlock } from './crypto';
 import { currentPlanWeek, latestReviewWeek, planMoment, reviewMoment } from './moments';
+import { repo, setEncryptionKey, setRequireKey } from './repo';
 
 export interface NewTaskInput {
   title: string;
@@ -152,7 +152,14 @@ async function ensureReportsNow(): Promise<void> {
   const now = new Date();
   const state = get();
   if (!state.prefs.onboarded) return;
-  const input = { now, tasks: state.tasks, sessions: state.sessions, feedback: state.feedback, prefs: state.prefs, warnings: state.warnings };
+  const input = {
+    now,
+    tasks: state.tasks,
+    sessions: state.sessions,
+    feedback: state.feedback,
+    prefs: state.prefs,
+    warnings: state.warnings,
+  };
   const existing = new Set(state.reports.map((r) => r.id));
   const fresh: WeekReport[] = [];
 
@@ -163,7 +170,13 @@ async function ensureReportsNow(): Promise<void> {
     return d >= reviewWeek && d < addDays(reviewWeek, 7);
   });
   if (!existing.has(reviewId) && hadActivity && reviewMoment(reviewWeek, state.prefs.weeklyReview) <= now) {
-    fresh.push({ id: reviewId, kind: 'review', weekStart: reviewWeek.toISOString(), generatedAt: now.toISOString(), data: buildWeeklyReview(reviewWeek, input) });
+    fresh.push({
+      id: reviewId,
+      kind: 'review',
+      weekStart: reviewWeek.toISOString(),
+      generatedAt: now.toISOString(),
+      data: buildWeeklyReview(reviewWeek, input),
+    });
   }
 
   const planWeek = currentPlanWeek(now, state.prefs.weeklyPlan);
@@ -172,7 +185,13 @@ async function ensureReportsNow(): Promise<void> {
     const prevWeek = addDays(planWeek, -7);
     const prevReport = [...state.reports, ...fresh].find((r) => r.id === 'review:' + prevWeek.toISOString());
     const lastReview = (prevReport?.data as WeeklyReviewData | undefined) ?? buildWeeklyReview(prevWeek, input);
-    fresh.push({ id: planId, kind: 'plan', weekStart: planWeek.toISOString(), generatedAt: now.toISOString(), data: buildWeeklyPlan(planWeek, input, lastReview) });
+    fresh.push({
+      id: planId,
+      kind: 'plan',
+      weekStart: planWeek.toISOString(),
+      generatedAt: now.toISOString(),
+      data: buildWeeklyPlan(planWeek, input, lastReview),
+    });
   }
 
   if (fresh.length) {
@@ -243,8 +262,14 @@ export const actions = {
 
   addTask: (input: NewTaskInput) =>
     serial(async () => {
-      const steps: ProjectStep[] | undefined = input.steps?.map((s, i) => ({ ...s, id: crypto.randomUUID(), order: i, done: false }));
-      const userEstimateMin = steps && steps.length ? steps.reduce((a, s) => a + s.estimateMin, 0) : input.userEstimateMin;
+      const steps: ProjectStep[] | undefined = input.steps?.map((s, i) => ({
+        ...s,
+        id: crypto.randomUUID(),
+        order: i,
+        done: false,
+      }));
+      const userEstimateMin =
+        steps && steps.length ? steps.reduce((a, s) => a + s.estimateMin, 0) : input.userEstimateMin;
       const suggestion = suggestEstimate({ type: input.type, subject: input.subject, userEstimateMin }, get().feedback);
       const task: Task = {
         id: crypto.randomUUID(),
@@ -298,7 +323,12 @@ export const actions = {
       const task = get().tasks.find((t) => t.id === id);
       if (!task) return;
       const now = new Date();
-      await patchTask({ ...task, status: 'done', completedAt: now.toISOString(), steps: task.steps?.map((s) => ({ ...s, done: true })) });
+      await patchTask({
+        ...task,
+        status: 'done',
+        completedAt: now.toISOString(),
+        steps: task.steps?.map((s) => ({ ...s, done: true })),
+      });
       // Leftover sessions for a finished task are no longer needed.
       const leftovers = get().sessions.filter((s) => s.taskId === id && s.status === 'planned');
       const future = leftovers.filter((s) => new Date(s.start) >= now).map((s) => s.id);
@@ -306,7 +336,11 @@ export const actions = {
       await repo.deleteSessions(future);
       await repo.putSessions(past);
       const pastById = new Map(past.map((s) => [s.id, s]));
-      set({ sessions: get().sessions.filter((s) => !future.includes(s.id)).map((s) => pastById.get(s.id) ?? s) });
+      set({
+        sessions: get()
+          .sessions.filter((s) => !future.includes(s.id))
+          .map((s) => pastById.get(s.id) ?? s),
+      });
       await replanNow();
     }),
 
@@ -380,7 +414,12 @@ export const actions = {
     serial(async () => {
       const replaced = (b: BusyBlock) => b.source === source && (importId === undefined || b.importId === importId);
       if (importId === undefined) await repo.deleteBusyBySource(source);
-      else await repo.deleteBusy(get().busy.filter(replaced).map((b) => b.id));
+      else
+        await repo.deleteBusy(
+          get()
+            .busy.filter(replaced)
+            .map((b) => b.id),
+        );
       await repo.putBusy(blocks);
       set({ busy: [...get().busy.filter((b) => !replaced(b)), ...blocks] });
       await replanNow();
@@ -422,7 +461,11 @@ export const actions = {
       };
       await repo.putFeedback([record]);
       const finished = input.completed && task.status !== 'done';
-      await patchTask({ ...task, feedbackGiven: true, ...(finished ? { status: 'done' as const, completedAt: now.toISOString() } : {}) });
+      await patchTask({
+        ...task,
+        feedbackGiven: true,
+        ...(finished ? { status: 'done' as const, completedAt: now.toISOString() } : {}),
+      });
       set({ feedback: [...get().feedback, record] });
       await replanNow();
     }),
@@ -446,6 +489,15 @@ export const actions = {
   wipeAll: () =>
     serial(async () => {
       await repo.wipeAll();
-      set({ tasks: [], sessions: [], busy: [], feedback: [], reports: [], warnings: [], prefs: DEFAULT_PREFERENCES, locked: false });
+      set({
+        tasks: [],
+        sessions: [],
+        busy: [],
+        feedback: [],
+        reports: [],
+        warnings: [],
+        prefs: DEFAULT_PREFERENCES,
+        locked: false,
+      });
     }),
 };

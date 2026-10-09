@@ -1,10 +1,10 @@
 import 'fake-indexeddb/auto';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import { DEFAULT_PREFERENCES } from '../../domain/types';
+import { loadIntegrations } from '../../integrations/settings';
 import { PlanoraDB } from '../db';
 import { useDatabase } from '../repo';
 import { actions, useStore } from '../store';
-import { DEFAULT_PREFERENCES } from '../../domain/types';
-import { loadIntegrations } from '../../integrations/settings';
 import { enableSync, loadSyncState, resetSyncMemory, syncNow, useSync } from './engine';
 import { memoryTransport, type SyncTransport } from './onedrive';
 
@@ -20,9 +20,19 @@ async function on(device: keyof typeof devices) {
   await loadIntegrations();
   await actions.init();
 }
-const titles = () => useStore.getState().tasks.map((t) => t.title).sort();
+const titles = () =>
+  useStore
+    .getState()
+    .tasks.map((t) => t.title)
+    .sort();
 const addTask = (title: string) =>
-  actions.addTask({ title, type: 'assignment', deadline: new Date(2026, 9, 28, 17).toISOString(), userEstimateMin: 120, useSuggestion: false });
+  actions.addTask({
+    title,
+    type: 'assignment',
+    deadline: new Date(2026, 9, 28, 17).toISOString(),
+    userEstimateMin: 120,
+    useSuggestion: false,
+  });
 
 describe('sync between two devices through OneDrive', () => {
   beforeAll(async () => {

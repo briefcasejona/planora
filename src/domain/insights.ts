@@ -1,7 +1,7 @@
 import { addDays, differenceInCalendarDays, startOfDay, startOfWeek } from 'date-fns';
-import type { FeedbackRecord, Message, Preferences, ScheduleWarning, Task, WorkSession } from './types';
 import { comparableFeedback, correctionFactor } from './estimator';
 import { sessionMinutes, workedMinutes } from './scheduler';
+import type { FeedbackRecord, Message, Preferences, ScheduleWarning, Task, WorkSession } from './types';
 
 export type Daypart = 'morning' | 'afternoon' | 'evening';
 
@@ -136,11 +136,19 @@ export function buildWeeklyReview(weekStart: Date, input: InsightInput): WeeklyR
     if (!f.completed) {
       struggled.push({ taskId: f.taskId, title, reason: { key: 'review.reason.notCompleted' } });
     } else if (ratio > 1.2 || f.enoughTime === 'too-little') {
-      struggled.push({ taskId: f.taskId, title, reason: { key: 'review.reason.moreTime', params: { pct: Math.max(0, Math.round((ratio - 1) * 100)) } } });
+      struggled.push({
+        taskId: f.taskId,
+        title,
+        reason: { key: 'review.reason.moreTime', params: { pct: Math.max(0, Math.round((ratio - 1) * 100)) } },
+      });
     } else if (f.difficulty >= 4) {
       struggled.push({ taskId: f.taskId, title, reason: { key: 'review.reason.hard' } });
     } else if (ratio <= 1.05 && f.difficulty <= 3) {
-      wentWell.push({ taskId: f.taskId, title, reason: { key: 'review.reason.easy', params: { pct: Math.max(0, Math.round((1 - ratio) * 100)) } } });
+      wentWell.push({
+        taskId: f.taskId,
+        title,
+        reason: { key: 'review.reason.easy', params: { pct: Math.max(0, Math.round((1 - ratio) * 100)) } },
+      });
     } else {
       wentWell.push({ taskId: f.taskId, title, reason: { key: 'review.reason.onTrack' } });
     }
@@ -150,7 +158,10 @@ export function buildWeeklyReview(weekStart: Date, input: InsightInput): WeeklyR
     .filter((t) => t.status === 'done' && t.completedAt && inWeek(t.completedAt, weekStart))
     .map((t) => ({ taskId: t.id, title: t.title }));
   const missedDeadlines = tasks
-    .filter((t) => (t.status === 'overdue' || t.status === 'open') && inWeek(t.deadline, weekStart) && new Date(t.deadline) < now)
+    .filter(
+      (t) =>
+        (t.status === 'overdue' || t.status === 'open') && inWeek(t.deadline, weekStart) && new Date(t.deadline) < now,
+    )
     .map((t) => ({ taskId: t.id, title: t.title }));
 
   const dayparts = countMissedByDaypart(weekSessions);
@@ -161,11 +172,17 @@ export function buildWeeklyReview(weekStart: Date, input: InsightInput): WeeklyR
   const dp = worstDaypart(dayparts);
   if (dp) improvements.push({ key: 'improve.daypart', params: { daypart: dp, n: dayparts[dp] } });
   const under = accuracy.find((a) => a.n >= 2 && a.ratio > 1.15);
-  if (under) improvements.push({ key: 'improve.estimate', params: { label: under.label, pct: Math.round((under.ratio - 1) * 100) } });
+  if (under)
+    improvements.push({
+      key: 'improve.estimate',
+      params: { label: under.label, pct: Math.round((under.ratio - 1) * 100) },
+    });
   const tooLittle = weekFeedback.filter((f) => f.enoughTime === 'too-little').length;
   if (tooLittle >= 2) improvements.push({ key: 'improve.moreTime', params: { n: tooLittle } });
-  if (counted >= 3 && completionRate < 0.6) improvements.push({ key: 'improve.lessPerDay', params: { pct: Math.round(completionRate * 100) } });
-  if (missedDeadlines.length > 0) improvements.push({ key: 'improve.deadlines', params: { n: missedDeadlines.length } });
+  if (counted >= 3 && completionRate < 0.6)
+    improvements.push({ key: 'improve.lessPerDay', params: { pct: Math.round(completionRate * 100) } });
+  if (missedDeadlines.length > 0)
+    improvements.push({ key: 'improve.deadlines', params: { n: missedDeadlines.length } });
   if (improvements.length === 0) improvements.push({ key: 'improve.none' });
 
   return {
@@ -192,7 +209,10 @@ export function buildWeeklyPlan(weekStart: Date, input: InsightInput, lastReview
   for (let i = 0; i < 7; i++) {
     const date = addDays(weekStart, i);
     const daySessions = sessions
-      .filter((s) => (s.status === 'planned' || s.status === 'done') && differenceInCalendarDays(new Date(s.start), date) === 0)
+      .filter(
+        (s) =>
+          (s.status === 'planned' || s.status === 'done') && differenceInCalendarDays(new Date(s.start), date) === 0,
+      )
       .sort((a, b) => a.start.localeCompare(b.start))
       .map((s) => ({
         sessionId: s.id,
@@ -202,11 +222,13 @@ export function buildWeeklyPlan(weekStart: Date, input: InsightInput, lastReview
         end: s.end,
         kind: s.kind,
       }));
-    const totalMin = daySessions.reduce(
-      (a, s) => a + sessionMinutes({ start: s.start, end: s.end } as WorkSession),
-      0,
-    );
-    days.push({ date: date.toISOString(), sessions: daySessions, totalMin, heavy: totalMin >= prefs.maxMinutesPerDay * 0.85 });
+    const totalMin = daySessions.reduce((a, s) => a + sessionMinutes({ start: s.start, end: s.end } as WorkSession), 0);
+    days.push({
+      date: date.toISOString(),
+      sessions: daySessions,
+      totalMin,
+      heavy: totalMin >= prefs.maxMinutesPerDay * 0.85,
+    });
   }
   const deadlines = tasks
     .filter((t) => t.status === 'open' && inWeek(t.deadline, weekStart))

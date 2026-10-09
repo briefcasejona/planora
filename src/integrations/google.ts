@@ -1,9 +1,9 @@
 import { addDays } from 'date-fns';
-import { actions, useStore } from '../data/store';
 import { repo } from '../data/repo';
+import { actions, useStore } from '../data/store';
 import type { BusyBlock } from '../domain/types';
-import { patchGoogle, useIntegrations } from './settings';
 import { appUrl, isIosStandalone, isNativeApp } from '../lib/platform';
+import { patchGoogle, useIntegrations } from './settings';
 
 const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
 export const googleConfigured = !!clientId;
@@ -176,7 +176,13 @@ export async function completeGoogleRedirect(): Promise<void> {
     await patchGoogle({ connected: true });
     await pullGoogleBusy();
   } catch (e) {
-    await repo.addLog({ provider: 'google', action: 'connect', count: 0, ok: false, detail: String((e as Error).message ?? e) });
+    await repo.addLog({
+      provider: 'google',
+      action: 'connect',
+      count: 0,
+      ok: false,
+      detail: String((e as Error).message ?? e),
+    });
   }
 }
 
@@ -192,7 +198,8 @@ const WINDOW_DAYS = 45;
 /** The period Planora reads (a week back, 90 days ahead), in windows Google accepts. */
 export function freeBusyWindows(now: Date, from = -7, to = 90): { start: Date; end: Date }[] {
   const out: { start: Date; end: Date }[] = [];
-  for (let d = from; d < to; d += WINDOW_DAYS) out.push({ start: addDays(now, d), end: addDays(now, Math.min(d + WINDOW_DAYS, to)) });
+  for (let d = from; d < to; d += WINDOW_DAYS)
+    out.push({ start: addDays(now, d), end: addDays(now, Math.min(d + WINDOW_DAYS, to)) });
   return out;
 }
 
@@ -221,7 +228,11 @@ export async function pullGoogleBusy(interactive = false): Promise<void> {
         credentials: 'omit',
         referrerPolicy: 'no-referrer',
         headers: { Authorization: 'Bearer ' + access, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ timeMin: w.start.toISOString(), timeMax: w.end.toISOString(), items: [{ id: 'primary' }] }),
+        body: JSON.stringify({
+          timeMin: w.start.toISOString(),
+          timeMax: w.end.toISOString(),
+          items: [{ id: 'primary' }],
+        }),
       });
       if (res.status === 401) {
         localStorage.removeItem(TOKEN_KEY);
@@ -237,7 +248,12 @@ export async function pullGoogleBusy(interactive = false): Promise<void> {
       if (cal?.errors?.length) throw new Error('google-' + cal.errors[0].reason);
       for (const b of cal?.busy ?? []) {
         const id = 'g:' + b.start + ':' + b.end;
-        byId.set(id, { id, source: 'google', start: new Date(b.start).toISOString(), end: new Date(b.end).toISOString() });
+        byId.set(id, {
+          id,
+          source: 'google',
+          start: new Date(b.start).toISOString(),
+          end: new Date(b.end).toISOString(),
+        });
       }
     }
     const blocks = [...byId.values()];
@@ -248,7 +264,13 @@ export async function pullGoogleBusy(interactive = false): Promise<void> {
     await patchGoogle({ lastSync: now.toISOString() });
     await repo.addLog({ provider: 'google', action: 'read-freebusy', count: blocks.length, ok: true });
   } catch (e) {
-    await repo.addLog({ provider: 'google', action: 'read-freebusy', count: 0, ok: false, detail: String((e as Error).message ?? e) });
+    await repo.addLog({
+      provider: 'google',
+      action: 'read-freebusy',
+      count: 0,
+      ok: false,
+      detail: String((e as Error).message ?? e),
+    });
     if (interactive) throw e;
   }
 }

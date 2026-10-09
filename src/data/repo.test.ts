@@ -1,9 +1,9 @@
 import 'fake-indexeddb/auto';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { makeTask } from '../domain/testUtils';
+import { createCryptoConfig, unlock } from './crypto';
 import { PlanoraDB } from './db';
 import { repo, setEncryptionKey, setRequireKey, useDatabase } from './repo';
-import { createCryptoConfig, unlock } from './crypto';
-import { makeTask } from '../domain/testUtils';
 
 describe('repo with encryption', () => {
   let db: PlanoraDB;
@@ -19,7 +19,9 @@ describe('repo with encryption', () => {
     await repo.reencodeAll(key);
     setEncryptionKey(null);
     await expect(repo.putTasks([makeTask({ title: 'Lek' })])).rejects.toThrow('locked');
-    await expect(repo.putSessions([{ id: 's', taskId: 't', start: '', end: '', status: 'planned', kind: 'work', locked: false }])).rejects.toThrow('locked');
+    await expect(
+      repo.putSessions([{ id: 's', taskId: 't', start: '', end: '', status: 'planned', kind: 'work', locked: false }]),
+    ).rejects.toThrow('locked');
     expect(await db.tasks.count()).toBe(0);
   });
 

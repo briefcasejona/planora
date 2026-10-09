@@ -1,16 +1,16 @@
-import { useEffect, useState } from 'react';
 import { addDays } from 'date-fns';
-import { actions, useStore } from '../data/store';
-import { repo } from '../data/repo';
-import { STUDENT_TYPES, TEACHER_TYPES, type TaskType } from '../domain/types';
-import { findManualMatch } from '../domain/matching';
-import { useFormat } from '../lib/format';
-import { DurationInput, toLocalInput } from '../components/ui';
+import { useEffect, useState } from 'react';
 import { Icon } from '../components/Icon';
-import { useIntegrations } from './settings';
-import { microsoftToken } from './microsoft/sync';
+import { DurationInput, toLocalInput } from '../components/ui';
+import { repo } from '../data/repo';
+import { actions, useStore } from '../data/store';
+import { findManualMatch } from '../domain/matching';
+import { STUDENT_TYPES, type TaskType, TEACHER_TYPES } from '../domain/types';
+import { useFormat } from '../lib/format';
 import { MS_SCOPES } from './microsoft/auth';
 import { fetchTeamsAssignments, fetchTodoTasks, type ImportCandidate } from './microsoft/graph';
+import { microsoftToken } from './microsoft/sync';
+import { useIntegrations } from './settings';
 
 interface Draft extends ImportCandidate {
   type: TaskType;
@@ -38,7 +38,10 @@ export function ImportPanel() {
     setBusy(true);
     setError('');
     try {
-      const token = await microsoftToken(true, [...(ms.importTodo ? MS_SCOPES.importTodo : []), ...(ms.importTeams ? MS_SCOPES.importTeams : [])]);
+      const token = await microsoftToken(true, [
+        ...(ms.importTodo ? MS_SCOPES.importTodo : []),
+        ...(ms.importTeams ? MS_SCOPES.importTeams : []),
+      ]);
       const found = [
         ...(ms.importTodo ? await fetchTodoTasks(token) : []),
         ...(ms.importTeams ? await fetchTeamsAssignments(token) : []),
@@ -55,14 +58,21 @@ export function ImportPanel() {
         })),
       );
     } catch (e) {
-      await repo.addLog({ provider: 'microsoft', action: 'read-tasks', count: 0, ok: false, detail: String((e as Error).message) });
+      await repo.addLog({
+        provider: 'microsoft',
+        action: 'read-tasks',
+        count: 0,
+        ok: false,
+        detail: String((e as Error).message),
+      });
       setError(t('import.error'));
     } finally {
       setBusy(false);
     }
   };
 
-  const update = (id: string, patch: Partial<Draft>) => setItems((list) => list?.map((x) => (x.externalId === id ? { ...x, ...patch } : x)) ?? null);
+  const update = (id: string, patch: Partial<Draft>) =>
+    setItems((list) => list?.map((x) => (x.externalId === id ? { ...x, ...patch } : x)) ?? null);
   const add = async (d: Draft) => {
     await actions.addTask({
       title: d.title,
@@ -93,7 +103,9 @@ export function ImportPanel() {
       <div className="flex flex-wrap items-center gap-2">
         <Icon name="link" className="h-5 w-5 text-brand-600" />
         <p className="flex-1 text-sm font-medium">{t('import.title')}</p>
-        <button className="btn-secondary" onClick={load} disabled={busy}>{busy ? t('common.loading') : t('import.fetch')}</button>
+        <button className="btn-secondary" onClick={load} disabled={busy}>
+          {busy ? t('common.loading') : t('import.fetch')}
+        </button>
       </div>
       {error && <p className="mt-2 text-sm text-rose-600">{error}</p>}
       {items && items.length === 0 && <p className="mt-2 text-sm text-slate-500">{t('import.none')}</p>}
@@ -102,30 +114,53 @@ export function ImportPanel() {
           {items.map((d) => {
             const match = findManualMatch(d, tasks);
             return (
-            <li key={d.externalId} className="rounded-xl border border-slate-200 p-3 dark:border-slate-800">
-              <p className="font-medium">{d.title}</p>
-              <p className="mb-2 text-xs text-slate-500">{t('source.' + d.source)}</p>
-              {match && (
-                <div className="mb-2 flex flex-wrap items-center gap-2 rounded-xl bg-brand-50 p-2 text-sm dark:bg-brand-700/20">
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium">{t('import.looksLike', { title: match.title })}</p>
-                    <p className="text-xs text-slate-600 dark:text-slate-300">{t('import.linkHint')}</p>
+              <li key={d.externalId} className="rounded-xl border border-slate-200 p-3 dark:border-slate-800">
+                <p className="font-medium">{d.title}</p>
+                <p className="mb-2 text-xs text-slate-500">{t('source.' + d.source)}</p>
+                {match && (
+                  <div className="mb-2 flex flex-wrap items-center gap-2 rounded-xl bg-brand-50 p-2 text-sm dark:bg-brand-700/20">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium">{t('import.looksLike', { title: match.title })}</p>
+                      <p className="text-xs text-slate-600 dark:text-slate-300">{t('import.linkHint')}</p>
+                    </div>
+                    <button className="btn-primary" onClick={() => link(d, match.id)}>
+                      {t('import.link')}
+                    </button>
                   </div>
-                  <button className="btn-primary" onClick={() => link(d, match.id)}>{t('import.link')}</button>
+                )}
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <select
+                    className="input"
+                    value={d.type}
+                    aria-label={t('form.type')}
+                    onChange={(e) => update(d.externalId, { type: e.target.value as TaskType })}
+                  >
+                    {types.map((x) => (
+                      <option key={x} value={x}>
+                        {t('type.' + x)}
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    className="input"
+                    type="datetime-local"
+                    aria-label={t('form.deadline')}
+                    value={d.deadline}
+                    onChange={(e) => update(d.externalId, { deadline: e.target.value })}
+                  />
                 </div>
-              )}
-              <div className="grid gap-2 sm:grid-cols-2">
-                <select className="input" value={d.type} aria-label={t('form.type')} onChange={(e) => update(d.externalId, { type: e.target.value as TaskType })}>
-                  {types.map((x) => <option key={x} value={x}>{t('type.' + x)}</option>)}
-                </select>
-                <input className="input" type="datetime-local" aria-label={t('form.deadline')} value={d.deadline} onChange={(e) => update(d.externalId, { deadline: e.target.value })} />
-              </div>
-              <div className="mt-2"><DurationInput value={d.estimate} onChange={(v) => update(d.externalId, { estimate: v })} /></div>
-              <div className="mt-2 flex justify-end gap-2">
-                <button className="btn-ghost" onClick={() => ignore(d)}>{t('import.ignore')}</button>
-                <button className={match ? 'btn-secondary' : 'btn-primary'} onClick={() => add(d)}>{match ? t('import.addSeparately') : t('import.add')}</button>
-              </div>
-            </li>
+                <div className="mt-2">
+                  <DurationInput value={d.estimate} onChange={(v) => update(d.externalId, { estimate: v })} />
+                </div>
+                <div className="mt-2 flex justify-end gap-2">
+                  <button className="btn-ghost" onClick={() => ignore(d)}>
+                    {t('import.ignore')}
+                  </button>
+                  <button className={match ? 'btn-secondary' : 'btn-primary'} onClick={() => add(d)}>
+                    {match ? t('import.addSeparately') : t('import.add')}
+                  </button>
+                </div>
+              </li>
             );
           })}
         </ul>

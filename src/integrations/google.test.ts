@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { freeBusyWindows, parseGoogleResponse } from './google';
 import { createGoogleWaiter } from '../../electron/oauth.cjs';
+import { freeBusyWindows, parseGoogleResponse } from './google';
 
 describe('Google sign-in answer', () => {
   it('accepts a token for our own request', () => {

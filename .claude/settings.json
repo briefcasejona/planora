@@ -25,12 +25,7 @@
       "Edit(src/data/db.ts)",
       "Edit(src/data/sync/**)"
     ],
-    "deny": [
-      "Read(.env)",
-      "Read(.env.local)",
-      "Read(**/*.jks)",
-      "Read(**/*.keystore)"
-    ]
+    "deny": ["Read(.env)", "Read(.env.local)", "Read(**/*.jks)", "Read(**/*.keystore)"]
   },
   "hooks": {
     "PostToolUse": [

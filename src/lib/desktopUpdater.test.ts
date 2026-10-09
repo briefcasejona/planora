@@ -16,7 +16,11 @@ const release = {
 
 describe('desktop updater', () => {
   it('picks the right file for each computer, only when newer', () => {
-    expect(pickAsset(release, '0.3.3', 'win32', 'x64')).toEqual({ version: '0.3.4', url: 'https://x/setup', sha256: 'aa' });
+    expect(pickAsset(release, '0.3.3', 'win32', 'x64')).toEqual({
+      version: '0.3.4',
+      url: 'https://x/setup',
+      sha256: 'aa',
+    });
     expect(pickAsset(release, '0.3.3', 'linux', 'x64')?.url).toBe('https://x/appimage');
     expect(pickAsset(release, '0.3.3', 'darwin', 'arm64')?.url).toBe('https://x/arm');
     expect(pickAsset(release, '0.3.3', 'darwin', 'x64')?.url).toBe('https://x/intel');

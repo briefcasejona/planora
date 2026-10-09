@@ -34,7 +34,12 @@ export async function startDeviceSync(): Promise<void> {
   let timer: ReturnType<typeof setTimeout> | undefined;
   useStore.subscribe((s, prev) => {
     if (!useSync.getState().enabled) return;
-    const changed = s.tasks !== prev.tasks || s.busy !== prev.busy || s.feedback !== prev.feedback || s.prefs !== prev.prefs || s.reports !== prev.reports;
+    const changed =
+      s.tasks !== prev.tasks ||
+      s.busy !== prev.busy ||
+      s.feedback !== prev.feedback ||
+      s.prefs !== prev.prefs ||
+      s.reports !== prev.reports;
     if (!changed) return;
     clearTimeout(timer);
     timer = setTimeout(() => void syncInBackground(), AFTER_CHANGE_MS);

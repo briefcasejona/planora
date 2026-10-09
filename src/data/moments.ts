@@ -1,7 +1,7 @@
 import { addDays } from 'date-fns';
-import type { WeeklyMoment } from '../domain/types';
-import { parseHM } from '../domain/time';
 import { weekStartOf } from '../domain/insights';
+import { parseHM } from '../domain/time';
+import type { WeeklyMoment } from '../domain/types';
 
 /** Monday-based offset of a weekday (Monday 0 ... Sunday 6). */
 const mondayOffset = (weekday: number) => (weekday + 6) % 7;

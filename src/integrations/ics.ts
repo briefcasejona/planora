@@ -1,7 +1,7 @@
-import ICAL from 'ical.js';
 import { addDays } from 'date-fns';
-import type { BusyBlock, EventCategory, Task, WorkSession } from '../domain/types';
+import ICAL from 'ical.js';
 import { detectCategory } from '../domain/categories';
+import type { BusyBlock, EventCategory, Task, WorkSession } from '../domain/types';
 
 /**
  * Parse an .ics file entirely on this device into busy blocks. Recurring
@@ -62,11 +62,22 @@ export function parseIcs(
 
 /** A stable id for an imported file, so importing the same file again replaces it. */
 export function importIdFor(fileName: string): string {
-  return fileName.toLowerCase().replace(/\.ics$/, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'calendar';
+  return (
+    fileName
+      .toLowerCase()
+      .replace(/\.ics$/, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '') || 'calendar'
+  );
 }
 
-const icsDate = (iso: string) => new Date(iso).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
-const escapeText = (s: string) => s.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
+const icsDate = (iso: string) =>
+  new Date(iso)
+    .toISOString()
+    .replace(/[-:]/g, '')
+    .replace(/\.\d{3}/, '');
+const escapeText = (s: string) =>
+  s.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
 
 export interface IcsExportOptions {
   /** "Planora focus" instead of task names. */
@@ -120,7 +131,13 @@ export function buildIcs(sessions: WorkSession[], tasks: Task[], opts: IcsExport
       'TRANSP:' + (opaque ? 'OPAQUE' : 'TRANSPARENT'),
     );
     if (alarm && opts.reminderMin) {
-      lines.push('BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + escapeText(summary), 'TRIGGER:-PT' + opts.reminderMin + 'M', 'END:VALARM');
+      lines.push(
+        'BEGIN:VALARM',
+        'ACTION:DISPLAY',
+        'DESCRIPTION:' + escapeText(summary),
+        'TRIGGER:-PT' + opts.reminderMin + 'M',
+        'END:VALARM',
+      );
     }
     lines.push('END:VEVENT');
   };
@@ -134,19 +151,43 @@ export function buildIcs(sessions: WorkSession[], tasks: Task[], opts: IcsExport
     const task = byId.get(taskId)!;
     list.sort((a, b) => a.start.localeCompare(b.start));
     list.forEach((s, i) => {
-      event('planora-' + taskId + '-' + (i + 1) + '@planora.local', s.start, s.end, opts.generic ? 'Planora focus' : 'Planora: ' + task.title, true, true);
+      event(
+        'planora-' + taskId + '-' + (i + 1) + '@planora.local',
+        s.start,
+        s.end,
+        opts.generic ? 'Planora focus' : 'Planora: ' + task.title,
+        true,
+        true,
+      );
     });
   }
   if (opts.deadlines) {
     for (const t of tasks) {
       if (t.status !== 'open' || !wanted(t.id)) continue;
-      event('planora-deadline-' + t.id + '@planora.local', t.deadline, t.deadline, opts.generic ? 'Deadline' : 'Deadline: ' + t.title, false, false);
+      event(
+        'planora-deadline-' + t.id + '@planora.local',
+        t.deadline,
+        t.deadline,
+        opts.generic ? 'Deadline' : 'Deadline: ' + t.title,
+        false,
+        false,
+      );
     }
   }
   const current = new Set(uids);
   for (const uid of opts.cancelUids ?? []) {
     if (current.has(uid)) continue;
-    lines.push('BEGIN:VEVENT', 'UID:' + uid, 'DTSTAMP:' + stamp, 'SEQUENCE:' + sequence, 'DTSTART:' + stamp, 'DTEND:' + stamp, 'SUMMARY:Planora', 'STATUS:CANCELLED', 'END:VEVENT');
+    lines.push(
+      'BEGIN:VEVENT',
+      'UID:' + uid,
+      'DTSTAMP:' + stamp,
+      'SEQUENCE:' + sequence,
+      'DTSTART:' + stamp,
+      'DTEND:' + stamp,
+      'SUMMARY:Planora',
+      'STATUS:CANCELLED',
+      'END:VEVENT',
+    );
   }
   lines.push('END:VCALENDAR');
   return { text: lines.join('\r\n') + '\r\n', uids };

@@ -1,8 +1,8 @@
 import type { BusyBlock, FeedbackRecord, Preferences, Task, WeekReport, WorkSession } from '../domain/types';
 import { DEFAULT_PREFERENCES } from '../domain/types';
+import { type CryptoConfig, decryptJSON, encryptJSON } from './crypto';
 import { db, type PlanoraDB, type StoredRow, type SyncLogEntry } from './db';
-import { decryptJSON, encryptJSON, type CryptoConfig } from './crypto';
-import { isSyncedBusy, isSyncedSession, sameContent, type SyncRecords, type SyncTable } from './sync/merge';
+import { isSyncedBusy, isSyncedSession, type SyncRecords, type SyncTable, sameContent } from './sync/merge';
 
 type TableName = 'tasks' | 'sessions' | 'busy' | 'feedback' | 'reports';
 
@@ -69,7 +69,11 @@ async function listAll<T>(table: TableName): Promise<T[]> {
  * changed, so replanning doesn't make unchanged records look new to sync.
  * `keepStamp` stores records exactly as given (used when applying synced data).
  */
-async function putAll(table: TableName, values: { id: string; updatedAt?: string }[], keepStamp = false): Promise<void> {
+async function putAll(
+  table: TableName,
+  values: { id: string; updatedAt?: string }[],
+  keepStamp = false,
+): Promise<void> {
   if (values.length === 0) return;
   let stamped = values;
   if (!keepStamp) {
@@ -183,7 +187,10 @@ export const repo = {
   },
 
   /** Apply data merged from another device, exactly as given (no new stamps, no tombstones). */
-  async applySynced(put: Partial<Record<SyncTable, { id: string }[]>>, del: Partial<Record<SyncTable, string[]>>): Promise<void> {
+  async applySynced(
+    put: Partial<Record<SyncTable, { id: string }[]>>,
+    del: Partial<Record<SyncTable, string[]>>,
+  ): Promise<void> {
     for (const [table, ids] of Object.entries(del) as [SyncTable, string[]][]) await database[table].bulkDelete(ids);
     for (const [table, rows] of Object.entries(put) as [SyncTable, { id: string }[]][]) await putAll(table, rows, true);
   },

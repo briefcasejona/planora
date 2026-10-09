@@ -18,23 +18,47 @@ export function UpdatesCard() {
     }
   };
   const status =
-    u.state === 'checking' ? t('updates.checking')
-    : u.state === 'downloading' ? t('updates.downloading', { version: u.version })
-    : u.state === 'ready' || u.state === 'available' ? t('updates.found', { version: u.version })
-    : u.state === 'none' ? t('updates.upToDate')
-    : u.state === 'error' ? t('updates.failed')
-    : '';
+    u.state === 'checking'
+      ? t('updates.checking')
+      : u.state === 'downloading'
+        ? t('updates.downloading', { version: u.version })
+        : u.state === 'ready' || u.state === 'available'
+          ? t('updates.found', { version: u.version })
+          : u.state === 'none'
+            ? t('updates.upToDate')
+            : u.state === 'error'
+              ? t('updates.failed')
+              : '';
   return (
     <div className="card mb-4">
       <h3 className="mb-1 font-semibold">{t('updates.title')}</h3>
       <p className="mb-2 text-sm text-slate-600 dark:text-slate-300">
         {u.current && t('updates.current', { version: u.current })} {status}
-        {u.lastCheck && <span className="block text-xs text-slate-500">{t('updates.lastCheck', { when: date(u.lastCheck, 'd MMM HH:mm') })}</span>}
+        {u.lastCheck && (
+          <span className="block text-xs text-slate-500">
+            {t('updates.lastCheck', { when: date(u.lastCheck, 'd MMM HH:mm') })}
+          </span>
+        )}
       </p>
-      <Toggle checked={u.auto} onChange={(v) => void setAutoUpdate(v)} label={t('updates.auto')} description={t('updates.autoHint')} />
+      <Toggle
+        checked={u.auto}
+        onChange={(v) => void setAutoUpdate(v)}
+        label={t('updates.auto')}
+        description={t('updates.autoHint')}
+      />
       <div className="mt-2 flex flex-wrap gap-2">
-        <button className="btn-secondary" disabled={busy || u.state === 'checking' || u.state === 'downloading'} onClick={check}>{t('updates.checkNow')}</button>
-        {(u.state === 'ready' || u.state === 'available') && <button className="btn-primary" onClick={() => void installUpdate()}>{t(updateAction(u.kind, u.state))}</button>}
+        <button
+          className="btn-secondary"
+          disabled={busy || u.state === 'checking' || u.state === 'downloading'}
+          onClick={check}
+        >
+          {t('updates.checkNow')}
+        </button>
+        {(u.state === 'ready' || u.state === 'available') && (
+          <button className="btn-primary" onClick={() => void installUpdate()}>
+            {t(updateAction(u.kind, u.state))}
+          </button>
+        )}
       </div>
     </div>
   );

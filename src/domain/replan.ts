@@ -1,5 +1,5 @@
-import type { Task, WorkSession } from './types';
 import { workedMinutes } from './scheduler';
+import type { Task, WorkSession } from './types';
 
 /** Planned sessions whose end time has passed without being checked off. */
 export function findMissed(sessions: WorkSession[], now: Date): WorkSession[] {
@@ -18,7 +18,9 @@ export function findOverdue(tasks: Task[], now: Date): Task[] {
 /** Tasks that should get a feedback card: finished, or past the deadline. */
 export function feedbackDue(tasks: Task[], now: Date): Task[] {
   return tasks.filter(
-    (t) => !t.feedbackGiven && (t.status === 'done' || t.status === 'overdue' || (t.status === 'open' && new Date(t.deadline) <= now)),
+    (t) =>
+      !t.feedbackGiven &&
+      (t.status === 'done' || t.status === 'overdue' || (t.status === 'open' && new Date(t.deadline) <= now)),
   );
 }
 

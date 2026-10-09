@@ -36,7 +36,8 @@ export const texts: Record<Lang, Texts> = {
     openInSafari: 'Open deze pagina in Safari: alleen Safari kan Planora op je beginscherm zetten.',
     webApp: 'Liever niets installeren? Planora werkt ook gewoon in je browser.',
     openWebApp: 'Planora openen',
-    syncNote: 'Gebruik je Planora op meer apparaten? Zet dan (optioneel) synchroniseren aan via Instellingen > Synchroniseren.',
+    syncNote:
+      'Gebruik je Planora op meer apparaten? Zet dan (optioneel) synchroniseren aan via Instellingen > Synchroniseren.',
     privacy: 'Planora heeft geen server en verzamelt niets. De downloads komen rechtstreeks van GitHub.',
     devices: {
       windows: {
@@ -99,7 +100,7 @@ export const texts: Record<Lang, Texts> = {
     forYourDevice: 'For your device',
     otherDevices: 'Other devices',
     openInSafari: 'Open this page in Safari: only Safari can add Planora to your home screen.',
-    webApp: "Rather not install anything? Planora also works right in your browser.",
+    webApp: 'Rather not install anything? Planora also works right in your browser.',
     openWebApp: 'Open Planora',
     syncNote: 'Using Planora on more than one device? You can (optionally) turn on sync in Settings > Sync.',
     privacy: 'Planora has no server and collects nothing. Downloads come straight from GitHub.',
@@ -121,7 +122,7 @@ export const texts: Record<Lang, Texts> = {
         steps: [
           'Not sure which? Click the Apple logo (top left) > <b>About This Mac</b>. "Chip Apple M…" means Apple chip; "Processor … Intel" means Intel.',
           'Open the downloaded file and drag <b>Planora</b> into <b>Applications</b>.',
-          'Open Planora. If your Mac says it can\'t be opened, go to <b>System Settings > Privacy & Security</b>, scroll down and click <b>Open Anyway</b>. You only need to do this once.',
+          "Open Planora. If your Mac says it can't be opened, go to <b>System Settings > Privacy & Security</b>, scroll down and click <b>Open Anyway</b>. You only need to do this once.",
         ],
       },
       linux: {

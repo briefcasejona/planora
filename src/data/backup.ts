@@ -1,6 +1,6 @@
-import { createCryptoConfig, decryptJSON, deriveKey, encryptJSON, type EncryptedBlob } from './crypto';
-import { repo } from './repo';
 import type { BusyBlock, FeedbackRecord, Preferences, Task, WeekReport, WorkSession } from '../domain/types';
+import { createCryptoConfig, decryptJSON, deriveKey, type EncryptedBlob, encryptJSON } from './crypto';
+import { repo } from './repo';
 
 interface BackupPayload {
   tasks: Task[];

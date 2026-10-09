@@ -1,7 +1,11 @@
 import { isSameDay } from 'date-fns';
 import type { Task } from './types';
 
-const words = (s: string) => s.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+const words = (s: string) =>
+  s
+    .toLowerCase()
+    .split(/[^\p{L}\p{N}]+/u)
+    .filter(Boolean);
 
 /** Titles that are very likely the same thing, ignoring case and punctuation. */
 export function similarTitles(a: string, b: string): boolean {
@@ -26,6 +30,10 @@ export function findManualMatch(candidate: { title: string; due?: string }, task
   if (!candidate.due) return undefined;
   const due = new Date(candidate.due);
   return tasks.find(
-    (t) => !t.externalId && (t.status === 'open' || t.status === 'overdue') && isSameDay(new Date(t.deadline), due) && similarTitles(t.title, candidate.title),
+    (t) =>
+      !t.externalId &&
+      (t.status === 'open' || t.status === 'overdue') &&
+      isSameDay(new Date(t.deadline), due) &&
+      similarTitles(t.title, candidate.title),
   );
 }

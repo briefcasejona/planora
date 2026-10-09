@@ -1,8 +1,8 @@
 import { Capacitor } from '@capacitor/core';
 import { LocalNotifications } from '@capacitor/local-notifications';
-import type { Preferences } from '../domain/types';
 import { nextOccurrence } from '../data/moments';
 import { parseHM } from '../domain/time';
+import type { Preferences } from '../domain/types';
 import { asset } from '../lib/platform';
 
 export interface NotificationTexts {
@@ -32,8 +32,18 @@ export async function scheduleWeeklyReminders(prefs: Preferences, texts: Notific
     };
     await LocalNotifications.schedule({
       notifications: [
-        { id: 1, title: texts.planTitle, body: texts.planBody, schedule: { on: on(prefs.weeklyPlan), allowWhileIdle: true } },
-        { id: 2, title: texts.reviewTitle, body: texts.reviewBody, schedule: { on: on(prefs.weeklyReview), allowWhileIdle: true } },
+        {
+          id: 1,
+          title: texts.planTitle,
+          body: texts.planBody,
+          schedule: { on: on(prefs.weeklyPlan), allowWhileIdle: true },
+        },
+        {
+          id: 2,
+          title: texts.reviewTitle,
+          body: texts.reviewBody,
+          schedule: { on: on(prefs.weeklyReview), allowWhileIdle: true },
+        },
       ],
     });
     return;
@@ -50,7 +60,8 @@ export async function scheduleWeeklyReminders(prefs: Preferences, texts: Notific
     [review, texts.reviewTitle, texts.reviewBody],
   ] as const) {
     const delay = when.getTime() - now.getTime();
-    if (delay > 0 && delay < day) webTimers.push(setTimeout(() => new Notification(title, { body, icon: asset('icon.svg') }), delay));
+    if (delay > 0 && delay < day)
+      webTimers.push(setTimeout(() => new Notification(title, { body, icon: asset('icon.svg') }), delay));
   }
 }
 

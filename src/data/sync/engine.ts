@@ -3,11 +3,18 @@
 // The passphrase never leaves the device; only the key derived from it is
 // kept (non-extractable) so syncing can run in the background.
 import { create } from 'zustand';
-import { createCryptoConfig, decryptJSON, deriveKey, encryptJSON, type EncryptedBlob } from '../crypto';
+import { patchMicrosoft, saveIntegrations, useIntegrations } from '../../integrations/settings';
+import { createCryptoConfig, decryptJSON, deriveKey, type EncryptedBlob, encryptJSON } from '../crypto';
 import { repo } from '../repo';
 import { actions, useStore } from '../store';
-import { patchMicrosoft, saveIntegrations, useIntegrations } from '../../integrations/settings';
-import { diffTables, emptySnapshot, isSyncedSession, mergeSnapshots, stableStringify, type SyncSnapshot } from './merge';
+import {
+  diffTables,
+  emptySnapshot,
+  isSyncedSession,
+  mergeSnapshots,
+  type SyncSnapshot,
+  stableStringify,
+} from './merge';
 import type { SyncTransport } from './onedrive';
 
 interface SyncFile {
@@ -109,7 +116,10 @@ export async function enableSync(passphrase: string, transport: SyncTransport): 
     // Joining existing devices: their settings win over this (probably new) device's defaults.
     await repo.deleteKv('prefs-updatedAt');
   } else {
-    ({ key, config: { salt } } = await createCryptoConfig(passphrase));
+    ({
+      key,
+      config: { salt },
+    } = await createCryptoConfig(passphrase));
   }
   await storeKey(key);
   await saveState({ enabled: true, salt, error: undefined });
@@ -170,10 +180,18 @@ async function applyLocal(local: SyncSnapshot, merged: SyncSnapshot): Promise<bo
     stableStringify(merged.dismissedTests) !== stableStringify(integrations.dismissedTests) ||
     stableStringify(merged.outlookWriter ?? null) !== stableStringify(integrations.outlookWriter ?? null)
   ) {
-    await saveIntegrations({ icsImports: merged.icsImports, dismissedTests: merged.dismissedTests, outlookWriter: merged.outlookWriter });
+    await saveIntegrations({
+      icsImports: merged.icsImports,
+      dismissedTests: merged.dismissedTests,
+      outlookWriter: merged.outlookWriter,
+    });
   }
   // Another device took over writing study blocks to Outlook.
-  if (merged.outlookWriter && merged.outlookWriter.device !== (await deviceId()) && useIntegrations.getState().microsoft.writeSessions) {
+  if (
+    merged.outlookWriter &&
+    merged.outlookWriter.device !== (await deviceId()) &&
+    useIntegrations.getState().microsoft.writeSessions
+  ) {
     await patchMicrosoft({ writeSessions: false });
   }
   return changed;
@@ -220,7 +238,12 @@ async function syncOnce(transport: SyncTransport): Promise<'ok' | 'skipped'> {
     const result = await transport.put(JSON.stringify(file), remote?.etag ?? null);
     if (result !== 'conflict') {
       const t = merged.tables;
-      await repo.addLog({ provider: 'onedrive', action: 'sync', count: t.tasks.length + t.sessions.length + t.busy.length, ok: true });
+      await repo.addLog({
+        provider: 'onedrive',
+        action: 'sync',
+        count: t.tasks.length + t.sessions.length + t.busy.length,
+        ok: true,
+      });
       return 'ok';
     }
     // Another device saved in the meantime: merge again with its version.

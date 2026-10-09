@@ -1,9 +1,9 @@
 import { useState } from 'react';
+import { Chips, DurationInput, Field, Modal } from '../components/ui';
 import { actions, useStore } from '../data/store';
 import { doneMinutesFor } from '../domain/replan';
 import type { FeedbackRecord } from '../domain/types';
 import { useFormat } from '../lib/format';
-import { Chips, DurationInput, Field, Modal } from '../components/ui';
 import { ReopenDialog } from './ReopenDialog';
 
 export function FeedbackDialog({ taskId, onClose }: { taskId: string; onClose: () => void }) {
@@ -45,8 +45,12 @@ export function FeedbackDialog({ taskId, onClose }: { taskId: string; onClose: (
       title={t('feedback.title', { title: task.title })}
       footer={
         <>
-          <button className="btn-secondary" onClick={onClose}>{t('feedback.later')}</button>
-          <button className="btn-primary" onClick={submit}>{t('feedback.submit')}</button>
+          <button className="btn-secondary" onClick={onClose}>
+            {t('feedback.later')}
+          </button>
+          <button className="btn-primary" onClick={submit}>
+            {t('feedback.submit')}
+          </button>
         </>
       }
     >
@@ -54,8 +58,15 @@ export function FeedbackDialog({ taskId, onClose }: { taskId: string; onClose: (
       {task.status !== 'done' && (
         <div className="mb-4">
           <span className="label">{t('feedback.completed')}</span>
-          <Chips label={t('feedback.completed')} value={completed ? 'yes' : 'no'} onChange={(v) => setCompleted(v === 'yes')}
-            options={[{ value: 'yes', label: t('common.yes') }, { value: 'no', label: t('feedback.notYet') }]} />
+          <Chips
+            label={t('feedback.completed')}
+            value={completed ? 'yes' : 'no'}
+            onChange={(v) => setCompleted(v === 'yes')}
+            options={[
+              { value: 'yes', label: t('common.yes') },
+              { value: 'no', label: t('feedback.notYet') },
+            ]}
+          />
         </div>
       )}
       <div className="mb-4">
@@ -67,23 +78,45 @@ export function FeedbackDialog({ taskId, onClose }: { taskId: string; onClose: (
       </div>
       <div className="mb-4">
         <span className="label">{t('feedback.enough')}</span>
-        <Chips label={t('feedback.enough')} value={enoughTime} onChange={setEnoughTime}
-          options={(['too-little', 'right', 'too-much'] as const).map((v) => ({ value: v, label: t('feedback.enough_' + v) }))} />
+        <Chips
+          label={t('feedback.enough')}
+          value={enoughTime}
+          onChange={setEnoughTime}
+          options={(['too-little', 'right', 'too-much'] as const).map((v) => ({
+            value: v,
+            label: t('feedback.enough_' + v),
+          }))}
+        />
       </div>
       <div className="mb-4">
         <span className="label">{t('feedback.sessions')}</span>
-        <Chips label={t('feedback.sessions')} value={sessionsNeeded} onChange={setSessionsNeeded}
-          options={(['fewer', 'same', 'more'] as const).map((v) => ({ value: v, label: t('feedback.sessions_' + v) }))} />
+        <Chips
+          label={t('feedback.sessions')}
+          value={sessionsNeeded}
+          onChange={setSessionsNeeded}
+          options={(['fewer', 'same', 'more'] as const).map((v) => ({ value: v, label: t('feedback.sessions_' + v) }))}
+        />
       </div>
       <div className="mb-4">
         <span className="label">{t('feedback.difficulty')}</span>
-        <Chips label={t('feedback.difficulty')} value={difficulty} onChange={setDifficulty}
-          options={[1, 2, 3, 4, 5].map((d) => ({ value: d, label: t('difficulty.' + d) }))} />
+        <Chips
+          label={t('feedback.difficulty')}
+          value={difficulty}
+          onChange={setDifficulty}
+          options={[1, 2, 3, 4, 5].map((d) => ({ value: d, label: t('difficulty.' + d) }))}
+        />
       </div>
       <div className="mb-4">
         <span className="label">{t('feedback.spacing')}</span>
-        <Chips label={t('feedback.spacing')} value={spacing} onChange={setSpacing}
-          options={(['spread', 'mixed', 'crammed'] as const).map((v) => ({ value: v, label: t('feedback.spacing_' + v) }))} />
+        <Chips
+          label={t('feedback.spacing')}
+          value={spacing}
+          onChange={setSpacing}
+          options={(['spread', 'mixed', 'crammed'] as const).map((v) => ({
+            value: v,
+            label: t('feedback.spacing_' + v),
+          }))}
+        />
       </div>
       {(task.type === 'test' || task.type === 'assignment' || task.type === 'project') && (
         <Field label={t('feedback.grade')} hint={t('feedback.gradeHint')}>

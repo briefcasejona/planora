@@ -14,7 +14,7 @@ export function spacedDayOffsets(windowDays: number, n: number, density = 1.6): 
   for (let i = 0; i < n; i++) {
     const t = i / (n - 1); // 0..1
     // 1 - (1 - t)^density: steep at the start, flat near the end => denser near deadline.
-    raw.push(Math.round(last * (1 - Math.pow(1 - t, density))));
+    raw.push(Math.round(last * (1 - (1 - t) ** density)));
   }
   // Make strictly increasing while staying within bounds.
   const out: number[] = [];
@@ -41,7 +41,13 @@ export function evenDayOffsets(windowDays: number, n: number): number[] {
  * Split total minutes into n blocks clamped to [minBlock, maxBlock], rounded
  * to 5 minutes. For tests the last block is a lighter review block.
  */
-export function splitMinutes(totalMin: number, n: number, minBlock: number, maxBlock: number, lightLast = false): number[] {
+export function splitMinutes(
+  totalMin: number,
+  n: number,
+  minBlock: number,
+  maxBlock: number,
+  lightLast = false,
+): number[] {
   if (totalMin <= 0 || n <= 0) return [];
   const weights = Array.from({ length: n }, (_, i) => (lightLast && n > 2 && i === n - 1 ? 0.6 : 1));
   const wsum = weights.reduce((a, b) => a + b, 0);

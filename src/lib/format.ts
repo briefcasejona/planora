@@ -1,8 +1,8 @@
 import { differenceInCalendarDays, format } from 'date-fns';
 import { enGB, nl } from 'date-fns/locale';
 import { useTranslation } from 'react-i18next';
-import type { Message, TaskType } from '../domain/types';
 import { formatDuration } from '../domain/time';
+import type { Message, TaskType } from '../domain/types';
 
 const TASK_TYPES: TaskType[] = ['test', 'assignment', 'project', 'task', 'grading', 'lessonprep'];
 
