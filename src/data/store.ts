@@ -268,8 +268,7 @@ export const actions = {
         order: i,
         done: false,
       }));
-      const userEstimateMin =
-        steps && steps.length ? steps.reduce((a, s) => a + s.estimateMin, 0) : input.userEstimateMin;
+      const userEstimateMin = steps?.length ? steps.reduce((a, s) => a + s.estimateMin, 0) : input.userEstimateMin;
       const suggestion = suggestEstimate({ type: input.type, subject: input.subject, userEstimateMin }, get().feedback);
       const task: Task = {
         id: crypto.randomUUID(),

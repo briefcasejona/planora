@@ -79,7 +79,7 @@ export function BusyDialog({
   const save = async () => {
     const s = new Date(from);
     const e = new Date(to);
-    if (isNaN(s.getTime()) || isNaN(e.getTime()) || e <= s) return setError(t('busy.errTime'));
+    if (Number.isNaN(s.getTime()) || Number.isNaN(e.getTime()) || e <= s) return setError(t('busy.errTime'));
     await actions.saveBusy([
       {
         id: block?.id ?? crypto.randomUUID(),

@@ -29,6 +29,7 @@ export function LockScreen() {
           id="unlock-pw"
           className="input mb-3"
           type="password"
+          // biome-ignore lint/a11y/noAutofocus: the passphrase field is the only thing on the lock screen
           autoFocus
           autoComplete="current-password"
           value={pw}
@@ -40,7 +41,7 @@ export function LockScreen() {
             {t('lock.wrong')}
           </p>
         )}
-        <button className="btn-primary w-full" disabled={busy || !pw}>
+        <button type="submit" className="btn-primary w-full" disabled={busy || !pw}>
           {busy ? t('common.loading') : t('lock.unlock')}
         </button>
       </form>

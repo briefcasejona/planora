@@ -18,6 +18,7 @@ export function PlanView({ data }: { data: WeeklyPlanData }) {
         <ul className="space-y-2">
           {data.focus.map((f, i) => (
             <li
+              // biome-ignore lint/suspicious/noArrayIndexKey: read-only list, rebuilt as a whole
               key={i}
               className="card flex items-start gap-3 border-brand-200 bg-brand-50 dark:border-brand-700 dark:bg-brand-700/20"
             >
@@ -161,6 +162,7 @@ export function ReviewView({ data }: { data: WeeklyReviewData }) {
       <Section title={t('review.improve')}>
         <ul className="space-y-2">
           {data.improvements.map((m, i) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: read-only list, rebuilt as a whole
             <li key={i} className="card flex items-start gap-3">
               <Icon name="sparkle" className="mt-0.5 h-5 w-5 shrink-0 text-brand-600" />
               <span className="text-sm">{msg(m)}</span>

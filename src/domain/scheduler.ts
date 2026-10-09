@@ -120,7 +120,7 @@ function buildChunks(task: Task, kept: WorkSession[], input: ScheduleInput, earl
       const lastDay = Math.max(firstDay, differenceInCalendarDays(new Date(stepLatest.getTime() - 1), today));
       const blocks = splitMinutes(rem, Math.ceil(rem / prefs.maxBlockMin), prefs.minBlockMin, prefs.maxBlockMin);
       const offsets = evenDayOffsets(lastDay - firstDay + 1, blocks.length);
-      blocks.forEach((minutes, j) =>
+      blocks.forEach((minutes, j) => {
         chunks.push({
           taskId: task.id,
           stepId: step.id,
@@ -132,8 +132,8 @@ function buildChunks(task: Task, kept: WorkSession[], input: ScheduleInput, earl
           latest: stepLatest > earliest ? stepLatest : latest,
           hardLatest,
           order: i + 1,
-        }),
-      );
+        });
+      });
     });
     return chunks;
   }
@@ -147,7 +147,7 @@ function buildChunks(task: Task, kept: WorkSession[], input: ScheduleInput, earl
   if (isTest) offsets = spacedDayOffsets(windowDays, blocks.length);
   else if (task.type === 'task' && blocks.length === 1) offsets = [0];
   else offsets = evenDayOffsets(windowDays, blocks.length);
-  blocks.forEach((minutes, j) =>
+  blocks.forEach((minutes, j) => {
     chunks.push({
       taskId: task.id,
       kind: isTest ? (j === blocks.length - 1 && blocks.length > 2 ? 'review' : 'study') : 'work',
@@ -157,8 +157,8 @@ function buildChunks(task: Task, kept: WorkSession[], input: ScheduleInput, earl
       latest,
       hardLatest,
       order: 0,
-    }),
-  );
+    });
+  });
   return chunks;
 }
 

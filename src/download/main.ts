@@ -40,7 +40,9 @@ function button(href: string, label: string, primary: boolean): HTMLElement {
 function deviceCard(device: Device, main: boolean): HTMLElement {
   const info = t.devices[device];
   const buttons = h('div', { class: 'mt-4 flex flex-wrap gap-2' });
-  DOWNLOADS[device].forEach((d, i) => buttons.append(button(d.href, info.buttons[i], main && i === 0)));
+  DOWNLOADS[device].forEach((d, i) => {
+    buttons.append(button(d.href, info.buttons[i], main && i === 0));
+  });
   const steps = h(
     'ol',
     { class: 'mt-4 list-decimal space-y-2 pl-5 text-sm text-slate-700 dark:text-slate-300' },

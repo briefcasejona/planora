@@ -9,7 +9,7 @@ export function DesktopCard() {
   const [s, setS] = useState<{ closeToTray: boolean; openAtLogin: boolean; platform?: string } | null>(null);
   useEffect(() => {
     void bridge?.getSettings().then(setS);
-  }, [bridge]);
+  }, []);
   if (!bridge || !s) return null;
   const update = async (patch: Partial<typeof s>) => {
     await bridge.setSettings(patch);

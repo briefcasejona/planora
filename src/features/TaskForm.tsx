@@ -65,7 +65,7 @@ function TaskFormInner({ onClose, initial, task }: { onClose: () => void; initia
   const save = async () => {
     const dl = new Date(deadline);
     if (!title.trim()) return setError(t('form.errTitle'));
-    if (isNaN(dl.getTime())) return setError(t('form.errDeadline'));
+    if (Number.isNaN(dl.getTime())) return setError(t('form.errDeadline'));
     if (!task && dl <= new Date()) return setError(t('form.errPast'));
     if (isProject ? validSteps.length === 0 : estimate < 5) return setError(t('form.errEstimate'));
     const unchanged =
@@ -194,6 +194,7 @@ function TaskFormInner({ onClose, initial, task }: { onClose: () => void; initia
           <p className="mb-2 text-xs text-slate-500 dark:text-slate-400">{t('form.stepsHint')}</p>
           <ol className="space-y-2">
             {steps.map((s, i) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: drafts have no id yet; the inputs are controlled
               <li key={i} className="rounded-xl border border-slate-200 p-2 dark:border-slate-800">
                 <div className="flex items-center gap-2">
                   <span className="w-5 text-center text-sm text-slate-400">{i + 1}</span>

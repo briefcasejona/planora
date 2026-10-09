@@ -26,7 +26,7 @@ export function ReopenDialog({
 
   const save = async () => {
     const dl = new Date(deadline);
-    if (isNaN(dl.getTime()) || dl <= new Date()) return setError(t('form.errPast'));
+    if (Number.isNaN(dl.getTime()) || dl <= new Date()) return setError(t('form.errPast'));
     await actions.reopenTask(task.id, remaining, dl.toISOString());
     onClose();
   };

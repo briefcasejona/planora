@@ -24,6 +24,7 @@ export function SyncCard() {
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   // Only look up the sync account when the user already set one up (no Microsoft code otherwise).
+  // biome-ignore lint/correctness/useExhaustiveDependencies: re-check the account when sync is switched on or off
   useEffect(() => {
     let alive = true;
     let hasSlot = false;

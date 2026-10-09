@@ -14,6 +14,7 @@ const devices = { laptop: new PlanoraDB('sync-laptop'), phone: new PlanoraDB('sy
 
 /** Switch the app to another device, as if Planora was opened there. */
 async function on(device: keyof typeof devices) {
+  // biome-ignore lint/correctness/useHookAtTopLevel: useDatabase is not a React hook
   useDatabase(devices[device]);
   resetSyncMemory();
   await loadSyncState();
@@ -80,7 +81,14 @@ describe('sync between two devices through OneDrive', () => {
     await on('laptop');
     await addTask('Presentatie Geschiedenis');
     let first = true;
-    const racing: SyncTransport = { ...cloud, get: async () => (first ? ((first = false), stale) : cloud.get()) };
+    const racing: SyncTransport = {
+      ...cloud,
+      get: async () => {
+        if (!first) return cloud.get();
+        first = false;
+        return stale;
+      },
+    };
     expect(await syncNow(racing)).toBe('ok');
     expect(titles()).toEqual(['Essay Engels', 'Presentatie Geschiedenis', 'Toets Biologie', 'Verslag Scheikunde']);
     await on('phone');

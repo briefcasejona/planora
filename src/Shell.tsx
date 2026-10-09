@@ -48,7 +48,7 @@ export function Shell() {
               <Icon name={n.icon} />
               {t(n.key)}
               {n.to === '/review' && unseen && (
-                <span className="ml-auto h-2 w-2 rounded-full bg-brand-600" aria-label={t('review.new')} />
+                <span className="ml-auto h-2 w-2 rounded-full bg-brand-600" role="img" aria-label={t('review.new')} />
               )}
             </NavLink>
           ))}

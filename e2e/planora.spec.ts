@@ -230,7 +230,10 @@ test('installed app: an update that is ready shows a banner and installs on clic
       onUpdateStatus: () => undefined,
       getUpdateStatus: async () => ({ state: 'ready', kind: 'install', current: '0.3.3', version: '0.3.4' }),
       checkForUpdate: async () => ({ state: 'ready', kind: 'install', current: '0.3.3', version: '0.3.4' }),
-      installUpdate: async () => ((w.__installed = true), true),
+      installUpdate: async () => {
+        w.__installed = true;
+        return true;
+      },
     };
   });
   await onboard(page);

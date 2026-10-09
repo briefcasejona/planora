@@ -34,6 +34,7 @@ export function Modal({
   }, [open, onClose]);
   if (!open) return null;
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: backdrop click-to-close; Escape is handled by the keydown listener above
     <div
       className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/50 sm:items-center sm:p-4"
       onMouseDown={(e) => e.target === e.currentTarget && onClose()}
@@ -66,6 +67,7 @@ export function Modal({
 
 export function Field({ label, children, hint }: { label: string; children: ReactNode; hint?: ReactNode }) {
   return (
+    // biome-ignore lint/a11y/noLabelWithoutControl: the control is passed in as children
     <label className="mb-3 block">
       <span className="label">{label}</span>
       {children}
@@ -88,6 +90,7 @@ export function Chips<T extends string | number>({
   return (
     <div role="radiogroup" aria-label={label} className="flex flex-wrap gap-2">
       {options.map((o) => (
+        // biome-ignore lint/a11y/useSemanticElements: chip-style buttons acting as a radio group
         <button
           type="button"
           key={String(o.value)}

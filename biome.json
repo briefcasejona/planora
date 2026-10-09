@@ -20,10 +20,16 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "preset": "recommended"
+      "preset": "recommended",
+      "a11y": { "useButtonType": "off" },
+      "style": { "useTemplate": "off", "noNonNullAssertion": "off" }
     }
   },
   "assist": {
     "actions": { "source": { "organizeImports": "on" } }
+  },
+  "css": {
+    "parser": { "tailwindDirectives": true },
+    "formatter": { "quoteStyle": "single" }
   }
 }

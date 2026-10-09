@@ -185,6 +185,7 @@ export function CalendarPage() {
         </div>
       </div>
       <p className="mb-3 text-sm text-slate-600 dark:text-slate-300">{t('calendar.hint')}</p>
+      {/* biome-ignore lint/a11y/useSemanticElements: a fieldset would bring its own border and padding */}
       <div role="group" aria-label={t('calendar.show')} className="mb-3 flex flex-wrap gap-1.5">
         {filters.map((f) => {
           const on = !hidden.includes(f);
