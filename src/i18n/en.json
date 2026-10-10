@@ -436,11 +436,10 @@
     "alsoInOutlook": "This file is also in your Outlook calendar. You can remove it if you like; nothing breaks either way."
   },
   "privacy": {
-    "policyLink": "Read the full privacy statement",
     "badge": "Your data stays on this device",
     "summaryTitle": "Where is your data?",
     "local": "All your tasks, plans and feedback are stored on this device only.",
-    "noServer": "Planora has no server and no account: there is nothing to leak.",
+    "noServer": "Planora has no server and no accounts, so there's no Planora database that could leak.",
     "noTracking": "No ads, analytics or trackers.",
     "connections": "Active connections: {{list}}. Only what you turn on is fetched.",
     "noConnections": "No connections are active.",
@@ -467,7 +466,7 @@
     "logIntro": "Every time Planora contacted Microsoft or Google. Counts only, never content.",
     "logEmpty": "No activity yet: Planora hasn't contacted anyone.",
     "deleteAll": "Delete everything",
-    "deleteIntro": "Erases all Planora data on this device and signs you out of linked services.",
+    "deleteIntro": "Erases all Planora data on this device and signs you out of linked services. The encrypted sync copy in your OneDrive (Apps/Planora) and data on your other devices are not deleted — remove those there.",
     "deleteWord": "delete",
     "deleteConfirm": "Type ‘{{word}}’ to confirm. This can't be undone."
   },
@@ -512,7 +511,8 @@
     "timeHint": "Put classes, sports and other events in the calendar; Planora plans around them.",
     "privacyTitle": "Your privacy",
     "privacyIntegrations": "Connecting Outlook, Teams or Google is optional and can be done later. You choose exactly what Planora may do.",
-    "start": "Get started"
+    "start": "Get started",
+    "privacyPolicy": "Read the privacy policy"
   },
   "desktop": {
     "title": "Desktop app",
@@ -609,5 +609,13 @@
     "copy": "Copy for e-mail",
     "copied": "Copied!",
     "noGithub": "No GitHub account (free to create)? Copy your report and e-mail it to {{email}}."
+  },
+  "legal": {
+    "title": "Legal",
+    "intro": "How Planora handles your data, the terms of use, who makes Planora, and the open-source software inside it.",
+    "privacy": "Privacy policy",
+    "terms": "Terms of use",
+    "contact": "Contact",
+    "licenses": "Open-source licenses"
   }
 }

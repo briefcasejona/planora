@@ -1,7 +1,7 @@
 {
   "name": "planora",
   "private": true,
-  "version": "0.3.4",
+  "version": "0.3.5",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -20,7 +20,8 @@
     "dist:win": "npm run build && electron-builder --win --publish never",
     "e2e:desktop": "npm run build && playwright test -c playwright.desktop.config.ts",
     "dist:mac": "npm run build && electron-builder --mac --publish never -c.electronDist=",
-    "dist:linux": "npm run build && electron-builder --linux --publish never -c.electronDist="
+    "dist:linux": "npm run build && electron-builder --linux --publish never -c.electronDist=",
+    "legal": "node scripts/legal-pages.mjs"
   },
   "dependencies": {
     "@azure/msal-browser": "^5.25.0",
@@ -71,6 +72,7 @@
   },
   "description": "Privacy-first planning app for students and teachers",
   "author": "Jonathan",
+  "license": "UNLICENSED",
   "main": "electron/main.cjs",
   "build": {
     "appId": "app.planora",

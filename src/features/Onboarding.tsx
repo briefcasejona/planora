@@ -5,6 +5,7 @@ import { actions, useStore } from '../data/store';
 import type { Language, Role } from '../domain/types';
 import i18n from '../i18n';
 import { useFormat } from '../lib/format';
+import { legalUrl } from '../lib/links';
 import { asset } from '../lib/platform';
 
 export function Onboarding() {
@@ -86,6 +87,16 @@ export function Onboarding() {
         <li>{t('privacy.noTracking')}</li>
         <li>{t('onboarding.privacyIntegrations')}</li>
       </ul>
+      <p className="mt-3 text-sm">
+        <a
+          className="font-medium text-brand-600 underline dark:text-brand-200"
+          href={legalUrl('privacy', lang)}
+          target="_blank"
+          rel="noreferrer noopener"
+        >
+          {t('onboarding.privacyPolicy')}
+        </a>
+      </p>
     </div>,
   ];
 

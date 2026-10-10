@@ -423,11 +423,10 @@
     "sync-delete": "syncgegevens verwijderd uit OneDrive"
   },
   "privacy": {
-    "policyLink": "Lees de volledige privacyverklaring",
     "badge": "Je gegevens blijven op dit apparaat",
     "summaryTitle": "Waar staan je gegevens?",
     "local": "Al je taken, planning en feedback staan alleen op dit apparaat.",
-    "noServer": "Planora heeft geen server en geen account: er is niets om te lekken.",
+    "noServer": "Planora heeft geen server en geen accounts, dus er is geen Planora-database die kan uitlekken.",
     "noTracking": "Geen advertenties, analytics of trackers.",
     "connections": "Actieve koppelingen: {{list}}. Alleen wat je aanzet wordt opgehaald.",
     "noConnections": "Er zijn geen koppelingen actief.",
@@ -454,7 +453,7 @@
     "logIntro": "Elke keer dat Planora contact had met Microsoft of Google. Alleen aantallen, nooit inhoud.",
     "logEmpty": "Nog geen activiteit: Planora heeft met niemand contact gehad.",
     "deleteAll": "Alles verwijderen",
-    "deleteIntro": "Wist alle gegevens van Planora op dit apparaat en meldt je af bij gekoppelde diensten.",
+    "deleteIntro": "Wist alle gegevens van Planora op dit apparaat en meldt je af bij gekoppelde diensten. De versleutelde synchronisatiekopie in je OneDrive (Apps/Planora) en de gegevens op je andere apparaten worden niet verwijderd — verwijder die daar.",
     "deleteWord": "verwijder",
     "deleteConfirm": "Typ ‘{{word}}’ om te bevestigen. Dit kan niet ongedaan worden gemaakt."
   },
@@ -506,7 +505,8 @@
     "timeHint": "Lessen, sport en andere afspraken zet je in de agenda; Planora plant eromheen.",
     "privacyTitle": "Jouw privacy",
     "privacyIntegrations": "Koppelen met Outlook, Teams of Google is optioneel en kan later. Jij kiest precies wat Planora mag.",
-    "start": "Beginnen"
+    "start": "Beginnen",
+    "privacyPolicy": "Lees de privacyverklaring"
   },
   "notify": {
     "planTitle": "Je weekplanning staat klaar",
@@ -609,5 +609,13 @@
     "copy": "Kopiëren voor e-mail",
     "copied": "Gekopieerd!",
     "noGithub": "Geen GitHub-account (gratis aan te maken)? Kopieer je melding en mail hem naar {{email}}."
+  },
+  "legal": {
+    "title": "Juridisch",
+    "intro": "Hoe Planora met je gegevens omgaat, de gebruiksvoorwaarden, wie Planora maakt en de opensourcesoftware die erin zit.",
+    "privacy": "Privacyverklaring",
+    "terms": "Gebruiksvoorwaarden",
+    "contact": "Contact",
+    "licenses": "Opensourcelicenties"
   }
 }

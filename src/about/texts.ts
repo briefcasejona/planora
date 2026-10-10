@@ -102,7 +102,7 @@ export const texts: Record<Lang, Texts> = {
       },
       {
         q: 'Waar staan mijn gegevens?',
-        a: 'Alleen op je eigen apparaat, in de browser of de app. Er is geen Planora-server waar ze naartoe gaan. Lees meer op de <a href="privacy.html" class="underline">privacypagina</a>.',
+        a: 'Alleen op je eigen apparaat, in de browser of de app. Er is geen Planora-server waar ze naartoe gaan. Lees meer op de <a href="legal/privacy.nl.html" class="underline">privacyverklaring</a>.',
       },
       {
         q: 'Wat als ik mijn browsergegevens wis of een nieuw apparaat krijg?',
@@ -204,7 +204,7 @@ export const texts: Record<Lang, Texts> = {
       },
       {
         q: 'Where is my data?',
-        a: 'Only on your own device, in the browser or the app. There is no Planora server it goes to. Read more on the <a href="privacy.html" class="underline">privacy page</a>.',
+        a: 'Only on your own device, in the browser or the app. There is no Planora server it goes to. Read more on the <a href="legal/privacy.html" class="underline">privacy policy</a>.',
       },
       {
         q: 'What if I clear my browser data or get a new device?',

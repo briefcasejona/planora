@@ -19,14 +19,30 @@ export function pageLang(): Lang {
   return navigator.language.toLowerCase().startsWith('nl') ? 'nl' : 'en';
 }
 
-export const CONTACT_EMAIL = 'planoradevelopment@outlook.com';
-
-const FOOTER: Record<Lang, { about: string; download: string; privacy: string; app: string }> = {
-  nl: { about: 'Over Planora', download: 'Downloaden', privacy: 'Privacy', app: 'Planora openen' },
-  en: { about: 'About Planora', download: 'Download', privacy: 'Privacy', app: 'Open Planora' },
+const FOOTER: Record<Lang, Record<'app' | 'about' | 'download' | 'privacy' | 'terms' | 'contact', string>> = {
+  nl: {
+    app: 'Planora openen',
+    about: 'Over Planora',
+    download: 'Downloaden',
+    privacy: 'Privacyverklaring',
+    terms: 'Gebruiksvoorwaarden',
+    contact: 'Contact',
+  },
+  en: {
+    app: 'Open Planora',
+    about: 'About Planora',
+    download: 'Download',
+    privacy: 'Privacy policy',
+    terms: 'Terms of use',
+    contact: 'Contact',
+  },
 };
 
-/** Links between the public pages, plus the contact address. */
+/** A legal page (generated from legal/*.md by `npm run legal`), relative to the public pages. */
+export const legalPage = (page: 'privacy' | 'terms' | 'contact', lang: Lang) =>
+  `legal/${page}${lang === 'nl' ? '.nl' : ''}.html`;
+
+/** Links between the public pages and to the legal pages. */
 export function siteFooter(lang: Lang): HTMLElement {
   const f = FOOTER[lang];
   const link = (href: string, label: string) =>
@@ -40,7 +56,8 @@ export function siteFooter(lang: Lang): HTMLElement {
     link('./', f.app),
     link('about.html', f.about),
     link('download.html', f.download),
-    link('privacy.html', f.privacy),
-    link(`mailto:${CONTACT_EMAIL}`, CONTACT_EMAIL),
+    link(legalPage('privacy', lang), f.privacy),
+    link(legalPage('terms', lang), f.terms),
+    link(legalPage('contact', lang), f.contact),
   );
 }

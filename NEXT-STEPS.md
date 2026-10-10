@@ -12,25 +12,40 @@
   all tests pass, including the desktop app test. The "new review" dot in the menu is now read out
   by screen readers on phones too, not only on computers.
 
-- On branch `claude/gallant-heisenberg-u5skud` (not merged yet): an **About page** (`about.html`: what Planora is,
-  who it's for, why, questions) and a **Privacy page** (`privacy.html`), both Dutch and English, linked from each other,
-  the download page and Settings. The download page now says school phones often block the .apk.
+## Legal (10 October 2026, merged in pull request #16, released in v0.3.5)
+- A legal check of Planora is in `legal/LEGAL-STATUS.md` (research notes, not legal advice).
+- Written: privacy policy, terms of use and contact page (Dutch + English), open-source license list,
+  `LICENSE` ("All rights reserved"). They become web pages under `…/planora/legal/` and are linked from
+  Settings → Privacy → Legal, the welcome screens and the download page.
+- After editing anything in `legal/*.md`, run `npm run legal` to update the web pages.
+- All checks pass except one Google test that also fails on `main` (it is off by one hour around the
+  25 October clock change: `src/integrations/google.test.ts`).
+
+## Website: About page (branch `claude/gallant-heisenberg-u5skud`, not merged yet)
+- New page `…/planora/about.html` (Dutch + English): what Planora is, how it works, who it's for, why, common
+  questions, and a big "Open Planora" button. Linked from Settings (sharing card) and from the footer of
+  the download page. The footer links to the official privacy policy, terms and contact pages.
+- The download page now says school-managed phones often block the .apk (use the website instead).
 
 ## What needs you
-0. **Website pages**: read the privacy text (`src/privacy/texts.ts`, or the page after merge) and say if it's OK;
-   it promises things to Google and schools. Then ask Claude to open a pull request and merge.
-   After merging: in Google Cloud, use `.../planora/about.html` as homepage and `.../planora/privacy.html` as
-   privacy policy, and check in Google Search Console whether Google accepts the github.io address (if not, a cheap
-   domain just for these pages is the fallback; never move the app itself, that would lose everyone's data).
-   Later ideas (not built): a page for schools/IT, checksums for downloads, Microsoft publisher verification.
-1. **Release v0.3.0**: ask Claude to push the tag `v0.3.0` (or `git tag v0.3.0 && git push origin v0.3.0`).
-   GitHub then builds all installers and the APK (about 15 minutes).
-2. **Test sync yourself**: Settings > Sync on the laptop (choose a passphrase), then on the phone
+0. **Legal**:
+   - Done: legal pages live and entered in the Azure and Google portals (10 October 2026).
+   - Before promoting Planora to schools, talk to a lawyer: `legal/lawyer-brief-schools-and-minors.md`.
+   - **The name "Planora"**: a company in Berlin owns an EU trademark "Planora", but only for the
+     architecture and construction industry. Keeping the name looks fine for now. **Before a college or
+     school deal, an app-store launch or a paid version**: book a one-hour check with a Benelux trademark
+     attorney (bmm.nl or the NOvA advocatenzoeker). Bring the memo
+     `~/.claude/plugins/config/claude-for-legal/ip-legal/outputs/clearance-planora-2026-10-10.md`
+     (details: finding L9 in `legal/LEGAL-STATUS.md`).
+1. **About page**: look at it, then ask Claude to open a pull request and merge. Optional afterwards:
+   use `…/planora/about.html` as the homepage address in the Google and Azure portals.
+2. **v0.3.5** is released (legal pages + Legal card in Settings). Installed apps update themselves.
+3. **Test sync yourself**: Settings > Sync on the laptop (choose a passphrase), then on the phone
    (same Microsoft account and passphrase). Add a task on the phone; it should appear on the laptop
    within a minute. Report any error text to Claude.
-3. **Google Calendar (v0.3.1)**: create the Google OAuth client (README, "Connecting Google Calendar"), add
+4. **Google Calendar (v0.3.1)**: create the Google OAuth client (README, "Connecting Google Calendar"), add
    repo variable `VITE_GOOGLE_CLIENT_ID`, then ask Claude to release v0.3.1.
-4. Optional: school IT approval for Outlook/Teams (request text is in the chat history).
+5. Optional: school IT approval for Outlook/Teams (request text is in the chat history).
 
 ## Keep safe
 - `C:\Users\haasn\planora-android-key\` holds the Android signing key (also stored as GitHub Secrets).

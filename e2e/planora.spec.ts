@@ -154,7 +154,7 @@ test('download page shows the right download for each device', async ({ browser 
   }
 });
 
-test('about and privacy pages work in Dutch and English and link to each other', async ({ browser }) => {
+test('about page works in Dutch and English and links to the legal pages', async ({ browser }) => {
   for (const locale of ['nl-NL', 'en-US']) {
     const nl = locale === 'nl-NL';
     const context = await browser.newContext({ locale });
@@ -168,18 +168,21 @@ test('about and privacy pages work in Dutch and English and link to each other',
       'href',
       './',
     );
-    await page.locator('footer').getByRole('link', { name: 'Privacy' }).click();
-    await expect(page).toHaveURL(/privacy\.html$/);
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Privacy');
-    await expect(page.getByText('planoradevelopment@outlook.com').first()).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Google API Services User Data Policy' })).toBeVisible();
+    await page
+      .locator('footer')
+      .getByRole('link', { name: nl ? 'Privacyverklaring' : 'Privacy policy' })
+      .click();
+    await expect(page).toHaveURL(nl ? /legal\/privacy\.nl\.html$/ : /legal\/privacy\.html$/);
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+      nl ? 'Privacyverklaring — Planora' : 'Privacy policy — Planora',
+    );
     await context.close();
   }
   // ?lang= overrides the browser language, so a link can be shared in one language.
   const context = await browser.newContext({ locale: 'nl-NL' });
   const page = await context.newPage();
-  await page.goto('privacy.html?lang=en');
-  await expect(page.getByText('Last updated')).toBeVisible();
+  await page.goto('about.html?lang=en');
+  await expect(page.getByRole('heading', { level: 2, name: 'How it works' })).toBeVisible();
   await context.close();
 });
 
