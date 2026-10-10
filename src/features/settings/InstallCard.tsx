@@ -1,6 +1,6 @@
 import { Icon } from '../../components/Icon';
 import { useFormat } from '../../lib/format';
-import { DOWNLOAD_URL, WEB_APP_URL } from '../../lib/links';
+import { ABOUT_URL, DOWNLOAD_URL, WEB_APP_URL } from '../../lib/links';
 
 /** How to put Planora on other devices, or share it with friends. */
 export function InstallCard() {
@@ -23,6 +23,9 @@ export function InstallCard() {
       </h3>
       <p className="mb-3 text-sm text-slate-600 dark:text-slate-300">{t('install.intro')}</p>
       <ul className="space-y-2 text-sm">
+        <li>
+          <span className="font-medium">{t('install.about')}</span> {link(ABOUT_URL, ABOUT_URL.replace('https://', ''))}
+        </li>
         <li>
           <span className="font-medium">{t('install.page')}</span>{' '}
           {link(DOWNLOAD_URL, DOWNLOAD_URL.replace('https://', ''))}

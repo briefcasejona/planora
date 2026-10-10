@@ -154,6 +154,53 @@ test('download page shows the right download for each device', async ({ browser 
   }
 });
 
+test('about page works in Dutch and English and links to the legal pages', async ({ browser }) => {
+  for (const locale of ['nl-NL', 'en-US']) {
+    const nl = locale === 'nl-NL';
+    const context = await browser.newContext({ locale });
+    const page = await context.newPage();
+    await page.goto('about.html');
+    await expect(page.locator('html')).toHaveAttribute('lang', nl ? 'nl' : 'en');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+      nl ? 'Zeg wat je moet doen. Planora zegt wanneer.' : "Tell Planora what's due. It tells you when to do it.",
+    );
+    await expect(page.getByRole('link', { name: nl ? 'Planora openen' : 'Open Planora' }).first()).toHaveAttribute(
+      'href',
+      './',
+    );
+    await page
+      .locator('footer')
+      .getByRole('link', { name: nl ? 'Privacyverklaring' : 'Privacy policy' })
+      .click();
+    await expect(page).toHaveURL(nl ? /legal\/privacy\.nl\.html$/ : /legal\/privacy\.html$/);
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+      nl ? 'Privacyverklaring — Planora' : 'Privacy policy — Planora',
+    );
+    await context.close();
+  }
+  // ?lang= overrides the browser language, so a link can be shared in one language.
+  const context = await browser.newContext({ locale: 'nl-NL' });
+  const page = await context.newPage();
+  await page.goto('about.html?lang=en');
+  await expect(page.getByRole('heading', { level: 2, name: 'How it works' })).toBeVisible();
+  // The privacy link in the questions leads to the real privacy policy.
+  await page.getByText('Where is my data?').click();
+  await page.getByRole('link', { name: 'privacy policy', exact: true }).click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Privacy policy — Planora');
+  // Every link in the footer of the download page leads to a page that exists.
+  await page.goto('download.html');
+  const footerLinks = page.locator('footer a');
+  await expect(footerLinks).toHaveCount(6);
+  for (const href of await footerLinks.evaluateAll((as) => as.map((a) => (a as HTMLAnchorElement).href))) {
+    expect((await page.request.get(href)).status(), href).toBe(200);
+  }
+  await expect(page.locator('footer').getByRole('link', { name: 'Privacyverklaring' })).toHaveAttribute(
+    'href',
+    'legal/privacy.nl.html',
+  );
+  await context.close();
+});
+
 test('sync is optional: the Sync tab explains it and contacts nobody until you start it', async ({ page }) => {
   const external: string[] = [];
   page.on('request', (r) => {

@@ -1,6 +1,5 @@
+import type { Lang } from '../site/dom';
 import type { Device } from './devices';
-
-export type Lang = 'nl' | 'en';
 
 interface DeviceText {
   name: string;
@@ -23,8 +22,6 @@ interface Texts {
   openWebApp: string;
   syncNote: string;
   privacy: string;
-  /** Footer links to the legal pages. */
-  legal: { privacy: string; terms: string; contact: string };
   devices: Record<Device, DeviceText>;
 }
 
@@ -41,7 +38,6 @@ export const texts: Record<Lang, Texts> = {
     syncNote:
       'Gebruik je Planora op meer apparaten? Zet dan (optioneel) synchroniseren aan via Instellingen > Synchroniseren.',
     privacy: 'Planora heeft geen server en verzamelt niets. De downloads komen rechtstreeks van GitHub.',
-    legal: { privacy: 'Privacyverklaring', terms: 'Gebruiksvoorwaarden', contact: 'Contact' },
     devices: {
       windows: {
         name: 'Windows',
@@ -73,7 +69,8 @@ export const texts: Record<Lang, Texts> = {
       },
       android: {
         name: 'Android',
-        intro: 'Kies de app, of zet de website op je beginscherm.',
+        intro:
+          'Kies de app, of zet de website op je beginscherm. Op een telefoon die door school wordt beheerd, mag de .apk vaak niet worden geïnstalleerd: gebruik dan de website.',
         buttons: ['Download de app (.apk)', 'Website openen'],
         steps: [
           'Open het gedownloade bestand <b>Planora.apk</b>.',
@@ -107,7 +104,6 @@ export const texts: Record<Lang, Texts> = {
     openWebApp: 'Open Planora',
     syncNote: 'Using Planora on more than one device? You can (optionally) turn on sync in Settings > Sync.',
     privacy: 'Planora has no server and collects nothing. Downloads come straight from GitHub.',
-    legal: { privacy: 'Privacy policy', terms: 'Terms of use', contact: 'Contact' },
     devices: {
       windows: {
         name: 'Windows',
@@ -139,7 +135,8 @@ export const texts: Record<Lang, Texts> = {
       },
       android: {
         name: 'Android',
-        intro: 'Choose the app, or add the website to your home screen.',
+        intro:
+          'Choose the app, or add the website to your home screen. Phones managed by a school often block the .apk: use the website instead.',
         buttons: ['Download the app (.apk)', 'Open the website'],
         steps: [
           'Open the downloaded file <b>Planora.apk</b>.',
