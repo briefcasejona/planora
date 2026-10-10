@@ -23,11 +23,9 @@
 
 ## What needs you
 0. **Legal**:
-   - The pages are live. Put `https://briefcasejona.github.io/planora/legal/privacy.html`
-     (and `…/legal/terms.html`) in the Azure portal (App registration > Branding & properties) and in
-     Google Cloud (OAuth consent screen). Then ask Claude for `/app-legal-guard check`.
+   - Done: legal pages live and entered in the Azure and Google portals (10 October 2026).
    - Before promoting Planora to schools, talk to a lawyer: `legal/lawyer-brief-schools-and-minors.md`.
-1. **v0.3.5** is being released (legal pages + Legal card in Settings). Installed apps update themselves.
+1. **v0.3.5** is released (legal pages + Legal card in Settings). Installed apps update themselves.
 2. **Test sync yourself**: Settings > Sync on the laptop (choose a passphrase), then on the phone
    (same Microsoft account and passphrase). Add a task on the phone; it should appear on the laptop
    within a minute. Report any error text to Claude.
