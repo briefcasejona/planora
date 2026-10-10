@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'">
+<meta name="referrer" content="no-referrer">
+<title>Privacy policy — Planora</title>
+<style>body{font:16px/1.6 system-ui,sans-serif;max-width:46rem;margin:0 auto;padding:1.5rem 1rem 4rem;color:#1e293b;background:#fff}
+a{color:#4f46e5}h1{font-size:1.6rem;line-height:1.25}h2{margin-top:2rem;font-size:1.2rem}h3{font-size:1.05rem}
+.table{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.9rem;margin:1rem 0}th,td{border:1px solid #cbd5e1;padding:.4rem .5rem;text-align:left;vertical-align:top}th{background:#f1f5f9}
+pre{white-space:pre-wrap;font-size:.75rem;background:#f8fafc;border:1px solid #e2e8f0;padding:.75rem;border-radius:.5rem}
+code{font-size:.9em}nav{font-size:.9rem;margin-bottom:1rem;display:flex;gap:1rem;flex-wrap:wrap}
+@media (prefers-color-scheme:dark){body{color:#e2e8f0;background:#0f172a}a{color:#a5b4fc}th{background:#1e293b}th,td{border-color:#334155}pre{background:#1e293b;border-color:#334155}}</style>
+</head>
+<body>
+<nav><a href="privacy.nl.html" hreflang="nl">Nederlands</a><a href="../">Planora</a></nav>
+<main>
+<h1>Privacy policy — Planora</h1>
+<p><em>Last updated: 10 October 2026 · Version 0.3.4</em></p>
+<p>Planora is a planning app for students and teachers, made by Jonathan, the Netherlands (&quot;I&quot;, &quot;me&quot;). It runs as a website, a desktop app (Windows, Mac, Linux), an Android app and a home-screen app on iPhone/iPad. Questions or requests: <strong>planoradevelopment@outlook.com</strong>.</p>
+<h2>The short version</h2>
+<ul><li>Your tasks, plans, feedback and settings are stored <strong>only on your device</strong>. Planora has no server and no Planora accounts. I can't see your data.</li><li>No ads, no analytics, no trackers.</li><li>Connecting Microsoft (Outlook, To Do, Teams, OneDrive) or Google Calendar is <strong>optional</strong>. If you do, your device talks <strong>directly</strong> to Microsoft or Google; the data doesn't pass through me.</li><li>A few things do involve other parties: the website and downloads are hosted by GitHub, the apps check GitHub for updates, and if you report a bug, I receive what you send.</li></ul>
+<h2>What happens to your data</h2>
+<div class="table"><table><thead><tr><th>Data</th><th>Where it's stored</th><th>Why</th><th>Legal basis (GDPR)</th></tr></thead><tbody><tr><td>Tasks, planned sessions, feedback, your own calendar events, settings, learned time estimates</td><td>On your device only (browser storage / app storage). Optionally encrypted with your passphrase.</td><td>To plan your work — the core of the app.</td><td>You process this data yourself on your own device; I don't receive it.</td></tr><tr><td>Backups</td><td>A file you download and keep; always encrypted with a passphrase you choose.</td><td>So you can restore your data.</td><td>As above.</td></tr><tr><td>Activity log</td><td>On your device; counts only (e.g. &quot;3 events imported&quot;), never content.</td><td>To show you when Planora contacted Microsoft or Google.</td><td>As above.</td></tr><tr><td>Microsoft / Google sign-in tokens</td><td>On your device (for the browser session, or longer if you stay signed in or use sync).</td><td>To use the connections you turned on.</td><td>As above.</td></tr><tr><td>Bug reports you send by e-mail</td><td>My mailbox (Outlook.com, Microsoft).</td><td>To fix the problem and reply to you.</td><td>Legitimate interest in fixing the app and answering you (Art. 6(1)(f)).</td></tr><tr><td>Website and download visits, update checks</td><td>GitHub's servers (logs with IP address and browser/app info).</td><td>To deliver the website, downloads and update information.</td><td>Legitimate interest in offering the app securely (Art. 6(1)(f)).</td></tr></tbody></table></div>
+<h2>Optional connections</h2>
+<p>You choose per feature what Planora may do. Planora asks Microsoft or Google only for the permission that feature needs.</p>
+<h3>Microsoft (Outlook, Teams, To Do, OneDrive)</h3>
+<p>You sign in at Microsoft with your personal or school/work account. Depending on what you turn on:</p>
+<div class="table"><table><thead><tr><th>Feature</th><th>Permission</th><th>What Planora does</th></tr></thead><tbody><tr><td>Busy times from Outlook (incl. Teams meetings)</td><td>Calendars.Read</td><td>Reads your calendar so it can plan around your appointments.</td></tr><tr><td>Put planned sessions in Outlook</td><td>Calendars.ReadWrite</td><td>Creates, moves and deletes <strong>only events Planora created</strong>, marked private.</td></tr><tr><td>Import Microsoft To Do</td><td>Tasks.Read</td><td>Reads task title, status and due date.</td></tr><tr><td>Import Teams assignments</td><td>EduAssignments.ReadBasic</td><td>Reads assignment name, status and due date.</td></tr><tr><td>Sync between your own devices</td><td>Files.ReadWrite.AppFolder</td><td>Stores one <strong>end-to-end encrypted</strong> file in Planora's own folder in your OneDrive (Apps/Planora). Only your passphrase can unlock it — not me, not Microsoft. Planora can't see your other files.</td></tr></tbody></table></div>
+<p>This data goes directly between your device and Microsoft. Microsoft's own privacy statement applies to your Microsoft account: <a href="https://privacy.microsoft.com">https://privacy.microsoft.com</a>. With a school account, your school manages that account.</p>
+<h3>Google Calendar (free/busy)</h3>
+<p>Planora asks for the narrowest Google permission there is: <strong>free/busy only</strong> (<code>calendar.freebusy</code>). It sees only <em>when</em> you're busy in your primary calendar (from 7 days ago to 90 days ahead) — never the titles or details of events. The access token stays on your device for about an hour and is never synced.</p>
+<p>Planora's use and transfer of information received from Google APIs adheres to the <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>, including the Limited Use requirements.</p>
+<h3>Apple Calendar (.ics files)</h3>
+<p>Importing and exporting <code>.ics</code> files happens entirely on your device.</p>
+<h2>Updates, website and downloads</h2>
+<ul><li>The website and the downloads are hosted on <strong>GitHub</strong> (GitHub Pages and GitHub Releases). GitHub receives your IP address and browser information when you visit or download. See GitHub's privacy statement: <a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement">https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement</a></li><li>The <strong>desktop app</strong> and the <strong>Android app</strong> ask GitHub &quot;what is the newest version?&quot; (api.github.com). GitHub sees your IP address and app version. In the Android app you can turn this off in Settings.</li></ul>
+<h2>Bug reports</h2>
+<ul><li><strong>Via GitHub:</strong> Planora prepares a report with what you typed plus technical details you can see and switch off (version, device type, error codes — never your tasks or calendar). You submit it yourself with your GitHub account. <strong>Reports on GitHub are public</strong> — don't include personal information.</li><li><strong>By e-mail:</strong> I receive your e-mail address and what you write. I keep these e-mails for up to 12 months after the issue is resolved, then delete them.</li></ul>
+<h2>International transfers</h2>
+<p>GitHub, Microsoft and Google are US companies (Microsoft and Google also have EU data centres). They rely on the EU-US Data Privacy Framework and/or the European Commission's Standard Contractual Clauses for transfers outside the EU. For your own Microsoft or Google account, your agreement with them applies.</p>
+<h2>How long data is kept</h2>
+<ul><li>Data on your device: until you delete it (Settings → Privacy → Delete everything), uninstall the app, or clear the browser's site data.</li><li><strong>Note:</strong> &quot;Delete everything&quot; removes Planora's data <strong>on that device</strong> and signs you out. If you used sync, the encrypted file in your OneDrive (Apps/Planora) and the data on your other devices stay — delete the folder in OneDrive and use &quot;Delete everything&quot; on each device.</li><li>Bug-report e-mails: up to 12 months after the issue is resolved.</li><li>GitHub logs: according to GitHub's privacy statement.</li></ul>
+<h2>Storage on your device (cookies)</h2>
+<p>Planora stores information on your device only to make the app work: your data (IndexedDB), your settings and, if you connect Microsoft, sign-in information (localStorage / sessionStorage; Microsoft's sign-in library may briefly use a cookie during sign-in). The website caches its own files so it works offline. There are <strong>no tracking, advertising or analytics cookies</strong>, so there's no cookie banner.</p>
+<h2>Your rights</h2>
+<p>You have the right to access, correct, delete, restrict, object to, and receive a copy of your personal data, and to withdraw consent. Because your Planora data is on your own device, you can do most of this yourself: export a backup, edit, or delete everything in Settings → Privacy. For bug-report e-mails or anything else, e-mail <strong>planoradevelopment@outlook.com</strong> — I'll respond within one month.</p>
+<p>You can also complain to the Dutch data protection authority, the <strong>Autoriteit Persoonsgegevens</strong> (<a href="https://autoriteitpersoonsgegevens.nl">https://autoriteitpersoonsgegevens.nl</a>), or the authority in your own EU country.</p>
+<h2>Children and school use</h2>
+<p>Planora is made for students, including school pupils. You can use Planora without connecting any account. If you're <strong>under 16</strong>, ask a parent or guardian before connecting a personal Microsoft or Google account. School accounts are managed by your school, which decides which apps may connect to them.</p>
+<h2>Security</h2>
+<p>Your data stays on your device; you can encrypt it with a passphrase and lock the app. Backups and the sync file are always encrypted. The app only talks to the services listed above (enforced by a Content Security Policy), and asks for the narrowest permissions possible. If you lose your passphrase, nobody — including me — can recover encrypted data.</p>
+<h2>Changes</h2>
+<p>When Planora changes how it handles data, I'll update this page and the date at the top.</p>
+</main>
+</body>
+</html>

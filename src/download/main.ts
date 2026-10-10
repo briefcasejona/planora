@@ -115,6 +115,17 @@ const parts: Child[] = [
     h('p', {}, t.webApp, ' ', h('a', { href: './', class: 'font-medium text-brand-600 underline' }, t.openWebApp)),
     h('p', {}, t.syncNote),
     h('p', { class: 'text-xs text-slate-500 dark:text-slate-400' }, t.privacy),
+    h(
+      'p',
+      { class: 'flex flex-wrap gap-x-4 text-xs' },
+      ...(['privacy', 'terms', 'contact'] as const).map((page) =>
+        h(
+          'a',
+          { href: `legal/${page}${lang === 'nl' ? '.nl' : ''}.html`, class: 'text-brand-600 underline' },
+          t.legal[page],
+        ),
+      ),
+    ),
   ),
 ];
 for (const p of parts) if (p) root.append(p);

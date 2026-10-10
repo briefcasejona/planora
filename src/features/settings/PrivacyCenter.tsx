@@ -13,6 +13,7 @@ import { DEFAULT_INTEGRATIONS, saveIntegrations, useIntegrations } from '../../i
 import { useFormat } from '../../lib/format';
 import { BASE } from '../../lib/platform';
 import { BugReportCard } from './BugReportCard';
+import { LegalCard } from './LegalCard';
 
 export function PrivacyCenter() {
   const { t } = useFormat();
@@ -41,6 +42,7 @@ export function PrivacyCenter() {
           </div>
         </div>
       </div>
+      <LegalCard />
       <BugReportCard />
       <EncryptionCard />
       <BackupCard />
