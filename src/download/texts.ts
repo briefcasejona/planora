@@ -23,6 +23,8 @@ interface Texts {
   openWebApp: string;
   syncNote: string;
   privacy: string;
+  /** Footer links to the legal pages. */
+  legal: { privacy: string; terms: string; contact: string };
   devices: Record<Device, DeviceText>;
 }
 
@@ -39,6 +41,7 @@ export const texts: Record<Lang, Texts> = {
     syncNote:
       'Gebruik je Planora op meer apparaten? Zet dan (optioneel) synchroniseren aan via Instellingen > Synchroniseren.',
     privacy: 'Planora heeft geen server en verzamelt niets. De downloads komen rechtstreeks van GitHub.',
+    legal: { privacy: 'Privacyverklaring', terms: 'Gebruiksvoorwaarden', contact: 'Contact' },
     devices: {
       windows: {
         name: 'Windows',
@@ -104,6 +107,7 @@ export const texts: Record<Lang, Texts> = {
     openWebApp: 'Open Planora',
     syncNote: 'Using Planora on more than one device? You can (optionally) turn on sync in Settings > Sync.',
     privacy: 'Planora has no server and collects nothing. Downloads come straight from GitHub.',
+    legal: { privacy: 'Privacy policy', terms: 'Terms of use', contact: 'Contact' },
     devices: {
       windows: {
         name: 'Windows',
