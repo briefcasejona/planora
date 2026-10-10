@@ -18,10 +18,10 @@ function rich(tag: string, html: string, cls = ''): HTMLElement {
 
 const heading = (text: string) => h('h2', { class: 'mt-12 mb-4 text-xl font-bold' }, text);
 
-function cards(items: { title: string; text: string }[]): HTMLElement {
+function cards(items: { title: string; text: string }[], cols = 'sm:grid-cols-2'): HTMLElement {
   return h(
     'div',
-    { class: 'grid gap-3 sm:grid-cols-2' },
+    { class: `grid gap-3 ${cols}` },
     ...items.map((i) =>
       h(
         'div',
@@ -40,7 +40,7 @@ root.append(
     { class: 'text-center' },
     h('img', { src: 'icon.svg', alt: '', class: 'mx-auto h-16 w-16 rounded-2xl' }),
     h('p', { class: 'mt-3 text-sm font-semibold tracking-wide text-brand-600 dark:text-brand-200' }, 'Planora'),
-    h('h1', { class: 'mt-1 text-3xl font-bold sm:text-4xl' }, t.tagline),
+    h('h1', { class: 'mx-auto mt-1 max-w-2xl text-3xl font-bold text-balance sm:text-4xl' }, t.tagline),
     h('p', { class: 'mx-auto mt-4 max-w-xl text-slate-600 dark:text-slate-300' }, t.intro),
     h(
       'div',
@@ -76,7 +76,7 @@ root.append(
   heading(t.forWhoTitle),
   cards(t.forWho),
   heading(t.whyTitle),
-  cards(t.why),
+  cards(t.why, 'sm:grid-cols-3'),
   heading(t.faqTitle),
   h(
     'div',
