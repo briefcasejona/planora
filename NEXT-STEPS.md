@@ -21,7 +21,7 @@
 - All checks pass except one Google test that also fails on `main` (it is off by one hour around the
   25 October clock change: `src/integrations/google.test.ts`).
 
-## Website: About page (branch `claude/gallant-heisenberg-u5skud`, not merged yet)
+## Website: About page (merged in pull request #21, 10 October 2026)
 - New page `…/planora/about.html` (Dutch + English): what Planora is, how it works, who it's for, why, common
   questions, and a big "Open Planora" button. Linked from Settings (sharing card) and from the footer of
   the download page. The footer links to the official privacy policy, terms and contact pages.
@@ -37,8 +37,9 @@
      attorney (bmm.nl or the NOvA advocatenzoeker). Bring the memo
      `~/.claude/plugins/config/claude-for-legal/ip-legal/outputs/clearance-planora-2026-10-10.md`
      (details: finding L9 in `legal/LEGAL-STATUS.md`).
-1. **About page**: look at it, then ask Claude to open a pull request and merge. Optional afterwards:
-   use `…/planora/about.html` as the homepage address in the Google and Azure portals.
+1. **About page** is live at <https://briefcasejona.github.io/planora/about.html> a few minutes after the merge.
+   Optional: use that address as the homepage in the Google and Azure portals.
+   Later ideas (not built): a page for schools/IT, checksums for downloads, Microsoft publisher verification.
 2. **v0.3.5** is released (legal pages + Legal card in Settings). Installed apps update themselves.
 3. **Test sync yourself**: Settings > Sync on the laptop (choose a passphrase), then on the phone
    (same Microsoft account and passphrase). Add a task on the phone; it should appear on the laptop
