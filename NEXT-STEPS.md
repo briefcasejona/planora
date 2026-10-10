@@ -25,6 +25,12 @@
 0. **Legal**:
    - Done: legal pages live and entered in the Azure and Google portals (10 October 2026).
    - Before promoting Planora to schools, talk to a lawyer: `legal/lawyer-brief-schools-and-minors.md`.
+   - **The name "Planora"**: a company in Berlin owns an EU trademark "Planora", but only for the
+     architecture and construction industry. Keeping the name looks fine for now. **Before a college or
+     school deal, an app-store launch or a paid version**: book a one-hour check with a Benelux trademark
+     attorney (bmm.nl or the NOvA advocatenzoeker). Bring the memo
+     `~/.claude/plugins/config/claude-for-legal/ip-legal/outputs/clearance-planora-2026-10-10.md`
+     (details: finding L9 in `legal/LEGAL-STATUS.md`).
 1. **v0.3.5** is released (legal pages + Legal card in Settings). Installed apps update themselves.
 2. **Test sync yourself**: Settings > Sync on the laptop (choose a passphrase), then on the phone
    (same Microsoft account and passphrase). Add a task on the phone; it should appear on the laptop
