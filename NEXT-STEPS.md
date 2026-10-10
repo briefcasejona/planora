@@ -12,7 +12,7 @@
   all tests pass, including the desktop app test. The "new review" dot in the menu is now read out
   by screen readers on phones too, not only on computers.
 
-## Legal (10 October 2026, branch `legal/privacy-terms-licenses`, not merged yet)
+## Legal (10 October 2026, merged in pull request #16, released in v0.3.5)
 - A legal check of Planora is in `legal/LEGAL-STATUS.md` (research notes, not legal advice).
 - Written: privacy policy, terms of use and contact page (Dutch + English), open-source license list,
   `LICENSE` ("All rights reserved"). They become web pages under `…/planora/legal/` and are linked from
@@ -23,13 +23,11 @@
 
 ## What needs you
 0. **Legal**:
-   - Merge the branch `legal/privacy-terms-licenses` (ask Claude to commit and open a pull request).
-   - Once the website shows `https://briefcasejona.github.io/planora/legal/privacy.html`: put that address
+   - The pages are live. Put `https://briefcasejona.github.io/planora/legal/privacy.html`
      (and `…/legal/terms.html`) in the Azure portal (App registration > Branding & properties) and in
      Google Cloud (OAuth consent screen). Then ask Claude for `/app-legal-guard check`.
    - Before promoting Planora to schools, talk to a lawyer: `legal/lawyer-brief-schools-and-minors.md`.
-1. **Release v0.3.0**: ask Claude to push the tag `v0.3.0` (or `git tag v0.3.0 && git push origin v0.3.0`).
-   GitHub then builds all installers and the APK (about 15 minutes).
+1. **v0.3.5** is being released (legal pages + Legal card in Settings). Installed apps update themselves.
 2. **Test sync yourself**: Settings > Sync on the laptop (choose a passphrase), then on the phone
    (same Microsoft account and passphrase). Add a task on the phone; it should appear on the laptop
    within a minute. Report any error text to Claude.

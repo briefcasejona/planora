@@ -2,9 +2,9 @@
 
 RESEARCH NOTES — NOT LEGAL ADVICE — REVIEW WITH A LICENSED LAWYER BEFORE RELYING ON IT
 
-**App version:** 0.3.4
+**App version:** 0.3.5
 **Last checked:** 2026-10-10
-**Mode:** fix — P1–P7 applied on branch `legal/privacy-terms-licenses` (not merged yet)
+**Mode:** release v0.3.5 — legal pages live (PR #16)
 
 Planora has no server, no accounts, no tracking, no payments and no AI — that keeps the legal risk low. What was missing is mostly **paperwork that platforms and the law expect anyway**: a published privacy policy, terms, license notices, and a license for the public repo. Drafts are written; they count as fixed only once they're published and linked.
 
@@ -12,8 +12,8 @@ Planora has no server, no accounts, no tracking, no payments and no AI — that 
 
 | ID | Severity | Area | Finding | Fix | Status |
 |---|---|---|---|---|---|
-| L1 | 🔴 | Privacy / platforms | No privacy policy anywhere, while the app requests Microsoft scopes (Calendars.Read, Calendars.ReadWrite, Tasks.Read, EduAssignments.ReadBasic, Files.ReadWrite.AppFolder) and Google `calendar.freebusy`, runs a website on GitHub Pages, checks GitHub for updates and accepts bug reports by e-mail. GDPR Art. 13, Google OAuth verification and the Microsoft app registration all expect one. | Pages generated (`public/legal/privacy*.html`) and linked in app + download page on branch `legal/privacy-terms-licenses`. **Becomes fixed when merged to main and live on GitHub Pages** — then run `/app-legal-guard check`. Portal URLs: L6. | open |
-| L2 | 🟠 | Consumer / liability | No terms of use: no "as is" / beta statement, no limitation of liability, no governing law. | Terms pages generated and linked on the branch. Fixed once merged and live. | open |
+| L1 | 🔴 | Privacy / platforms | No privacy policy anywhere, while the app requests Microsoft scopes (Calendars.Read, Calendars.ReadWrite, Tasks.Read, EduAssignments.ReadBasic, Files.ReadWrite.AppFolder) and Google `calendar.freebusy`, runs a website on GitHub Pages, checks GitHub for updates and accepts bug reports by e-mail. GDPR Art. 13, Google OAuth verification and the Microsoft app registration all expect one. | Published and linked: https://briefcasejona.github.io/planora/legal/privacy.html (+ privacy.nl.html), live since 2026-10-10 (PR #16). Portal URLs: L6. | fixed |
+| L2 | 🟠 | Consumer / liability | No terms of use: no "as is" / beta statement, no limitation of liability, no governing law. | Published and linked: https://briefcasejona.github.io/planora/legal/terms.html (+ terms.nl.html), live since 2026-10-10 (PR #16). | fixed |
 | L3 | 🟠 | IP | Public repo without a LICENSE file (and no `license` in package.json): legally "all rights reserved" by default, but unclear to others; affects whether people may fork/reuse. | `LICENSE` ("All rights reserved", Jonathan) + `"license": "UNLICENSED"` in package.json (on branch). | fixed |
 | L4 | 🟠 | IP / open source | The shipped apps don't include the license notices of their 33 open-source components (MIT/ISC/BSD/Apache require the notice to travel with copies; `ical.js` is MPL-2.0). | `public/legal/licenses.html` ships inside every build (web, desktop, APK) and is linked from Settings → Privacy → Legal (on branch). | fixed |
 | L5 | 🟠 | Children / schools | Audience is "students and teachers" on "school days", with Teams assignments and school Microsoft accounts → users will include minors, and schools may want to deploy it. Planora itself receives none of their data, which keeps this manageable, but school deployment and age wording need a lawyer's view. | Age wording in privacy policy + terms; `lawyer-brief-schools-and-minors.md`. Before promoting Planora to schools: talk to a lawyer. | open — lawyer |
@@ -31,10 +31,10 @@ Planora has no server, no accounts, no tracking, no payments and no AI — that 
 
 | Document | Path | Status | Published at |
 |---|---|---|---|
-| Privacy policy (EN / NL) | `legal/privacy-policy.md`, `legal/privacy-policy.nl.md` | Final, on branch | `legal/privacy(.nl).html` after merge |
-| Terms of use (EN / NL) | `legal/terms-of-use.md`, `legal/terms-of-use.nl.md` | Final, on branch | `legal/terms(.nl).html` after merge |
-| Contact (EN / NL) | `legal/contact.md`, `legal/contact.nl.md` | Final, on branch | `legal/contact(.nl).html` after merge |
-| Third-party notices | `legal/THIRD_PARTY_NOTICES.md` | Generated 2026-10-10 | `legal/licenses.html` after merge |
+| Privacy policy (EN / NL) | `legal/privacy-policy.md`, `legal/privacy-policy.nl.md` | Published | https://briefcasejona.github.io/planora/legal/privacy.html |
+| Terms of use (EN / NL) | `legal/terms-of-use.md`, `legal/terms-of-use.nl.md` | Published | https://briefcasejona.github.io/planora/legal/terms.html |
+| Contact (EN / NL) | `legal/contact.md`, `legal/contact.nl.md` | Published | https://briefcasejona.github.io/planora/legal/contact.html |
+| Third-party notices | `legal/THIRD_PARTY_NOTICES.md` | Published | https://briefcasejona.github.io/planora/legal/licenses.html |
 | App inventory | `legal/app-inventory.md` | Current | internal |
 | DPIA screen | `legal/dpia-screen.md` | Current | internal |
 | License choice | `legal/license-choice.md` | Decided: all rights reserved | internal |
