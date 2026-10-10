@@ -114,7 +114,7 @@ export const texts: Record<Lang, Texts> = {
       },
       {
         q: 'Kan mijn docent of school zien wat ik plan?',
-        a: 'Nee. Planora deelt niets met anderen. Ook als je je schoolaccount koppelt, leest Planora alleen je agenda; het schrijft niets naar anderen.',
+        a: 'Nee. Planora deelt je taken en planning met niemand. Zet je je studieblokken in je Outlook-agenda van school, dan kunnen anderen op school zien dat je op die momenten bezet bent, maar niet waarmee.',
       },
       {
         q: 'Mijn computer waarschuwt bij het installeren. Is het veilig?',
@@ -216,7 +216,7 @@ export const texts: Record<Lang, Texts> = {
       },
       {
         q: 'Can my teacher or school see what I plan?',
-        a: 'No. Planora shares nothing with anyone. Even if you link your school account, Planora only reads your calendar; it never writes to other people.',
+        a: "No. Planora doesn't share your tasks or plan with anyone. If you choose to put your study blocks in your school Outlook calendar, others at school can see that you're busy at those times, but not what you're doing.",
       },
       {
         q: 'My computer shows a warning when installing. Is it safe?',

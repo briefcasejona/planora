@@ -183,6 +183,21 @@ test('about page works in Dutch and English and links to the legal pages', async
   const page = await context.newPage();
   await page.goto('about.html?lang=en');
   await expect(page.getByRole('heading', { level: 2, name: 'How it works' })).toBeVisible();
+  // The privacy link in the questions leads to the real privacy policy.
+  await page.getByText('Where is my data?').click();
+  await page.getByRole('link', { name: 'privacy policy', exact: true }).click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Privacy policy — Planora');
+  // Every link in the footer of the download page leads to a page that exists.
+  await page.goto('download.html');
+  const footerLinks = page.locator('footer a');
+  await expect(footerLinks).toHaveCount(6);
+  for (const href of await footerLinks.evaluateAll((as) => as.map((a) => (a as HTMLAnchorElement).href))) {
+    expect((await page.request.get(href)).status(), href).toBe(200);
+  }
+  await expect(page.locator('footer').getByRole('link', { name: 'Privacyverklaring' })).toHaveAttribute(
+    'href',
+    'legal/privacy.nl.html',
+  );
   await context.close();
 });
 

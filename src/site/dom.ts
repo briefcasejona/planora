@@ -1,5 +1,6 @@
-// Small helpers shared by the public pages next to the app (download, about, privacy).
+// Small helpers shared by the public pages next to the app (download, about).
 // Plain DOM, no React, so these pages stay small. Nothing is tracked.
+import { legalPath } from '../lib/links';
 
 export type Lang = 'nl' | 'en';
 
@@ -38,10 +39,6 @@ const FOOTER: Record<Lang, Record<'app' | 'about' | 'download' | 'privacy' | 'te
   },
 };
 
-/** A legal page (generated from legal/*.md by `npm run legal`), relative to the public pages. */
-export const legalPage = (page: 'privacy' | 'terms' | 'contact', lang: Lang) =>
-  `legal/${page}${lang === 'nl' ? '.nl' : ''}.html`;
-
 /** Links between the public pages and to the legal pages. */
 export function siteFooter(lang: Lang): HTMLElement {
   const f = FOOTER[lang];
@@ -56,8 +53,8 @@ export function siteFooter(lang: Lang): HTMLElement {
     link('./', f.app),
     link('about.html', f.about),
     link('download.html', f.download),
-    link(legalPage('privacy', lang), f.privacy),
-    link(legalPage('terms', lang), f.terms),
-    link(legalPage('contact', lang), f.contact),
+    link(legalPath('privacy', lang), f.privacy),
+    link(legalPath('terms', lang), f.terms),
+    link(legalPath('contact', lang), f.contact),
   );
 }

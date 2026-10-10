@@ -10,5 +10,8 @@ export type LegalPage = 'privacy' | 'terms' | 'contact' | 'licenses';
  * The published legal pages (generated from legal/*.md by `npm run legal`). Always the website
  * address, so the desktop and Android apps open them in the browser instead of inside the app.
  */
-export const legalUrl = (page: LegalPage, lang: string) =>
-  `${WEB_APP_URL}legal/${page}${lang === 'nl' && page !== 'licenses' ? '.nl' : ''}.html`;
+export const legalUrl = (page: LegalPage, lang: string) => WEB_APP_URL + legalPath(page, lang);
+
+/** The same page relative to the website, for links between the public pages. */
+export const legalPath = (page: LegalPage, lang: string) =>
+  `legal/${page}${lang === 'nl' && page !== 'licenses' ? '.nl' : ''}.html`;
