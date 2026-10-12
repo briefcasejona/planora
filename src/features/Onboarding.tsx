@@ -4,6 +4,7 @@ import { Chips } from '../components/ui';
 import { actions, useStore } from '../data/store';
 import type { Language, Role } from '../domain/types';
 import i18n from '../i18n';
+import { SHOW_STAFF_ROLE } from '../lib/features';
 import { useFormat } from '../lib/format';
 import { legalUrl } from '../lib/links';
 import { asset } from '../lib/platform';
@@ -41,19 +42,21 @@ export function Onboarding() {
         ]}
       />
     </div>,
-    <div key="1">
-      <h2 className="mb-2 text-xl font-bold">{t('onboarding.roleTitle')}</h2>
-      <p className="mb-4 text-slate-600 dark:text-slate-300">{t('onboarding.roleIntro')}</p>
-      <Chips
-        label={t('settings.role')}
-        value={role}
-        onChange={setRole}
-        options={[
-          { value: 'student', label: t('role.student') },
-          { value: 'teacher', label: t('role.teacher') },
-        ]}
-      />
-    </div>,
+    SHOW_STAFF_ROLE && (
+      <div key="1">
+        <h2 className="mb-2 text-xl font-bold">{t('onboarding.roleTitle')}</h2>
+        <p className="mb-4 text-slate-600 dark:text-slate-300">{t('onboarding.roleIntro')}</p>
+        <Chips
+          label={t('settings.role')}
+          value={role}
+          onChange={setRole}
+          options={[
+            { value: 'student', label: t('role.student') },
+            { value: 'teacher', label: t('role.teacher') },
+          ]}
+        />
+      </div>
+    ),
     <div key="2">
       <h2 className="mb-2 text-xl font-bold">{t('onboarding.timeTitle')}</h2>
       <p className="mb-4 text-slate-600 dark:text-slate-300">{t('onboarding.timeIntro')}</p>
@@ -99,7 +102,7 @@ export function Onboarding() {
         </a>
       </p>
     </div>,
-  ];
+  ].filter(Boolean);
 
   return (
     <div className="flex min-h-full items-center justify-center p-4">

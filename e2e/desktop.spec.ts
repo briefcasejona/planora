@@ -5,8 +5,14 @@ import { _electron as electron, expect, test } from '@playwright/test';
 
 test('desktop app starts, serves the app locally with CSP, and plans a task', async () => {
   const app = await electron.launch({
-    args: ['.'],
-    env: { ...process.env, PLANORA_USER_DATA: mkdtempSync(join(tmpdir(), 'planora-')) },
+    // Planora starts in the device's language; this test reads the Dutch screens.
+    args: ['.', '--lang=nl-NL'],
+    env: {
+      ...process.env,
+      LANG: 'nl_NL.UTF-8',
+      LANGUAGE: 'nl',
+      PLANORA_USER_DATA: mkdtempSync(join(tmpdir(), 'planora-')),
+    },
   });
   const page = await app.firstWindow();
   expect(page.url()).toBe('http://localhost:47823/');
@@ -22,7 +28,7 @@ test('desktop app starts, serves the app locally with CSP, and plans a task', as
   expect(await page.evaluate(() => typeof (window as unknown as { require?: unknown }).require)).toBe('undefined');
 
   await expect(page.getByRole('heading', { name: 'Welkom bij Planora' })).toBeVisible();
-  for (let i = 0; i < 3; i++) await page.getByRole('button', { name: 'Volgende' }).click();
+  for (let i = 0; i < 2; i++) await page.getByRole('button', { name: 'Volgende' }).click();
   await page.getByRole('button', { name: 'Beginnen' }).click();
 
   await page.getByRole('button', { name: 'Nieuwe taak' }).first().click();

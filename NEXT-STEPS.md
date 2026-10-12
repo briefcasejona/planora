@@ -38,7 +38,9 @@
 - Step 1 is in pull request #24: new event kinds lecture, tutorial (werkcollege), lab (practicum) and
   office hours (spreekuur); the break after lessons also applies after lectures, tutorials and labs; a new
   install starts in the device's language (Dutch device: Dutch, otherwise English); the welcome screens say
-  what happens if you lose your device; "Teacher" is now "Staff (basic)".
+  what happens if you lose your device.
+- Staff mode ("Teacher", now called "Staff (basic)") is hidden, as you asked; the code stays. To bring it
+  back, set `SHOW_STAFF_ROLE` to `true` in `src/lib/features.ts`. Anyone already using it can still switch back in Settings.
 - Also in #24: the Google test that failed around the 25 October clock change is fixed.
 - Good to know: a device still on v0.3.5 shows a synced lecture as "category.lecture" until it updates itself.
 - Next: step 2 (courses and repeating tasks), then reminders, then semester setup from a timetable file.

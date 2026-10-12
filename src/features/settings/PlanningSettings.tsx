@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Chips, Field } from '../../components/ui';
 import { actions, useStore } from '../../data/store';
 import type { Preferences, WeeklyMoment } from '../../domain/types';
+import { SHOW_STAFF_ROLE } from '../../lib/features';
 import { useFormat } from '../../lib/format';
 import { notificationsSupported, requestWebNotificationPermission } from '../../notifications';
 import { DesktopCard } from './DesktopCard';
@@ -74,18 +75,21 @@ export function PlanningSettings() {
             ]}
           />
         </div>
-        <div>
-          <span className="label">{t('settings.role')}</span>
-          <Chips
-            label={t('settings.role')}
-            value={draft.role}
-            onChange={(v) => set({ role: v })}
-            options={[
-              { value: 'student', label: t('role.student') },
-              { value: 'teacher', label: t('role.teacher') },
-            ]}
-          />
-        </div>
+        {/* Staff mode is hidden for now; someone who already uses it can still switch back. */}
+        {(SHOW_STAFF_ROLE || draft.role === 'teacher') && (
+          <div>
+            <span className="label">{t('settings.role')}</span>
+            <Chips
+              label={t('settings.role')}
+              value={draft.role}
+              onChange={(v) => set({ role: v })}
+              options={[
+                { value: 'student', label: t('role.student') },
+                { value: 'teacher', label: t('role.teacher') },
+              ]}
+            />
+          </div>
+        )}
       </div>
 
       <div className="card mb-4">

@@ -3,7 +3,7 @@ import { expect, type Page, test } from '@playwright/test';
 async function onboard(page: Page) {
   await page.goto('./');
   await expect(page.getByRole('heading', { name: 'Welkom bij Planora' })).toBeVisible();
-  for (let i = 0; i < 3; i++) await page.getByRole('button', { name: 'Volgende' }).click();
+  for (let i = 0; i < 2; i++) await page.getByRole('button', { name: 'Volgende' }).click();
   await page.getByRole('button', { name: 'Beginnen' }).click();
   await expect(page.getByRole('heading', { name: /Goede(morgen|middag|navond)/ })).toBeVisible();
 }
@@ -332,7 +332,7 @@ test('first start: the app opens in the device language and says where your data
     const page = await context.newPage();
     await page.goto('./');
     await expect(page.getByRole('heading', { name: nl ? 'Welkom bij Planora' : 'Welcome to Planora' })).toBeVisible();
-    for (let i = 0; i < 3; i++) await page.getByRole('button', { name: nl ? 'Volgende' : 'Next' }).click();
+    for (let i = 0; i < 2; i++) await page.getByRole('button', { name: nl ? 'Volgende' : 'Next' }).click();
     await expect(page.getByText(nl ? /Raak je het kwijt/ : /If you lose it/)).toBeVisible();
     await context.close();
   }
