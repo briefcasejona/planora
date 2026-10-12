@@ -47,7 +47,7 @@
   },
   "role": {
     "student": "Leerling / student",
-    "teacher": "Docent"
+    "teacher": "Docent (basis)"
   },
   "status": {
     "open": "Open",
@@ -489,8 +489,8 @@
     "notificationsOn": "Meldingen staan aan.",
     "saveReplan": "Opslaan en opnieuw plannen",
     "saved": "Opgeslagen",
-    "lessonBuffer": "Pauze na lessen",
-    "lessonBufferHint": "Minuten vrij na een les, toets of excursie. 0 = uit.",
+    "lessonBuffer": "Pauze na lessen en colleges",
+    "lessonBufferHint": "Minuten vrij na een les, hoorcollege, werkcollege, practicum, toets of excursie. 0 = uit.",
     "tabSync": "Synchroniseren"
   },
   "onboarding": {
@@ -504,6 +504,7 @@
     "to": "Tot",
     "timeHint": "Lessen, sport en andere afspraken zet je in de agenda; Planora plant eromheen.",
     "privacyTitle": "Jouw privacy",
+    "loseDevice": "Je planning blijft op dit apparaat. Raak je het kwijt, dan is die weg, tenzij je synchroniseren aanzet of een back-up maakt. Allebei vind je in Instellingen, onder Privacy en gegevens en Synchroniseren.",
     "privacyIntegrations": "Koppelen met Outlook, Teams of Google is optioneel en kan later. Jij kiest precies wat Planora mag.",
     "start": "Beginnen",
     "privacyPolicy": "Lees de privacyverklaring"
@@ -532,8 +533,12 @@
   },
   "category": {
     "lesson": "Les",
+    "lecture": "Hoorcollege",
+    "tutorial": "Werkcollege",
+    "lab": "Practicum",
     "test": "Toets",
     "excursion": "Excursie",
+    "officehours": "Spreekuur",
     "meeting": "Afspraak",
     "work": "Werk",
     "sport": "Sport",

@@ -83,6 +83,7 @@ export function Onboarding() {
       </div>
       <ul className="list-disc space-y-2 pl-5 text-sm text-slate-700 dark:text-slate-300">
         <li>{t('privacy.local')}</li>
+        <li>{t('onboarding.loseDevice')}</li>
         <li>{t('privacy.noServer')}</li>
         <li>{t('privacy.noTracking')}</li>
         <li>{t('onboarding.privacyIntegrations')}</li>

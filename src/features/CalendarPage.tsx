@@ -8,7 +8,7 @@ import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import { addDays } from 'date-fns';
 import { useMemo, useState } from 'react';
-import { BUSY_HEX, CATEGORY_HEX, eventColors, TYPE_HEX } from '../components/ui';
+import { BUSY_HEX, CATEGORY_HEX, categoryLabel, eventColors, TYPE_HEX } from '../components/ui';
 import { actions, useStore } from '../data/store';
 import { dedupeBusy, expandBusy } from '../domain/busy';
 import { type BusyBlock, EVENT_CATEGORIES } from '../domain/types';
@@ -102,7 +102,7 @@ export function CalendarPage() {
       const category = x.block.category;
       if (!show(category ?? 'busy')) continue;
       const local = x.block.source === 'local';
-      const name = category ? t('category.' + category) : t('calendar.busy');
+      const name = categoryLabel(t, category);
       out.push({
         id: 'b:' + x.block.id + ':' + x.start.getTime(),
         title: x.block.title ?? name + (local ? '' : ' (' + t('source.' + x.block.source) + ')'),

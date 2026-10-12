@@ -47,7 +47,7 @@
   },
   "role": {
     "student": "Student",
-    "teacher": "Teacher"
+    "teacher": "Staff (basic)"
   },
   "status": {
     "open": "Open",
@@ -495,8 +495,8 @@
     "notificationsOn": "Notifications are on.",
     "saveReplan": "Save and replan",
     "saved": "Saved",
-    "lessonBuffer": "Break after lessons",
-    "lessonBufferHint": "Minutes kept free after a lesson, test or excursion. 0 = off.",
+    "lessonBuffer": "Break after classes",
+    "lessonBufferHint": "Minutes kept free after a lesson, lecture, tutorial, lab, test or excursion. 0 = off.",
     "tabSync": "Sync"
   },
   "onboarding": {
@@ -510,6 +510,7 @@
     "to": "Until",
     "timeHint": "Put classes, sports and other events in the calendar; Planora plans around them.",
     "privacyTitle": "Your privacy",
+    "loseDevice": "Your plans stay on this device. If you lose it, they're gone unless you turn on sync or make a backup. You'll find both in Settings, under Privacy & data and Sync.",
     "privacyIntegrations": "Connecting Outlook, Teams or Google is optional and can be done later. You choose exactly what Planora may do.",
     "start": "Get started",
     "privacyPolicy": "Read the privacy policy"
@@ -532,8 +533,12 @@
   },
   "category": {
     "lesson": "Lesson",
+    "lecture": "Lecture",
+    "tutorial": "Tutorial",
+    "lab": "Lab",
     "test": "Test",
     "excursion": "Excursion",
+    "officehours": "Office hours",
     "meeting": "Meeting",
     "work": "Work",
     "sport": "Sport",

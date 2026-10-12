@@ -32,6 +32,17 @@
   headers ("ma 12") so the whole week fits. Phones still open on Day.
 - All checks pass. **Needs you**: look at it and merge when happy.
 
+## University roadmap, step 1 of 4 (pull request #24, 12 October 2026)
+- A council review and four specs, approved by you: <https://claude.ai/artifact/WsPPrFmuMCqvSaFJrfTMK5>.
+  Planora stays server-free (your decision).
+- Step 1 is in pull request #24: new event kinds lecture, tutorial (werkcollege), lab (practicum) and
+  office hours (spreekuur); the break after lessons also applies after lectures, tutorials and labs; a new
+  install starts in the device's language (Dutch device: Dutch, otherwise English); the welcome screens say
+  what happens if you lose your device; "Teacher" is now "Staff (basic)".
+- Also in #24: the Google test that failed around the 25 October clock change is fixed.
+- Good to know: a device still on v0.3.5 shows a synced lecture as "category.lecture" until it updates itself.
+- Next: step 2 (courses and repeating tasks), then reminders, then semester setup from a timetable file.
+
 ## What needs you
 0. **Legal**:
    - Done: legal pages live and entered in the Azure and Google portals (10 October 2026).

@@ -324,3 +324,16 @@ test('report a problem: a pre-filled GitHub report with technical details, never
   await page.getByLabel(/Technische details meesturen/).uncheck();
   expect(new URL((await link.getAttribute('href'))!).searchParams.has('details')).toBe(false);
 });
+
+test('first start: the app opens in the device language and says where your data lives', async ({ browser }) => {
+  for (const locale of ['en-GB', 'nl-NL']) {
+    const nl = locale === 'nl-NL';
+    const context = await browser.newContext({ locale });
+    const page = await context.newPage();
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: nl ? 'Welkom bij Planora' : 'Welcome to Planora' })).toBeVisible();
+    for (let i = 0; i < 3; i++) await page.getByRole('button', { name: nl ? 'Volgende' : 'Next' }).click();
+    await expect(page.getByText(nl ? /Raak je het kwijt/ : /If you lose it/)).toBeVisible();
+    await context.close();
+  }
+});

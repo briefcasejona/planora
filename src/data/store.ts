@@ -18,6 +18,7 @@ import type {
   WorkSession,
 } from '../domain/types';
 import { DEFAULT_PREFERENCES } from '../domain/types';
+import { deviceLanguage } from '../lib/language';
 import { unlock } from './crypto';
 import { currentPlanWeek, latestReviewWeek, planMoment, reviewMoment } from './moments';
 import { repo, setEncryptionKey, setRequireKey } from './repo';
@@ -78,7 +79,7 @@ export const useStore = create<AppState>(() => ({
   busy: [],
   feedback: [],
   reports: [],
-  prefs: DEFAULT_PREFERENCES,
+  prefs: { ...DEFAULT_PREFERENCES, language: deviceLanguage() },
   warnings: [],
 }));
 
@@ -495,7 +496,7 @@ export const actions = {
         feedback: [],
         reports: [],
         warnings: [],
-        prefs: DEFAULT_PREFERENCES,
+        prefs: { ...DEFAULT_PREFERENCES, language: deviceLanguage() },
         locked: false,
       });
     }),

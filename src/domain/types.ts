@@ -67,11 +67,26 @@ export interface WorkSession {
 export type BusySource = 'local' | 'microsoft' | 'google' | 'ics';
 
 /** What kind of appointment an event is. Events are planned around, never planned themselves. */
-export type EventCategory = 'lesson' | 'meeting' | 'work' | 'sport' | 'personal' | 'test' | 'excursion';
+export type EventCategory =
+  | 'lesson'
+  | 'lecture'
+  | 'tutorial'
+  | 'lab'
+  | 'officehours'
+  | 'meeting'
+  | 'work'
+  | 'sport'
+  | 'personal'
+  | 'test'
+  | 'excursion';
 export const EVENT_CATEGORIES: EventCategory[] = [
   'lesson',
+  'lecture',
+  'tutorial',
+  'lab',
   'test',
   'excursion',
+  'officehours',
   'meeting',
   'work',
   'sport',

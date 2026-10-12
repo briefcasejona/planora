@@ -267,8 +267,14 @@ describe('schedule: buffer after lessons', () => {
     expect(earliestStart([weekly('lesson')], 30)).toBe(17 * 60 + 30);
   });
 
+  it('keeps the same minutes free after lectures, tutorials and labs', () => {
+    for (const kind of ['lecture', 'tutorial', 'lab'] as const)
+      expect(earliestStart([weekly(kind)], 30)).toBe(17 * 60 + 30);
+  });
+
   it('does not add the buffer after other kinds of events', () => {
     expect(earliestStart([weekly('meeting')], 30)).toBe(17 * 60);
+    expect(earliestStart([weekly('officehours')], 30)).toBe(17 * 60);
     expect(earliestStart([weekly(undefined)], 30)).toBe(17 * 60);
   });
 });

@@ -1,8 +1,8 @@
 import { dedupeBusy } from './busy';
 import type { BusyBlock, EventCategory, Task } from './types';
 
-/** Categories that come from a school timetable; the "buffer after lessons" applies to these. */
-export const SCHOOL_CATEGORIES: EventCategory[] = ['lesson', 'test', 'excursion'];
+/** Categories that come from a school or university timetable; the "buffer after lessons" applies to these. */
+export const SCHOOL_CATEGORIES: EventCategory[] = ['lesson', 'lecture', 'tutorial', 'lab', 'test', 'excursion'];
 
 // Dutch words are matched inside compounds too ("wiskundetoets", "hertentamen", "eindexamen").
 const TEST_NL = /(toets|tentamen|proefwerk|examen)/i;
