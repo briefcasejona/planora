@@ -109,4 +109,10 @@ body {
     flex-wrap: wrap;
     gap: 0.4rem;
   }
+  /* Keep "ma 12" on one line in the seven narrow week columns. */
+  .fc .fc-timeGridWeek-view .fc-col-header-cell-cushion {
+    padding: 2px 0;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
 }
