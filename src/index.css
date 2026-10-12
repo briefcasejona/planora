@@ -17,7 +17,29 @@
   --safe-bottom: max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px));
 }
 
-@custom-variant dark (@media (prefers-color-scheme: dark));
+/* Dark colours: when the user picks Dark (data-theme="dark" on <html>), or when the device is dark and
+   the user didn't pick Light. Pages without data-theme (website, Follow device) simply follow the device. */
+@custom-variant dark {
+  &:where([data-theme='dark'], [data-theme='dark'] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme='light']), :root:not([data-theme='light']) *) {
+      @slot;
+    }
+  }
+}
+
+/* Native controls (scrollbars, date and time pickers) match the chosen colours. */
+:root {
+  color-scheme: light dark;
+}
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
 
 html,
 body,
@@ -105,8 +127,8 @@ body {
   font-weight: 600;
   background-image: repeating-linear-gradient(135deg, transparent 0 6px, rgb(225 29 72 / 0.12) 6px 12px);
 }
-@media (prefers-color-scheme: dark) {
-  .fc {
+.fc {
+  @variant dark {
     --fc-border-color: var(--color-slate-800);
     --fc-neutral-bg-color: var(--color-slate-900);
     --fc-today-bg-color: rgb(99 102 241 / 0.12);

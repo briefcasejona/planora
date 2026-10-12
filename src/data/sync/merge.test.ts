@@ -112,14 +112,17 @@ describe('devices on an older version', () => {
   // so fields it doesn't know are passed on unchanged instead of being dropped.
   it('keeps task fields and settings this version does not know', () => {
     const newer = { ...makeTask({ id: 't1', updatedAt: at(2) }), seriesId: 's1' };
-    const prefs = { value: { ...emptyPrefs(), courses: [{ name: 'Biology' }] }, updatedAt: at(2) };
+    const prefs = {
+      value: { ...emptyPrefs(), courses: [{ name: 'Biology' }], theme: 'dark' as const },
+      updatedAt: at(2),
+    };
     const merged = mergeSnapshots(
       snap({ tasks: [newer] }, { prefs }),
       snap({ tasks: [makeTask({ id: 't1', updatedAt: at(1) })] }),
       NOW,
     );
     expect(merged.tables.tasks[0]).toMatchObject({ seriesId: 's1' });
-    expect(merged.prefs?.value).toMatchObject({ courses: [{ name: 'Biology' }] });
+    expect(merged.prefs?.value).toMatchObject({ courses: [{ name: 'Biology' }], theme: 'dark' });
   });
 
   it('drops parts of the sync file it does not know, so new data must live in tasks or settings', () => {

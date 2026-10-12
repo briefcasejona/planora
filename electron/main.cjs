@@ -1,7 +1,18 @@
 // Planora desktop app. Serves the built web app from a tiny local server on
 // this computer only (127.0.0.1) and shows it in a hardened window. No data
 // leaves the device unless the user links Microsoft or Google in the app.
-const { app, BrowserWindow, Menu, Tray, dialog, ipcMain, nativeImage, session, shell } = require('electron');
+const {
+  app,
+  BrowserWindow,
+  Menu,
+  Tray,
+  dialog,
+  ipcMain,
+  nativeImage,
+  nativeTheme,
+  session,
+  shell,
+} = require('electron');
 const fs = require('node:fs');
 const http = require('node:http');
 const path = require('node:path');
@@ -124,7 +135,7 @@ function createWindow(hidden) {
     title: 'Planora',
     icon: ICON,
     autoHideMenuBar: true,
-    backgroundColor: '#f8fafc',
+    backgroundColor: nativeTheme.shouldUseDarkColors ? '#020617' : '#f8fafc',
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,
@@ -241,6 +252,11 @@ function scheduleUpdateChecks() {
   setTimeout(tick, 30_000);
   setInterval(tick, UPDATE_EVERY_MS);
 }
+
+// Planora's light/dark setting also colours the title bar and menus.
+ipcMain.handle('set-theme', (_e, theme) => {
+  if (theme === 'system' || theme === 'light' || theme === 'dark') nativeTheme.themeSource = theme;
+});
 
 ipcMain.handle('get-settings', () => ({ ...readSettings(), platform: process.platform }));
 ipcMain.handle('set-settings', (_e, patch) => {

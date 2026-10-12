@@ -13,6 +13,8 @@ export interface DesktopBridge {
   installUpdate?(): Promise<boolean>;
   /** Google sign-in in the system browser (Google refuses app windows); resolves with Google's answer (#…). */
   googleSignIn?(url: string, state: string): Promise<string>;
+  /** Light or dark title bar and menus, matching Planora's own setting (desktop app 0.4.3 and later). */
+  setTheme?(theme: 'system' | 'light' | 'dark'): Promise<void>;
 }
 
 export interface DesktopUpdateStatus {

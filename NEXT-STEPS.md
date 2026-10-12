@@ -104,6 +104,13 @@
 - Installed apps get it with v0.4.1 (Android: tap Update in the banner). v0.4.2 makes it sturdier: it also uses the
   button-bar size the Android app reports itself, in case the phone's browser engine reports 0.
 
+## Light and dark mode (12 October 2026)
+- Settings > Planning > General > Appearance: Follow device (default), Light or Dark. It applies at once and
+  syncs to your other devices like the other settings. Older app versions keep the choice when they sync.
+- On the desktop app the title bar follows it too; on Android the status bar icons switch light/dark.
+- The website gets it right after the merge. Installed apps (desktop, Android) need a new release; the Android
+  status-bar part needs the new .apk.
+
 ## What needs you
 0. **Legal**:
    - Done: legal pages live and entered in the Azure and Google portals (10 October 2026).
