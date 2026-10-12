@@ -32,8 +32,9 @@ export function PlanningSettings() {
       .catch(() => undefined);
   }, []);
   const remindersOn = prefs.reminders !== false;
-  // Courses and the reminder switch save themselves; this form never changes or overwrites them.
-  const formPart = (p: Preferences) => JSON.stringify({ ...p, courses: undefined, reminders: undefined });
+  // Courses and the reminder switches save themselves; this form never changes or overwrites them.
+  const formPart = (p: Preferences) =>
+    JSON.stringify({ ...p, courses: undefined, reminders: undefined, reminderNames: undefined });
   const dirty = formPart(draft) !== formPart(prefs);
 
   const set = (patch: Partial<Preferences>) => {
@@ -44,7 +45,12 @@ export function PlanningSettings() {
     set({ availability: draft.availability.map((a, i) => (i === d ? { ...a, ...patch } : a)) });
   const save = async () => {
     const latest = useStore.getState().prefs;
-    await actions.savePrefs({ ...draft, courses: latest.courses, reminders: latest.reminders });
+    await actions.savePrefs({
+      ...draft,
+      courses: latest.courses,
+      reminders: latest.reminders,
+      reminderNames: latest.reminderNames,
+    });
     setSaved(true);
   };
   const num = (v: string, min: number, max: number) => Math.min(max, Math.max(min, Number(v) || min));
@@ -241,6 +247,14 @@ export function PlanningSettings() {
           label={t('settings.reminders')}
           description={t('settings.remindersHint')}
         />
+        {remindersOn && (
+          <Toggle
+            checked={!!prefs.reminderNames}
+            onChange={(on) => void actions.savePrefs({ ...useStore.getState().prefs, reminderNames: on })}
+            label={t('settings.reminderNames')}
+            description={t('settings.reminderNamesHint')}
+          />
+        )}
         {remindersOn && platform() === 'web' && (
           <p className="mt-2 text-sm text-slate-500">{t('settings.remindersOpenOnly')}</p>
         )}
