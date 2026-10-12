@@ -92,6 +92,11 @@
 - Not testable here: the approval button needs a real college Microsoft 365 organisation. If Microsoft
   shows an error about the reply address, IT can use the Entra admin center route on the same page.
 
+## Download page: Play Protect (12 October 2026)
+- A friend's phone blocked Planora.apk ("Google Play Protect doesn't recognise this app"). The Android steps on
+  the download page now say: tap "More details" > "Install anyway". The warning only disappears for good
+  once Planora is in the Play Store (your call: a Google Play developer account, one-time fee).
+
 ## What needs you
 0. **Legal**:
    - Done: legal pages live and entered in the Azure and Google portals (10 October 2026).

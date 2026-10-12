@@ -75,6 +75,7 @@ export const texts: Record<Lang, Texts> = {
         steps: [
           'Open het gedownloade bestand <b>Planora.apk</b>.',
           'Vraagt je telefoon toestemming om "onbekende apps" te installeren? Sta het toe voor je browser en tik op <b>Installeren</b>.',
+          'Zegt Google Play Protect dat de app is geblokkeerd of niet wordt herkend? Dat komt doordat Planora (nog) niet in de Play Store staat. Tik op <b>Meer details</b> en dan op <b>Toch installeren</b>.',
           'Liever geen .apk? Open de website in Chrome, tik op het menu <b>⋮</b> en kies <b>App installeren</b> (of <b>Toevoegen aan startscherm</b>).',
         ],
         note: 'Een nieuwe versie installeer je door de nieuwe .apk op dezelfde manier te openen; je gegevens blijven bewaard.',
@@ -141,6 +142,7 @@ export const texts: Record<Lang, Texts> = {
         steps: [
           'Open the downloaded file <b>Planora.apk</b>.',
           'If your phone asks permission to install "unknown apps", allow it for your browser and tap <b>Install</b>.',
+          'Does Google Play Protect say the app is blocked or unrecognised? That is because Planora is not (yet) in the Play Store. Tap <b>More details</b> and then <b>Install anyway</b>.',
           'Rather not use an .apk? Open the website in Chrome, tap the <b>⋮</b> menu and choose <b>Install app</b> (or <b>Add to Home screen</b>).',
         ],
         note: 'To update, open a newer .apk the same way; your data is kept.',
