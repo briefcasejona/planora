@@ -45,5 +45,11 @@ test('desktop app starts, serves the app locally with CSP, and plans a task', as
   await page.getByRole('link', { name: 'Instellingen' }).first().click();
   await expect(page.getByText('Desktop-app')).toBeVisible();
   await expect(page.getByText('Planora op andere apparaten / delen')).toBeVisible();
+
+  // Dark in Planora also makes the title bar and menus dark.
+  await page.getByRole('radio', { name: 'Donker' }).click();
+  await expect.poll(() => app.evaluate(({ nativeTheme }) => nativeTheme.themeSource)).toBe('dark');
+  await page.getByRole('radio', { name: 'Zoals apparaat' }).click();
+  await expect.poll(() => app.evaluate(({ nativeTheme }) => nativeTheme.themeSource)).toBe('system');
   await app.close();
 });

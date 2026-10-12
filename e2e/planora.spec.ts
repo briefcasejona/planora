@@ -569,3 +569,33 @@ test('phone: the Save button in Settings and the buttons in a dialog are not cov
     .evaluate((el) => window.innerHeight - el.getBoundingClientRect().bottom);
   expect(bottom).toBeGreaterThanOrEqual(48);
 });
+
+test('appearance: light or dark overrides the device, and is remembered', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'light' });
+  await onboard(page);
+  const background = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  const light = await background();
+
+  await page.getByRole('link', { name: 'Instellingen' }).last().click();
+  await page.getByRole('radio', { name: 'Donker' }).click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect.poll(background).not.toBe(light);
+  const dark = await background();
+
+  // Still dark after a restart, on a light device.
+  await page.reload();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect.poll(background).toBe(dark);
+
+  // Light on a dark device.
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.getByRole('radio', { name: 'Licht' }).click();
+  await expect.poll(background).toBe(light);
+
+  // Follow the device again.
+  await page.getByRole('radio', { name: 'Zoals apparaat' }).click();
+  await expect(page.locator('html')).not.toHaveAttribute('data-theme', /.*/);
+  await expect.poll(background).toBe(dark);
+  await page.emulateMedia({ colorScheme: 'light' });
+  await expect.poll(background).toBe(light);
+});

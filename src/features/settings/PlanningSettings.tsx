@@ -32,9 +32,9 @@ export function PlanningSettings() {
       .catch(() => undefined);
   }, []);
   const remindersOn = prefs.reminders !== false;
-  // Courses and the reminder switches save themselves; this form never changes or overwrites them.
+  // Courses, the reminder switches and the theme save themselves; this form never changes or overwrites them.
   const formPart = (p: Preferences) =>
-    JSON.stringify({ ...p, courses: undefined, reminders: undefined, reminderNames: undefined });
+    JSON.stringify({ ...p, courses: undefined, reminders: undefined, reminderNames: undefined, theme: undefined });
   const dirty = formPart(draft) !== formPart(prefs);
 
   const set = (patch: Partial<Preferences>) => {
@@ -50,6 +50,7 @@ export function PlanningSettings() {
       courses: latest.courses,
       reminders: latest.reminders,
       reminderNames: latest.reminderNames,
+      theme: latest.theme,
     });
     setSaved(true);
   };
@@ -95,6 +96,19 @@ export function PlanningSettings() {
             options={[
               { value: 'nl', label: 'Nederlands' },
               { value: 'en', label: 'English' },
+            ]}
+          />
+        </div>
+        <div className="mb-3">
+          <span className="label">{t('settings.theme')}</span>
+          <Chips
+            label={t('settings.theme')}
+            value={prefs.theme ?? 'system'}
+            onChange={(v) => void actions.savePrefs({ ...useStore.getState().prefs, theme: v })}
+            options={[
+              { value: 'system', label: t('settings.themeSystem') },
+              { value: 'light', label: t('settings.themeLight') },
+              { value: 'dark', label: t('settings.themeDark') },
             ]}
           />
         </div>

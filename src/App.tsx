@@ -8,6 +8,7 @@ import { Onboarding } from './features/Onboarding';
 import i18n from './i18n';
 import { startIntegrations } from './integrations';
 import { useFormat } from './lib/format';
+import { applyTheme } from './lib/theme';
 import { scheduleTaskReminders, scheduleWeeklyReminders } from './notifications';
 import { Shell } from './Shell';
 
@@ -29,6 +30,11 @@ export default function App() {
     if (i18n.language !== prefs.language) void i18n.changeLanguage(prefs.language);
     document.documentElement.lang = prefs.language;
   }, [prefs.language]);
+
+  // Before the settings load, main.tsx already applied the last known choice.
+  useEffect(() => {
+    if (ready) applyTheme(prefs.theme);
+  }, [ready, prefs.theme]);
 
   useEffect(() => {
     if (!ready || locked) return;

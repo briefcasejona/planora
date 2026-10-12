@@ -11,4 +11,5 @@ contextBridge.exposeInMainWorld('planoraDesktop', {
   checkForUpdate: () => ipcRenderer.invoke('check-update'),
   installUpdate: () => ipcRenderer.invoke('install-update'),
   googleSignIn: (url, state) => ipcRenderer.invoke('google-sign-in', String(url), String(state)),
+  setTheme: (theme) => ipcRenderer.invoke('set-theme', String(theme)),
 });

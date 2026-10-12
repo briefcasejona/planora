@@ -166,6 +166,9 @@ export interface Course {
   examEnd?: string;
 }
 
+/** 'system' follows the device's light or dark setting. */
+export type Theme = 'system' | 'light' | 'dark';
+
 export interface Preferences {
   onboarded: boolean;
   role: Role;
@@ -187,6 +190,8 @@ export interface Preferences {
   reminders?: boolean;
   /** Show task names in reminders; otherwise they say "Planora focus" (missing = neutral). */
   reminderNames?: boolean;
+  /** Light or dark screen colours (missing = follow the device). */
+  theme?: Theme;
 }
 
 export const DEFAULT_PREFERENCES: Preferences = {
