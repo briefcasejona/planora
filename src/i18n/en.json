@@ -670,5 +670,21 @@
     "found_other": "{{count}} deadlines found",
     "add": "Add as task",
     "hide": "Hide"
+  },
+  "setup": {
+    "title": "Get started",
+    "intro": "Three steps and Planora plans your week.",
+    "timetableTitle": "Import your timetable",
+    "timetableHint": "Download your timetable as an .ics file and choose it under \"Set up my semester\" in Inbox. Away for a while, such as an excursion? Add an appointment for those days in Calendar, so Planora doesn't plan study blocks there.",
+    "timetableAction": "Go to Inbox",
+    "taskTitle": "Add your first deadline",
+    "taskHint": "Say what needs doing, when it's due and how long it takes. Planora plans the study blocks. Something every week? Switch on \"Repeat every week\". To move a block, press and hold it in Calendar and drag it.",
+    "taskAction": "Add a deadline",
+    "remindersTitle": "Allow reminders",
+    "remindersHint": "A reminder 10 minutes before each study block, and at 18:00 the day before a deadline.",
+    "remindersHintWeb": "In a browser and on iPhone, reminders only come while Planora is open.",
+    "remindersAction": "Allow reminders",
+    "remindersDenied": "Reminders are blocked. Allow notifications for Planora in your device settings.",
+    "hide": "Hide"
   }
 }

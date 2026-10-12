@@ -192,6 +192,8 @@ export interface Preferences {
   reminderNames?: boolean;
   /** Light or dark screen colours (missing = follow the device). */
   theme?: Theme;
+  /** The user closed the first-time "Get started" card on Today. */
+  setupGuideHidden?: boolean;
 }
 
 export const DEFAULT_PREFERENCES: Preferences = {

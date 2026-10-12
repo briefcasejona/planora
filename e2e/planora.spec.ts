@@ -599,3 +599,53 @@ test('appearance: light or dark overrides the device, and is remembered', async 
   await page.emulateMedia({ colorScheme: 'light' });
   await expect.poll(background).toBe(light);
 });
+
+test('get started: a new user sees three steps on Today that tick off, and Hide keeps the card away', async ({
+  browser,
+}) => {
+  const context = await browser.newContext({ locale: 'nl-NL', timezoneId: 'Europe/Amsterdam' });
+  const page = await context.newPage();
+  // A device that has not been asked about notifications yet; asking grants them.
+  await page.addInitScript(() => {
+    const fake = {
+      permission: 'default',
+      requestPermission: async () => {
+        fake.permission = 'granted';
+        return 'granted';
+      },
+    };
+    (window as unknown as { Notification: unknown }).Notification = fake;
+  });
+  await onboard(page);
+
+  const card = page.getByRole('region', { name: 'Aan de slag' });
+  await expect(card).toBeVisible();
+  const step = (name: string) => card.locator(`[data-step="${name}"]`);
+  for (const name of ['timetable', 'task', 'reminders']) await expect(step(name)).toHaveAttribute('data-done', 'false');
+  await expect(
+    card.getByText('In een browser en op iPhone komen herinneringen alleen als Planora open is.'),
+  ).toBeVisible();
+
+  await card.getByRole('button', { name: 'Herinneringen toestaan' }).click();
+  await expect(step('reminders')).toHaveAttribute('data-done', 'true');
+
+  await card.getByRole('button', { name: 'Deadline toevoegen' }).click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByPlaceholder('Bijv. Toets geschiedenis, essay Engels').fill('Essay inleveren');
+  await dialog.locator('input[type="datetime-local"]').fill('2030-10-14T09:00');
+  await dialog.getByRole('button', { name: 'Toevoegen en plannen' }).click();
+  await expect(dialog).toBeHidden();
+  await expect(step('task')).toHaveAttribute('data-done', 'true');
+
+  await card.getByRole('link', { name: 'Naar de Inbox' }).click();
+  await expect(page.getByText('Mijn semester instellen')).toBeVisible();
+  await page.getByRole('link', { name: 'Vandaag' }).last().click();
+  await expect(step('timetable')).toHaveAttribute('data-done', 'false');
+
+  await card.getByRole('button', { name: 'Verbergen' }).click();
+  await expect(card).toBeHidden();
+  await page.reload();
+  await expect(page.getByRole('heading', { name: /Goede(morgen|middag|navond)/ })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Aan de slag' })).toBeHidden();
+  await context.close();
+});
