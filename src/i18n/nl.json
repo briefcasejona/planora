@@ -671,5 +671,21 @@
     "found_other": "{{count}} deadlines gevonden",
     "add": "Als taak toevoegen",
     "hide": "Verbergen"
+  },
+  "setup": {
+    "title": "Aan de slag",
+    "intro": "Drie stappen en Planora plant je week.",
+    "timetableTitle": "Zet je rooster erin",
+    "timetableHint": "Download je rooster als .ics-bestand en kies het bij \"Mijn semester instellen\" in de Inbox. Ben je een tijd weg, bijvoorbeeld op excursie? Maak in de Agenda een afspraak voor die dagen, dan plant Planora daar geen studieblokken.",
+    "timetableAction": "Naar de Inbox",
+    "taskTitle": "Voeg je eerste deadline toe",
+    "taskHint": "Vul in wat er moet gebeuren, wanneer het af moet en hoe lang het duurt. Planora plant de studieblokken. Komt het elke week terug? Zet \"Elke week herhalen\" aan. Een blok verplaatsen: houd het in de Agenda ingedrukt en sleep het.",
+    "taskAction": "Deadline toevoegen",
+    "remindersTitle": "Sta herinneringen toe",
+    "remindersHint": "Een seintje 10 minuten voor elk studieblok, en om 18:00 de dag voor een deadline.",
+    "remindersHintWeb": "In een browser en op iPhone komen herinneringen alleen als Planora open is.",
+    "remindersAction": "Herinneringen toestaan",
+    "remindersDenied": "Herinneringen zijn geblokkeerd. Sta meldingen voor Planora toe in de instellingen van je apparaat.",
+    "hide": "Verbergen"
   }
 }

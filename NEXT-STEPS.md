@@ -137,3 +137,12 @@
   Do not delete it and never put it in the repository; without it, app updates can't be installed
   over older versions.
 - Your sync passphrase: without it the synced data can't be read (data on your devices stays readable).
+
+## Get started card on Today (12 October 2026)
+- New users see a "Get started" / "Aan de slag" card on Today with three steps that tick off by themselves:
+  import your timetable (button to Inbox), add your first deadline (opens the task form), allow
+  reminders (one tap shows the device's own "allow notifications" pop-up). Tips cover days away, weekly
+  repeats and moving a block.
+- "Hide" closes it for good; it also goes away for good once all three steps are done. The choice syncs
+  between your devices. Users who already did all three never see it.
+- Released together with this change (Jonathan's OK on 12 October 2026, before the project-group test).

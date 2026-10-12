@@ -14,6 +14,7 @@ import { installUpdate, useUpdates } from '../integrations/updates';
 import { useFormat } from '../lib/format';
 import { isIos, isIosStandalone, isNativeApp } from '../lib/platform';
 import { FeedbackDialog } from './FeedbackDialog';
+import { SetupGuide } from './SetupGuide';
 import { updateAction } from './settings/UpdatesCard';
 import { TaskDetail } from './TaskDetail';
 import { TaskForm, type TaskPrefill } from './TaskForm';
@@ -77,6 +78,8 @@ export function TodayPage() {
           {today.length ? t('today.summary', { count: today.length, d: duration(todayMin) }) : t('today.free')}
         </p>
       </header>
+
+      <SetupGuide />
 
       <div className="mb-5 space-y-2">
         {showUpdate && (
