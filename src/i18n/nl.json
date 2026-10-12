@@ -9,10 +9,15 @@
     "next": "Volgende",
     "ok": "OK",
     "open": "Openen",
+    "reload": "Opnieuw laden",
     "remove": "Verwijderen",
     "save": "Opslaan",
     "view": "Bekijken",
     "yes": "Ja"
+  },
+  "pageError": {
+    "title": "Deze pagina kon niet worden getoond",
+    "body": "Planora is misschien net bijgewerkt. Laad opnieuw om de nieuwste versie te krijgen; je taken staan veilig op dit apparaat."
   },
   "units": {
     "hour": "u",

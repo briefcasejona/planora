@@ -1,16 +1,18 @@
-import { lazy, Suspense, useState } from 'react';
-import { Link, Navigate, NavLink, Route, Routes } from 'react-router-dom';
+import { Suspense, useState } from 'react';
+import { Link, Navigate, NavLink, Route, Routes, useLocation } from 'react-router-dom';
 import { Icon, type IconName } from './components/Icon';
+import { PageErrorBoundary } from './components/PageErrorBoundary';
 import { useStore } from './data/store';
 import { InboxPage } from './features/InboxPage';
 import { TaskForm } from './features/TaskForm';
 import { TodayPage } from './features/TodayPage';
 import { useFormat } from './lib/format';
+import { lazyPage } from './lib/lazyPage';
 import { asset } from './lib/platform';
 
-const CalendarPage = lazy(() => import('./features/CalendarPage').then((m) => ({ default: m.CalendarPage })));
-const ReviewPage = lazy(() => import('./features/ReviewPage').then((m) => ({ default: m.ReviewPage })));
-const SettingsPage = lazy(() => import('./features/settings/SettingsPage').then((m) => ({ default: m.SettingsPage })));
+const CalendarPage = lazyPage(() => import('./features/CalendarPage').then((m) => m.CalendarPage));
+const ReviewPage = lazyPage(() => import('./features/ReviewPage').then((m) => m.ReviewPage));
+const SettingsPage = lazyPage(() => import('./features/settings/SettingsPage').then((m) => m.SettingsPage));
 
 const NAV: { to: string; icon: IconName; key: string }[] = [
   { to: '/', icon: 'today', key: 'nav.today' },
@@ -29,6 +31,7 @@ const sideLink = (active: boolean) =>
 
 export function Shell() {
   const { t } = useFormat();
+  const { pathname } = useLocation();
   const [adding, setAdding] = useState(false);
   const unseen = useStore((s) => s.reports.some((r) => !r.seenAt));
   return (
@@ -67,16 +70,18 @@ export function Shell() {
 
       <main className="min-w-0 flex-1 px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-28 md:px-8 md:py-8">
         <div className="mx-auto max-w-5xl">
-          <Suspense fallback={<p className="text-sm text-slate-500">{t('common.loading')}</p>}>
-            <Routes>
-              <Route path="/" element={<TodayPage />} />
-              <Route path="/inbox" element={<InboxPage />} />
-              <Route path="/calendar" element={<CalendarPage />} />
-              <Route path="/review" element={<ReviewPage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </Suspense>
+          <PageErrorBoundary key={pathname}>
+            <Suspense fallback={<p className="text-sm text-slate-500">{t('common.loading')}</p>}>
+              <Routes>
+                <Route path="/" element={<TodayPage />} />
+                <Route path="/inbox" element={<InboxPage />} />
+                <Route path="/calendar" element={<CalendarPage />} />
+                <Route path="/review" element={<ReviewPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Suspense>
+          </PageErrorBoundary>
         </div>
       </main>
 
