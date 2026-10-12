@@ -1,6 +1,6 @@
 import { addDays, differenceInCalendarDays, startOfDay } from 'date-fns';
 import { expandBusy } from './busy';
-import { SCHOOL_CATEGORIES } from './categories';
+import { isNamedDeadline, SCHOOL_CATEGORIES } from './categories';
 import { suggestSessionCount } from './estimator';
 import { evenDayOffsets, spacedDayOffsets, splitMinutes } from './spacing';
 import { atMinutes, type Interval, minutesBetween, parseHM, roundUpToSlot, subtractIntervals } from './time';
@@ -172,7 +172,12 @@ function buildDays(
   const { prefs, busy } = input;
   const horizonEnd = addDays(today, horizonDays);
   const lessonPad = prefs.lessonBufferMin * 60000;
-  const busyIntervals = expandBusy(busy, today, horizonEnd).map((x) =>
+  // A hand-in moment from a timetable ("Deadline essay", even all day) is not time you are busy.
+  const busyIntervals = expandBusy(
+    busy.filter((b) => !isNamedDeadline(b)),
+    today,
+    horizonEnd,
+  ).map((x) =>
     lessonPad && x.block.category && SCHOOL_CATEGORIES.includes(x.block.category)
       ? { ...x, end: new Date(x.end.getTime() + lessonPad) }
       : x,

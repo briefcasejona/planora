@@ -653,5 +653,16 @@
     "examStart": "Exams from",
     "examEnd": "Exams until",
     "examEvent": "Exams: {{name}}"
+  },
+  "semester": {
+    "title": "Set up my semester",
+    "intro": "Import your timetable (.ics) from MyTimetable, Brightspace or Canvas. Planora lists the deadlines in it, so you can add each one as a task.",
+    "choose": "Choose timetable file",
+    "imported_one": "{{events}} events imported, {{count}} deadline to add.",
+    "imported_other": "{{events}} events imported, {{count}} deadlines to add.",
+    "found_one": "{{count}} deadline found",
+    "found_other": "{{count}} deadlines found",
+    "add": "Add as task",
+    "hide": "Hide"
   }
 }

@@ -278,3 +278,57 @@ describe('schedule: buffer after lessons', () => {
     expect(earliestStart([weekly(undefined)], 30)).toBe(17 * 60);
   });
 });
+
+describe('schedule: deadlines from a timetable', () => {
+  it('keeps the day of an all-day "Deadline" entry free for study', () => {
+    const task = makeTask({
+      deadline: new Date(2026, 9, 14, 23, 59).toISOString(),
+      userEstimateMin: 60,
+      plannedEstimateMin: 60,
+    });
+    const deadlineEntry: BusyBlock = {
+      id: 'd',
+      source: 'ics',
+      title: 'Deadline essay',
+      allDay: true,
+      start: new Date(2026, 9, 12).toISOString(),
+      end: new Date(2026, 9, 15).toISOString(),
+    };
+    const result = schedule({
+      now: NOW,
+      tasks: [task],
+      sessions: [],
+      busy: [deadlineEntry],
+      prefs: prefsEveryEvening(),
+      feedback: [],
+      newId: seqId,
+    });
+    expect(result.created.length).toBeGreaterThan(0);
+  });
+
+  it('still treats a one-hour meeting about a deadline as busy', () => {
+    const task = makeTask({
+      deadline: new Date(2026, 9, 13, 23, 59).toISOString(),
+      userEstimateMin: 60,
+      plannedEstimateMin: 60,
+    });
+    const meeting: BusyBlock = {
+      id: 'm',
+      source: 'microsoft',
+      title: 'Deadline discussion',
+      start: new Date(2026, 9, 12, 16, 0).toISOString(),
+      end: new Date(2026, 9, 12, 21, 0).toISOString(),
+    };
+    const prefs = prefsEveryEvening();
+    const result = schedule({
+      now: NOW,
+      tasks: [task],
+      sessions: [],
+      busy: [meeting],
+      prefs,
+      feedback: [],
+      newId: seqId,
+    });
+    for (const s of result.created) expect(overlaps(s, meeting)).toBe(false);
+  });
+});

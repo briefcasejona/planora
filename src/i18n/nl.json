@@ -653,5 +653,16 @@
     "examStart": "Tentamens vanaf",
     "examEnd": "Tentamens tot en met",
     "examEvent": "Tentamens: {{name}}"
+  },
+  "semester": {
+    "title": "Mijn semester instellen",
+    "intro": "Importeer je rooster (.ics) uit MyTimetable, Brightspace of Canvas. Planora zet de deadlines erin op een rij, zodat je ze elk als taak kunt toevoegen.",
+    "choose": "Roosterbestand kiezen",
+    "imported_one": "{{events}} afspraken geïmporteerd, {{count}} deadline om toe te voegen.",
+    "imported_other": "{{events}} afspraken geïmporteerd, {{count}} deadlines om toe te voegen.",
+    "found_one": "{{count}} deadline gevonden",
+    "found_other": "{{count}} deadlines gevonden",
+    "add": "Als taak toevoegen",
+    "hide": "Verbergen"
   }
 }

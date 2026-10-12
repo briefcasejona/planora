@@ -39,7 +39,7 @@
 - The calendar on a phone now offers Day, Week and Month (Week was hidden on small screens). Short day
   headers ("ma 12") so the whole week fits. Phones still open on Day.
 
-## University roadmap, steps 1 to 3 of 4 (pull request #24, 12 October 2026)
+## University roadmap, all 4 steps (pull request #24, 12 October 2026)
 - A council review and four specs, approved by you: <https://claude.ai/artifact/WsPPrFmuMCqvSaFJrfTMK5>.
   Planora stays server-free (your decision).
 - Step 1 is in pull request #24: new event kinds lecture, tutorial (werkcollege), lab (practicum) and
@@ -70,7 +70,14 @@
   block 15 minutes ahead, close the app and check the reminder comes about 10 minutes before. If Settings
   shows "Allow exact times", tap it first (Android 12 and later). With both apps installed, Google sign-in
   may ask which app to return to.
-- Next: step 4, semester setup from a timetable file.
+- Step 4 is also in #24: "Set up my semester" at the top of the Inbox. Choose your timetable file (.ics);
+  Planora lists the deadlines in it (words like deadline, due, hand in, inleveren, or all-day entries that
+  aren't holidays) and you add each one as a task with one tap, with the course guessed from your classes.
+  Importing a newer export adds only deadlines you haven't added or hidden. A deadline entry no longer
+  blocks study time on its day.
+- **Needs you (step 4):** one real .ics export from Brightspace, Canvas or MyTimetable, so I can check that
+  every deadline in it is found and nothing else is. Until then it works from the usual patterns.
+- After that: a 5 to 10 student semester test, as the council suggested.
 
 ## What needs you
 0. **Legal**:

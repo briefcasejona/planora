@@ -54,7 +54,7 @@ export interface IntegrationSettings {
   google: GoogleSettings;
   icsImports: IcsImport[];
   icsExport: IcsExportSettings;
-  /** Tests in the calendar the user chose not to make a study task for (see eventKey). */
+  /** Tests and deadlines in the calendar the user chose not to make a task for (see eventKey, deadlineKey). */
   dismissedTests: string[];
   /** With sync on: the device that writes study blocks to Outlook, so they are written only once. */
   outlookWriter?: { device: string; at: string };
