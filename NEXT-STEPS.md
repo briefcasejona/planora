@@ -27,6 +27,14 @@
   the download page. The footer links to the official privacy policy, terms and contact pages.
 - The download page now says school-managed phones often block the .apk (use the website instead).
 
+## Overview page empty on iPhone (pull request #22, draft, 12 October 2026)
+- Cause: the iPhone home-screen app stays open across releases. After a new version is published, the old
+  file for the Overview page is gone, so opening it failed and the whole screen went blank.
+- Fix: the app now reloads once to get the new version; if that doesn't help (e.g. offline), it shows a
+  message with a "Reload" button and the menu stays. Same for Calendar and Settings.
+- **Needs you**: review and merge pull request #22. To try it on the iPhone after the merge, open
+  Overview once the next update is live.
+
 ## What needs you
 0. **Legal**:
    - Done: legal pages live and entered in the Azure and Google portals (10 October 2026).
