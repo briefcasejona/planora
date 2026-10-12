@@ -337,3 +337,27 @@ test('first start: the app opens in the device language and says where your data
     await context.close();
   }
 });
+
+test.describe(() => {
+  // Let the test stand in for the server; otherwise the offline copy answers first.
+  test.use({ serviceWorkers: 'block' });
+
+  test('a page whose code was replaced by an update reloads instead of showing an empty screen', async ({ page }) => {
+    await onboard(page);
+    // After a new version is published, the old file for a page is gone from the server.
+    let gone = 1;
+    await page.route(/\/assets\/ReviewPage-[^/]*\.js$/, (route) =>
+      gone-- > 0 ? route.fulfill({ status: 404, contentType: 'text/html', body: '<!doctype html>' }) : route.continue(),
+    );
+    await page.getByRole('link', { name: 'Overzicht' }).last().click();
+    await expect(page.getByRole('radio', { name: 'Weekplanning' })).toBeVisible();
+
+    // If it stays unavailable (e.g. offline), the menu remains and a message explains what to do.
+    await page.getByRole('link', { name: 'Vandaag' }).last().click();
+    await page.route(/\/assets\/CalendarPage-[^/]*\.js$/, (route) => route.abort());
+    await page.evaluate(() => sessionStorage.setItem('planora-page-reload', String(Date.now())));
+    await page.getByRole('link', { name: 'Agenda' }).last().click();
+    await expect(page.getByText('Deze pagina kon niet worden getoond')).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Vandaag' }).last()).toBeVisible();
+  });
+});
