@@ -61,8 +61,8 @@
 - Step 3 is also in #24: reminders 10 minutes before each study block and at 18:00 the day before a
   deadline, for the next 7 days. On Android they are set on the phone and come with Planora closed; in the
   desktop app and the browser only while Planora is open (Settings says so). Moving, finishing or deleting a
-  block replaces its reminder. One switch in Settings > Planning, on by default. If you chose "Planora
-  focus" for Outlook, reminders use that title too; otherwise they show the task name.
+  block replaces its reminder. One switch in Settings > Planning, on by default. Reminders say "Planora
+  focus" on the lock screen unless you turn on "Show task names in reminders" (your choice, 12 October 2026).
 - **Needs you (step 3):** try it on your Android phone, since I can't test a real phone from here. Check out
   the branch, run `npm ci`, `npm run cap:sync` and `npm run android`, then press Run in Android Studio with
   the phone connected. It installs as a separate app, "Planora Test", next to your real Planora (your

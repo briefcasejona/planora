@@ -7,7 +7,6 @@ import { LockScreen } from './features/LockScreen';
 import { Onboarding } from './features/Onboarding';
 import i18n from './i18n';
 import { startIntegrations } from './integrations';
-import { useIntegrations } from './integrations/settings';
 import { useFormat } from './lib/format';
 import { scheduleTaskReminders, scheduleWeeklyReminders } from './notifications';
 import { Shell } from './Shell';
@@ -20,8 +19,6 @@ export default function App() {
   const prefs = useStore((s) => s.prefs);
   const tasks = useStore((s) => s.tasks);
   const sessions = useStore((s) => s.sessions);
-  const ms = useIntegrations((s) => s.microsoft);
-  const neutral = ms.connected && ms.writeSessions && ms.genericTitles;
   const { t } = useFormat();
 
   useEffect(() => {
@@ -71,13 +68,14 @@ export default function App() {
     const timer = setTimeout(() => {
       const list = prefs.reminders === false ? [] : planReminders(new Date(), tasks, sessions);
       void scheduleTaskReminders(list, {
-        neutralTitle: neutral ? 'Planora focus' : undefined,
+        // Reminders show on the lock screen: neutral unless the user chose to see task names.
+        neutralTitle: prefs.reminderNames ? undefined : 'Planora focus',
         block: (minutes, start) => t('notify.blockBody', { minutes, time: format(start, 'HH:mm') }),
         deadline: (deadline) => t('notify.deadlineBody', { time: format(deadline, 'HH:mm') }),
       }).catch(() => undefined);
     }, 2000);
     return () => clearTimeout(timer);
-  }, [ready, locked, prefs.onboarded, prefs.reminders, tasks, sessions, neutral, t]);
+  }, [ready, locked, prefs.onboarded, prefs.reminders, prefs.reminderNames, tasks, sessions, t]);
 
   if (!ready)
     return <div className="flex h-full items-center justify-center text-slate-500">{t('common.loading')}</div>;

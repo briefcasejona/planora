@@ -185,6 +185,8 @@ export interface Preferences {
   courses?: Course[];
   /** Reminders before study blocks and deadlines (missing = on). */
   reminders?: boolean;
+  /** Show task names in reminders; otherwise they say "Planora focus" (missing = neutral). */
+  reminderNames?: boolean;
 }
 
 export const DEFAULT_PREFERENCES: Preferences = {

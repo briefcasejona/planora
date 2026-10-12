@@ -427,10 +427,25 @@ test('reminders: a deadline reminder comes at 18:00 the day before, and Settings
 
   await page.clock.runFor('01:05:00');
   const shown = await page.evaluate(() => (window as unknown as { shown: { title: string; body?: string }[] }).shown);
-  expect(shown).toContainEqual({ title: 'Filosofie: Essay inleveren', body: 'Deadline morgen om 09:00' });
+  // Neutral by default: the lock screen doesn't show what you're working on.
+  expect(shown).toContainEqual({ title: 'Planora focus', body: 'Deadline morgen om 09:00' });
 
   await page.getByRole('link', { name: 'Instellingen' }).last().click();
   await expect(page.getByRole('switch', { name: /Herinneringen/ })).toBeChecked();
+  await page.getByRole('switch', { name: /Taaknamen tonen/ }).click();
+  await expect(page.getByRole('switch', { name: /Taaknamen tonen/ })).toBeChecked();
+  await page.getByRole('link', { name: 'Inbox' }).last().click();
+  await page.getByRole('button', { name: 'Nieuwe taak' }).last().click();
+  await dialog.getByPlaceholder('Bijv. Toets geschiedenis, essay Engels').fill('Verslag');
+  await dialog.getByPlaceholder('Bijv. Wiskunde').fill('Biologie');
+  await dialog.locator('input[type="datetime-local"]').fill('2026-10-15T09:00');
+  await dialog.getByRole('button', { name: 'Toevoegen en plannen' }).click();
+  await expect(dialog).toBeHidden();
+  await page.clock.runFor('24:00:00');
+  const later = await page.evaluate(() => (window as unknown as { shown: { title: string; body?: string }[] }).shown);
+  expect(later).toContainEqual({ title: 'Biologie: Verslag', body: 'Deadline morgen om 09:00' });
+
+  await page.getByRole('link', { name: 'Instellingen' }).last().click();
   await expect(
     page.getByText('In een browser en op iPhone komen herinneringen alleen als Planora open is.'),
   ).toBeVisible();

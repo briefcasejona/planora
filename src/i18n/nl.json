@@ -509,6 +509,8 @@
     "tabSync": "Synchroniseren",
     "reminders": "Herinneringen",
     "remindersHint": "10 minuten voor elk studieblok, en om 18:00 de dag voor een deadline.",
+    "reminderNames": "Taaknamen tonen in herinneringen",
+    "reminderNamesHint": "Uit: herinneringen zeggen „Planora focus”, zodat wie je vergrendelscherm ziet niet ziet waar je aan werkt.",
     "remindersOpenOnly": "In een browser en op iPhone komen herinneringen alleen als Planora open is.",
     "remindersExact": "Android kan herinneringen een paar minuten later sturen tot je exacte tijden toestaat.",
     "remindersExactButton": "Exacte tijden toestaan"

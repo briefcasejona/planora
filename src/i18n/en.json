@@ -517,6 +517,8 @@
     "tabSync": "Sync",
     "reminders": "Reminders",
     "remindersHint": "10 minutes before each study block, and at 18:00 the day before a deadline.",
+    "reminderNames": "Show task names in reminders",
+    "reminderNamesHint": "Off: reminders say “Planora focus”, so people who see your lock screen don’t see what you’re working on.",
     "remindersOpenOnly": "In a browser and on iPhone, reminders only come while Planora is open.",
     "remindersExact": "Android may send reminders a few minutes late until you allow exact times.",
     "remindersExactButton": "Allow exact times"
