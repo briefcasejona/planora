@@ -57,7 +57,20 @@ test('plan a test, complete it, give feedback, switch language, and never call t
   expect(external).toEqual([]);
 });
 
-test('timetable import: lessons, tests and excursions are kept apart from study work', async ({ page }) => {
+test('calendar: day, week and month can be chosen on every screen size', async ({ page }) => {
+  await onboard(page);
+  await page.getByRole('link', { name: 'Agenda' }).last().click();
+  for (const name of ['Dag', 'Week', 'Maand']) await expect(page.getByRole('button', { name })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Week' }).click();
+  const headers = page.locator('.fc-timeGridWeek-view .fc-col-header-cell');
+  await expect(headers).toHaveCount(7);
+  await expect(headers.first()).toHaveText(/^ma\b/);
+  // The week fits on the screen: no sideways scrolling, also on a phone.
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+});
+
+test('timetable import:lessons, tests and excursions are kept apart from study work', async ({ page }) => {
   await onboard(page);
 
   const p = (n: number) => String(n).padStart(2, '0');

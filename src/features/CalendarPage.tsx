@@ -218,8 +218,10 @@ export function CalendarPage() {
           headerToolbar={{
             left: 'prev,next today',
             center: 'title',
-            right: narrow ? 'timeGridDay,dayGridMonth' : 'timeGridDay,timeGridWeek,dayGridMonth',
+            right: 'timeGridDay,timeGridWeek,dayGridMonth',
           }}
+          // On a phone, seven columns leave no room for "ma 12-10"; "ma 12" fits.
+          views={narrow ? { timeGridWeek: { dayHeaderFormat: { weekday: 'short', day: 'numeric' } } } : undefined}
           locales={[nlLocale, enLocale]}
           locale={lang === 'en' ? 'en-gb' : 'nl'}
           firstDay={1}

@@ -27,6 +27,11 @@
   the download page. The footer links to the official privacy policy, terms and contact pages.
 - The download page now says school-managed phones often block the .apk (use the website instead).
 
+## Week view on phones (pull request #23, draft, 12 October 2026)
+- The calendar on a phone now offers Day, Week and Month (Week was hidden on small screens). Short day
+  headers ("ma 12") so the whole week fits. Phones still open on Day.
+- All checks pass. **Needs you**: look at it and merge when happy.
+
 ## What needs you
 0. **Legal**:
    - Done: legal pages live and entered in the Azure and Google portals (10 October 2026).
