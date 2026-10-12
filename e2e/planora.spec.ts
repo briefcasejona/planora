@@ -203,7 +203,7 @@ test('about page works in Dutch and English and links to the legal pages', async
   // Every link in the footer of the download page leads to a page that exists.
   await page.goto('download.html');
   const footerLinks = page.locator('footer a');
-  await expect(footerLinks).toHaveCount(6);
+  await expect(footerLinks).toHaveCount(7);
   for (const href of await footerLinks.evaluateAll((as) => as.map((a) => (a as HTMLAnchorElement).href))) {
     expect((await page.request.get(href)).status(), href).toBe(200);
   }
@@ -211,6 +211,19 @@ test('about page works in Dutch and English and links to the legal pages', async
     'href',
     'legal/privacy.nl.html',
   );
+  // The page for IT administrators lists every permission and offers the approval route, in both languages.
+  await page.goto('for-it.html');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Planora voor IT-beheerders');
+  await page.goto('for-it.html?lang=en');
+  await expect(page.getByRole('heading', { level: 2, name: 'Microsoft Graph permissions' })).toBeVisible();
+  for (const scope of ['Calendars.Read', 'EduAssignments.ReadBasic', 'Files.ReadWrite.AppFolder'])
+    await expect(page.getByRole('cell', { name: scope, exact: true })).toBeVisible();
+  await expect(page.getByText('Enterprise applications > Planora', { exact: false }).first()).toBeVisible();
+  // Microsoft sends the administrator back to the sign-in page, which says the approval worked.
+  await page.goto('auth-redirect.html?admin_consent=True&tenant=00000000-0000-0000-0000-000000000000');
+  await expect(page.getByText('Planora is goedgekeurd voor jullie organisatie', { exact: false })).toBeVisible();
+  await page.goto('auth-redirect.html?error=access_denied&tenant=00000000-0000-0000-0000-000000000000');
+  await expect(page.getByText('Planora is niet goedgekeurd', { exact: false })).toBeVisible();
   await context.close();
 });
 

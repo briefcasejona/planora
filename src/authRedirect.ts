@@ -11,7 +11,22 @@ function show(text: string): void {
 }
 const nl = navigator.language.toLowerCase().startsWith('nl');
 
-if (state.startsWith('google-ios-')) {
+// An IT administrator coming back from approving Planora for their organisation (see for-it.html).
+const query = new URLSearchParams(window.location.search);
+const adminConsent = query.get('admin_consent');
+
+if (adminConsent !== null || (query.has('error') && query.has('tenant'))) {
+  history.replaceState(null, '', window.location.pathname);
+  show(
+    adminConsent?.toLowerCase() === 'true'
+      ? nl
+        ? 'Planora is goedgekeurd voor jullie organisatie. Iedereen kan nu zijn schoolaccount koppelen. Je kunt dit venster sluiten.'
+        : 'Planora is approved for your organisation. Everyone can now connect their school account. You can close this window.'
+      : nl
+        ? 'Planora is niet goedgekeurd. Je kunt het opnieuw proberen via de pagina voor IT-beheerders.'
+        : 'Planora was not approved. You can try again from the page for IT administrators.',
+  );
+} else if (state.startsWith('google-ios-')) {
   // iPhone home-screen app: same window, so keep the answer for the app and go back to it.
   sessionStorage.setItem('planora-google-response', hash);
   history.replaceState(null, '', window.location.pathname);
