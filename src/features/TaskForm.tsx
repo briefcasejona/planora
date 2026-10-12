@@ -1,8 +1,9 @@
-import { addDays, setHours, setMinutes, startOfDay } from 'date-fns';
+import { addDays, addWeeks, format, setHours, setMinutes, startOfDay } from 'date-fns';
 import { useMemo, useState } from 'react';
 import { Icon } from '../components/Icon';
 import { Chips, DurationInput, Field, Modal, toLocalInput } from '../components/ui';
-import { actions, type NewTaskInput, useStore } from '../data/store';
+import { actions, type NewTaskInput, type SeriesScope, useStore } from '../data/store';
+import { courseList, findCourse, weeklyDeadlines } from '../domain/courses';
 import { STUDENT_TYPES, type Task, type TaskType, TEACHER_TYPES } from '../domain/types';
 import { useFormat } from '../lib/format';
 
@@ -54,9 +55,19 @@ function TaskFormInner({ onClose, initial, task }: { onClose: () => void; initia
   );
   const [useSuggestion, setUseSuggestion] = useState(task ? task.plannedEstimateMin !== task.userEstimateMin : true);
   const [error, setError] = useState('');
+  const [repeat, setRepeat] = useState(false);
+  const [repeatUntil, setRepeatUntil] = useState('');
+  const [scope, setScope] = useState<SeriesScope>('one');
 
-  const subjects = useMemo(() => [...new Set(allTasks.map((x) => x.subject).filter(Boolean))] as string[], [allTasks]);
+  const subjects = useMemo(() => courseList(prefs.courses, allTasks).map((c) => c.name), [prefs.courses, allTasks]);
   const isProject = type === 'project';
+  const canRepeat = !task && !isProject;
+  // Until the user picks an end: the end of the course's term, otherwise ten weeks.
+  const until =
+    repeatUntil ||
+    findCourse(prefs.courses, subject)?.termEnd ||
+    format(addWeeks(new Date(deadline || Date.now()), 9), 'yyyy-MM-dd');
+  const weeks = repeat && canRepeat && deadline ? weeklyDeadlines(new Date(deadline), until).length : 0;
   const validSteps = steps.filter((s) => s.title.trim() && s.estimateMin > 0);
   const userEstimate = isProject ? validSteps.reduce((a, s) => a + s.estimateMin, 0) : estimate;
   const suggestion = actions.suggest({ type, subject, userEstimateMin: userEstimate || 1 });
@@ -80,26 +91,29 @@ function TaskFormInner({ onClose, initial, task }: { onClose: () => void; initia
         ? suggestion.suggestedMin
         : userEstimate;
     if (task) {
-      await actions.updateTask({
-        ...task,
-        title: title.trim(),
-        type,
-        subject: subject.trim() || undefined,
-        deadline: dl.toISOString(),
-        userEstimateMin: userEstimate,
-        plannedEstimateMin: planned,
-        difficulty: difficulty as Task['difficulty'],
-        notes: notes.trim() || undefined,
-        steps: isProject
-          ? validSteps.map((s, i) => ({
-              id: s.id ?? crypto.randomUUID(),
-              title: s.title.trim(),
-              estimateMin: s.estimateMin,
-              order: i,
-              done: !!s.done,
-            }))
-          : undefined,
-      });
+      await actions.updateTask(
+        {
+          ...task,
+          title: title.trim(),
+          type,
+          subject: subject.trim() || undefined,
+          deadline: dl.toISOString(),
+          userEstimateMin: userEstimate,
+          plannedEstimateMin: planned,
+          difficulty: difficulty as Task['difficulty'],
+          notes: notes.trim() || undefined,
+          steps: isProject
+            ? validSteps.map((s, i) => ({
+                id: s.id ?? crypto.randomUUID(),
+                title: s.title.trim(),
+                estimateMin: s.estimateMin,
+                order: i,
+                done: !!s.done,
+              }))
+            : undefined,
+        },
+        scope,
+      );
     } else {
       const input: NewTaskInput = {
         title,
@@ -113,6 +127,7 @@ function TaskFormInner({ onClose, initial, task }: { onClose: () => void; initia
         steps: isProject ? validSteps.map((s) => ({ title: s.title.trim(), estimateMin: s.estimateMin })) : undefined,
         source: initial.source,
         externalId: initial.externalId,
+        repeatUntil: weeks > 1 ? until : undefined,
       };
       await actions.addTask(input);
     }
@@ -187,6 +202,41 @@ function TaskFormInner({ onClose, initial, task }: { onClose: () => void; initia
           />
         </Field>
       </div>
+      {canRepeat && (
+        <div className="mb-3">
+          <label className="flex items-center gap-2 text-sm font-medium">
+            <input type="checkbox" checked={repeat} onChange={(e) => setRepeat(e.target.checked)} />
+            {t('form.repeat')}
+          </label>
+          {repeat && (
+            <div className="mt-2 flex flex-wrap items-center gap-2 pl-6 text-sm">
+              <label htmlFor="planora-repeat-until">{t('form.repeatUntil')}</label>
+              <input
+                id="planora-repeat-until"
+                className="input w-auto"
+                type="date"
+                value={until}
+                onChange={(e) => setRepeatUntil(e.target.value)}
+              />
+              <span className="text-slate-500">{t('form.repeatCount', { count: weeks })}</span>
+            </div>
+          )}
+        </div>
+      )}
+      {task?.seriesId && (
+        <div className="mb-3">
+          <span className="label">{t('form.applyTo')}</span>
+          <Chips
+            label={t('form.applyTo')}
+            value={scope}
+            onChange={setScope}
+            options={[
+              { value: 'one', label: t('form.applyOne') },
+              { value: 'later', label: t('form.applyLater') },
+            ]}
+          />
+        </div>
+      )}
 
       {isProject ? (
         <div className="mb-3">

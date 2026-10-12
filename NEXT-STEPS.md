@@ -39,7 +39,7 @@
 - The calendar on a phone now offers Day, Week and Month (Week was hidden on small screens). Short day
   headers ("ma 12") so the whole week fits. Phones still open on Day.
 
-## University roadmap, step 1 of 4 (pull request #24, 12 October 2026)
+## University roadmap, steps 1 and 2 of 4 (pull request #24, 12 October 2026)
 - A council review and four specs, approved by you: <https://claude.ai/artifact/WsPPrFmuMCqvSaFJrfTMK5>.
   Planora stays server-free (your decision).
 - Step 1 is in pull request #24: new event kinds lecture, tutorial (werkcollege), lab (practicum) and
@@ -50,7 +50,15 @@
   back, set `SHOW_STAFF_ROLE` to `true` in `src/lib/features.ts`. Anyone already using it can still switch back in Settings.
 - Also in #24: the Google test that failed around the 25 October clock change is fixed.
 - Good to know: a device still on v0.3.5 shows a synced lecture as "category.lecture" until it updates itself.
-- Next: step 2 (courses and repeating tasks), then reminders, then semester setup from a timetable file.
+- Step 2 is also in #24: courses and repeating tasks. Settings > Planning lists your courses (taken from
+  the "Course or subject" field of your tasks); each can get a term end and an exam period, and the exam
+  period shows as a light red band in the calendar. A task can repeat every week until a date (default: the
+  course's term end); Planora makes one normal task per week. Editing or deleting one asks "only this one"
+  or "this and later ones".
+- How it is stored: course dates live inside the settings record and each weekly task carries a series
+  number. Older app versions keep both when they sync (automatic test), so no database upgrade was needed.
+- Good to know: if you change a course's dates on two devices at the same moment, the last one to sync wins.
+- Next: step 3 (reminders on Android and desktop), then semester setup from a timetable file.
 
 ## What needs you
 0. **Legal**:

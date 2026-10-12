@@ -182,6 +182,13 @@
     "subject": "Vak of categorie",
     "subjectPlaceholder": "Bijv. Wiskunde",
     "deadline": "Deadline",
+    "repeat": "Elke week herhalen",
+    "repeatUntil": "Tot en met",
+    "repeatCount_one": "{{count}} week",
+    "repeatCount_other": "{{count}} weken",
+    "applyTo": "Wijzigingen toepassen op",
+    "applyOne": "Deze week",
+    "applyLater": "Deze en latere weken",
     "estimate": "Hoeveel tijd denk je nodig te hebben?",
     "steps": "Stappen",
     "stepsHint": "Zet alle stappen in de juiste volgorde, met per stap je schatting. Planora plant ze na elkaar vóór de deadline.",
@@ -215,6 +222,9 @@
     "redo": "Opnieuw plannen",
     "giveFeedback": "Feedback geven",
     "confirmDelete": "Taak en alle blokken verwijderen?",
+    "confirmDeleteSeries": "Deze wekelijkse taak verwijderen?",
+    "deleteOne": "Alleen deze week",
+    "deleteLater": "Deze en latere weken",
     "addToCalendar": "In agenda zetten",
     "addToCalendarHint": "Zet de blokken en deadline van deze taak in Apple Agenda of een andere agenda"
   },
@@ -627,5 +637,14 @@
     "terms": "Gebruiksvoorwaarden",
     "contact": "Contact",
     "licenses": "Opensourcelicenties"
+  },
+  "courses": {
+    "title": "Vakken",
+    "intro": "Elk vak of onderwerp dat je bij een taak invult, is een vak. Vul het einde van het blok en de tentamenperiode in: wekelijkse taken lopen dan tot het einde van het blok, en de tentamenperiode staat in je agenda.",
+    "empty": "Nog geen vakken. Geef een taak een vak of onderwerp en het verschijnt hier.",
+    "termEnd": "Einde blok",
+    "examStart": "Tentamens vanaf",
+    "examEnd": "Tentamens tot en met",
+    "examEvent": "Tentamens: {{name}}"
   }
 }

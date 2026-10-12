@@ -179,9 +179,16 @@
     "title": "What needs doing?",
     "titlePlaceholder": "E.g. History test, English essay",
     "type": "Kind",
-    "subject": "Subject or category",
+    "subject": "Course or subject",
     "subjectPlaceholder": "E.g. Maths",
     "deadline": "Deadline",
+    "repeat": "Repeat every week",
+    "repeatUntil": "Until",
+    "repeatCount_one": "{{count}} week",
+    "repeatCount_other": "{{count}} weeks",
+    "applyTo": "Apply changes to",
+    "applyOne": "This week",
+    "applyLater": "This and later weeks",
     "estimate": "How much time do you think you need?",
     "steps": "Steps",
     "stepsHint": "List every step in order with your estimate. Planora schedules them one after another before the deadline.",
@@ -215,6 +222,9 @@
     "redo": "Replan",
     "giveFeedback": "Give feedback",
     "confirmDelete": "Delete the task and all its blocks?",
+    "confirmDeleteSeries": "Delete this weekly task?",
+    "deleteOne": "Only this week",
+    "deleteLater": "This and later weeks",
     "addToCalendar": "Add to calendar",
     "addToCalendarHint": "Put this task's blocks and deadline in Apple Calendar or another calendar"
   },
@@ -627,5 +637,14 @@
     "terms": "Terms of use",
     "contact": "Contact",
     "licenses": "Open-source licenses"
+  },
+  "courses": {
+    "title": "Courses",
+    "intro": "Every subject you give a task is a course. Add the end of the term and the exam period: weekly tasks then run until the end of the term, and the exam period shows in your calendar.",
+    "empty": "No courses yet. Give a task a course or subject and it appears here.",
+    "termEnd": "Term ends",
+    "examStart": "Exams from",
+    "examEnd": "Exams until",
+    "examEvent": "Exams: {{name}}"
   }
 }

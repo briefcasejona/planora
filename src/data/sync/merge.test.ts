@@ -107,6 +107,27 @@ describe('diffTables', () => {
   });
 });
 
+describe('devices on an older version', () => {
+  // A device that doesn't know newer fields still merges whole records and settings,
+  // so fields it doesn't know are passed on unchanged instead of being dropped.
+  it('keeps task fields and settings this version does not know', () => {
+    const newer = { ...makeTask({ id: 't1', updatedAt: at(2) }), seriesId: 's1' };
+    const prefs = { value: { ...emptyPrefs(), courses: [{ name: 'Biology' }] }, updatedAt: at(2) };
+    const merged = mergeSnapshots(
+      snap({ tasks: [newer] }, { prefs }),
+      snap({ tasks: [makeTask({ id: 't1', updatedAt: at(1) })] }),
+      NOW,
+    );
+    expect(merged.tables.tasks[0]).toMatchObject({ seriesId: 's1' });
+    expect(merged.prefs?.value).toMatchObject({ courses: [{ name: 'Biology' }] });
+  });
+
+  it('drops parts of the sync file it does not know, so new data must live in tasks or settings', () => {
+    const withExtra = { ...snap(), courses: [{ name: 'Biology' }] } as SyncSnapshot;
+    expect(mergeSnapshots(withExtra, snap(), NOW)).not.toHaveProperty('courses');
+  });
+});
+
 function emptyPrefs() {
   return {} as import('../../domain/types').Preferences;
 }

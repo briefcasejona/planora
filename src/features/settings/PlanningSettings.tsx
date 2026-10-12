@@ -18,7 +18,9 @@ export function PlanningSettings() {
   const [saved, setSaved] = useState(false);
   const [notif, setNotif] = useState(typeof Notification !== 'undefined' ? Notification.permission : 'default');
   const dayName = (d: number) => locale.localize.day(d as 0, { width: 'wide' });
-  const dirty = JSON.stringify(draft) !== JSON.stringify(prefs);
+  // Courses are saved by their own card; this form never changes or overwrites them.
+  const withoutCourses = (p: Preferences) => JSON.stringify({ ...p, courses: undefined });
+  const dirty = withoutCourses(draft) !== withoutCourses(prefs);
 
   const set = (patch: Partial<Preferences>) => {
     setDraft({ ...draft, ...patch });
@@ -27,7 +29,7 @@ export function PlanningSettings() {
   const setDay = (d: number, patch: Partial<Preferences['availability'][number]>) =>
     set({ availability: draft.availability.map((a, i) => (i === d ? { ...a, ...patch } : a)) });
   const save = async () => {
-    await actions.savePrefs(draft);
+    await actions.savePrefs({ ...draft, courses: useStore.getState().prefs.courses });
     setSaved(true);
   };
   const num = (v: string, min: number, max: number) => Math.min(max, Math.max(min, Number(v) || min));

@@ -6,7 +6,7 @@ import type { EventResizeDoneArg } from '@fullcalendar/interaction';
 import interactionPlugin from '@fullcalendar/interaction';
 import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
-import { addDays } from 'date-fns';
+import { addDays, format, parseISO } from 'date-fns';
 import { useMemo, useState } from 'react';
 import { BUSY_HEX, CATEGORY_HEX, categoryLabel, eventColors, TYPE_HEX } from '../components/ui';
 import { actions, useStore } from '../data/store';
@@ -42,7 +42,7 @@ function loadHidden(): Filter[] {
 
 export function CalendarPage() {
   const { t, lang } = useFormat();
-  const { tasks, sessions, busy } = useStore();
+  const { tasks, sessions, busy, prefs } = useStore();
   const google = useIntegrations((s) => s.google);
   const googleExpired = google.connected && (!google.tokenExpires || google.tokenExpires < Date.now() + 60_000);
   const [refreshing, setRefreshing] = useState(false);
@@ -115,6 +115,18 @@ export function CalendarPage() {
         extendedProps: { blockId: x.block.id },
       });
     }
+    for (const c of prefs.courses ?? []) {
+      if (!c.examStart || !c.examEnd) continue;
+      out.push({
+        id: 'exam:' + c.name,
+        title: t('courses.examEvent', { name: c.name }),
+        start: c.examStart,
+        end: format(addDays(parseISO(c.examEnd), 1), 'yyyy-MM-dd'),
+        allDay: true,
+        display: 'background',
+        classNames: ['planora-exam-period'],
+      });
+    }
     for (const task of show('deadlines') ? tasks : []) {
       if (task.status !== 'open' && task.status !== 'overdue') continue;
       out.push({
@@ -129,7 +141,7 @@ export function CalendarPage() {
       });
     }
     return out;
-  }, [tasks, sessions, busy, hidden, t]);
+  }, [tasks, sessions, busy, prefs.courses, hidden, t]);
 
   const findBlock = (id: string) => busy.find((b) => b.id === id);
 

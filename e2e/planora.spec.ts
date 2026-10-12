@@ -361,3 +361,37 @@ test.describe(() => {
     await expect(page.getByRole('link', { name: 'Vandaag' }).last()).toBeVisible();
   });
 });
+
+test('courses: a weekly reading becomes one task per week, and the exam period shows in the calendar', async ({
+  page,
+}) => {
+  await onboard(page);
+  const p = (n: number) => String(n).padStart(2, '0');
+  const day = (d: Date) => `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+  const first = new Date(Date.now() + 2 * 86400000);
+
+  await page.getByRole('button', { name: 'Nieuwe taak' }).last().click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByPlaceholder('Bijv. Toets geschiedenis, essay Engels').fill('Leesopdracht');
+  await dialog.getByPlaceholder('Bijv. Wiskunde').fill('Statistiek');
+  await dialog.locator('input[type="datetime-local"]').fill(`${day(first)}T09:00`);
+  await dialog.getByLabel('Elke week herhalen').check();
+  await dialog.getByLabel('Tot en met').fill(day(new Date(first.getTime() + 21 * 86400000)));
+  await expect(dialog.getByText('4 weken')).toBeVisible();
+  await dialog.getByRole('button', { name: 'Toevoegen en plannen' }).click();
+  await expect(dialog).toBeHidden();
+
+  await page.getByRole('link', { name: 'Inbox' }).last().click();
+  await expect(page.getByText('Leesopdracht')).toHaveCount(4);
+  await page.getByText('Leesopdracht').nth(1).click();
+  await page.getByRole('button', { name: 'Verwijderen' }).click();
+  await page.getByRole('button', { name: 'Deze en latere weken' }).click();
+  await expect(page.getByText('Leesopdracht')).toHaveCount(1);
+
+  await page.getByRole('link', { name: 'Instellingen' }).last().click();
+  await page.getByLabel('Statistiek: Tentamens vanaf').fill(day(new Date()));
+  await page.getByLabel('Statistiek: Tentamens tot en met').fill(day(new Date(Date.now() + 86400000)));
+  await page.getByRole('link', { name: 'Agenda' }).last().click();
+  await page.getByRole('button', { name: 'Maand' }).click();
+  await expect(page.locator('.planora-exam-period').first()).toBeAttached();
+});

@@ -90,6 +90,10 @@ body {
 .fc-event.planora-event {
   border-left-width: 4px;
 }
+/* A course's exam period: a light tint behind the days, so it never looks like an appointment. */
+.fc .planora-exam-period {
+  background: rgb(225 29 72 / 0.08);
+}
 .fc-event.planora-cat-test {
   font-weight: 600;
   background-image: repeating-linear-gradient(135deg, transparent 0 6px, rgb(225 29 72 / 0.12) 6px 12px);

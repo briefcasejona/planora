@@ -1,5 +1,6 @@
-import { addDays, addHours } from 'date-fns';
+import { addDays, addHours, differenceInCalendarDays } from 'date-fns';
 import { create } from 'zustand';
+import { seriesScope, weeklyDeadlines } from '../domain/courses';
 import { suggestEstimate } from '../domain/estimator';
 import { buildWeeklyPlan, buildWeeklyReview, type WeeklyReviewData } from '../domain/insights';
 import { reopenTask as reopen } from '../domain/replan';
@@ -35,7 +36,12 @@ export interface NewTaskInput {
   steps?: Omit<ProjectStep, 'id' | 'done' | 'order'>[];
   source?: TaskSource;
   externalId?: string;
+  /** Repeat every week up to and including this day (yyyy-MM-dd). Not for projects. */
+  repeatUntil?: string;
 }
+
+/** Which weeks of a weekly task a change applies to. */
+export type SeriesScope = 'one' | 'later';
 
 export interface FeedbackInput {
   taskId: string;
@@ -271,7 +277,7 @@ export const actions = {
       }));
       const userEstimateMin = steps?.length ? steps.reduce((a, s) => a + s.estimateMin, 0) : input.userEstimateMin;
       const suggestion = suggestEstimate({ type: input.type, subject: input.subject, userEstimateMin }, get().feedback);
-      const task: Task = {
+      const base: Task = {
         id: crypto.randomUUID(),
         title: input.title.trim(),
         type: input.type,
@@ -289,15 +295,53 @@ export const actions = {
         feedbackGiven: false,
         redoCount: 0,
       };
-      await repo.putTasks([task]);
-      set({ tasks: [...get().tasks, task] });
+      const weeks =
+        input.repeatUntil && !steps?.length ? weeklyDeadlines(new Date(input.deadline), input.repeatUntil) : [];
+      const seriesId = weeks.length > 1 ? crypto.randomUUID() : undefined;
+      const tasks: Task[] = seriesId
+        ? weeks.map((d, i) => ({
+            ...base,
+            id: i === 0 ? base.id : crypto.randomUUID(),
+            deadline: d.toISOString(),
+            seriesId,
+          }))
+        : [base];
+      await repo.putTasks(tasks);
+      set({ tasks: [...get().tasks, ...tasks] });
       await replanNow();
-      return task;
+      return tasks[0];
     }),
 
-  updateTask: (task: Task) =>
+  /**
+   * Save an edited task. For a weekly task with scope 'later', the same changes go to every later
+   * open week too: same fields, and the deadline moved by the same number of days to the same clock time.
+   */
+  updateTask: (task: Task, scope: SeriesScope = 'one') =>
     serial(async () => {
+      const before = get().tasks.find((t) => t.id === task.id);
       await patchTask(task);
+      if (before && scope === 'later') {
+        const edited = new Date(task.deadline);
+        const shift = differenceInCalendarDays(edited, new Date(before.deadline));
+        const later = seriesScope(get().tasks, before, 'later').filter(
+          (t) => t.id !== task.id && (t.status === 'open' || t.status === 'overdue'),
+        );
+        for (const t of later) {
+          const d = addDays(new Date(t.deadline), shift);
+          d.setHours(edited.getHours(), edited.getMinutes(), 0, 0);
+          await patchTask({
+            ...t,
+            title: task.title,
+            type: task.type,
+            subject: task.subject,
+            userEstimateMin: task.userEstimateMin,
+            plannedEstimateMin: task.plannedEstimateMin,
+            difficulty: task.difficulty,
+            notes: task.notes,
+            deadline: d.toISOString(),
+          });
+        }
+      }
       await replanNow();
     }),
 
@@ -311,10 +355,16 @@ export const actions = {
       if (task) await patchTask({ ...task, source, externalId });
     }),
 
-  deleteTask: (id: string) =>
+  /** Delete a task; for a weekly task with scope 'later', also every later week. */
+  deleteTask: (id: string, scope: SeriesScope = 'one') =>
     serial(async () => {
-      await repo.deleteTask(id);
-      set({ tasks: get().tasks.filter((t) => t.id !== id), sessions: get().sessions.filter((s) => s.taskId !== id) });
+      const task = get().tasks.find((t) => t.id === id);
+      const ids = new Set(task ? seriesScope(get().tasks, task, scope).map((t) => t.id) : [id]);
+      for (const x of ids) await repo.deleteTask(x);
+      set({
+        tasks: get().tasks.filter((t) => !ids.has(t.id)),
+        sessions: get().sessions.filter((s) => !ids.has(s.taskId)),
+      });
       await replanNow();
     }),
 
