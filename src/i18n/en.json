@@ -378,7 +378,9 @@
     "planTitle": "Your weekly plan is ready",
     "planBody": "See what's planned for this week.",
     "reviewTitle": "Time for your weekly review",
-    "reviewBody": "How did this week go? See what went well and what could be better."
+    "reviewBody": "How did this week go? See what went well and what could be better.",
+    "blockBody": "{{minutes}} min study, starts {{time}}",
+    "deadlineBody": "Deadline tomorrow at {{time}}"
   },
   "integrations": {
     "builtin": "Planora calendar",
@@ -512,7 +514,12 @@
     "saved": "Saved",
     "lessonBuffer": "Break after classes",
     "lessonBufferHint": "Minutes kept free after a lesson, lecture, tutorial, lab, test or excursion. 0 = off.",
-    "tabSync": "Sync"
+    "tabSync": "Sync",
+    "reminders": "Reminders",
+    "remindersHint": "10 minutes before each study block, and at 18:00 the day before a deadline.",
+    "remindersOpenOnly": "In a browser and on iPhone, reminders only come while Planora is open.",
+    "remindersExact": "Android may send reminders a few minutes late until you allow exact times.",
+    "remindersExactButton": "Allow exact times"
   },
   "onboarding": {
     "welcome": "Welcome to Planora",

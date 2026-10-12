@@ -39,7 +39,7 @@
 - The calendar on a phone now offers Day, Week and Month (Week was hidden on small screens). Short day
   headers ("ma 12") so the whole week fits. Phones still open on Day.
 
-## University roadmap, steps 1 and 2 of 4 (pull request #24, 12 October 2026)
+## University roadmap, steps 1 to 3 of 4 (pull request #24, 12 October 2026)
 - A council review and four specs, approved by you: <https://claude.ai/artifact/WsPPrFmuMCqvSaFJrfTMK5>.
   Planora stays server-free (your decision).
 - Step 1 is in pull request #24: new event kinds lecture, tutorial (werkcollege), lab (practicum) and
@@ -58,7 +58,15 @@
 - How it is stored: course dates live inside the settings record and each weekly task carries a series
   number. Older app versions keep both when they sync (automatic test), so no database upgrade was needed.
 - Good to know: if you change a course's dates on two devices at the same moment, the last one to sync wins.
-- Next: step 3 (reminders on Android and desktop), then semester setup from a timetable file.
+- Step 3 is also in #24: reminders 10 minutes before each study block and at 18:00 the day before a
+  deadline, for the next 7 days. On Android they are set on the phone and come with Planora closed; in the
+  desktop app and the browser only while Planora is open (Settings says so). Moving, finishing or deleting a
+  block replaces its reminder. One switch in Settings > Planning, on by default. If you chose "Planora
+  focus" for Outlook, reminders use that title too; otherwise they show the task name.
+- **Needs you (step 3):** try it on your Android phone, since I can't test a real phone from here. Build
+  with `npm run cap:sync`, plan a block 15 minutes ahead, close Planora and check the reminder comes about
+  10 minutes before. If Settings shows "Allow exact times", tap it first (Android 12 and later).
+- Next: step 4, semester setup from a timetable file.
 
 ## What needs you
 0. **Legal**:

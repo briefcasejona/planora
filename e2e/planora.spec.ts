@@ -395,3 +395,46 @@ test('courses: a weekly reading becomes one task per week, and the exam period s
   await page.getByRole('button', { name: 'Maand' }).click();
   await expect(page.locator('.planora-exam-period').first()).toBeAttached();
 });
+
+test('reminders: a deadline reminder comes at 18:00 the day before, and Settings explains the browser limit', async ({
+  browser,
+}) => {
+  const context = await browser.newContext({ locale: 'nl-NL', timezoneId: 'Europe/Amsterdam' });
+  const page = await context.newPage();
+  // Record notifications instead of showing them.
+  await page.addInitScript(() => {
+    const shown: { title: string; body?: string }[] = [];
+    (window as unknown as { shown: typeof shown }).shown = shown;
+    class FakeNotification {
+      static permission = 'granted';
+      static requestPermission = async () => 'granted';
+      constructor(title: string, options?: { body?: string }) {
+        shown.push({ title, body: options?.body });
+      }
+    }
+    (window as unknown as { Notification: unknown }).Notification = FakeNotification;
+  });
+  await page.clock.install({ time: new Date('2026-10-13T17:00:00+02:00') });
+  await onboard(page);
+
+  await page.getByRole('button', { name: 'Nieuwe taak' }).last().click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByPlaceholder('Bijv. Toets geschiedenis, essay Engels').fill('Essay inleveren');
+  await dialog.getByPlaceholder('Bijv. Wiskunde').fill('Filosofie');
+  await dialog.locator('input[type="datetime-local"]').fill('2026-10-14T09:00');
+  await dialog.getByRole('button', { name: 'Toevoegen en plannen' }).click();
+  await expect(dialog).toBeHidden();
+
+  await page.clock.runFor('01:05:00');
+  const shown = await page.evaluate(() => (window as unknown as { shown: { title: string; body?: string }[] }).shown);
+  expect(shown).toContainEqual({ title: 'Filosofie: Essay inleveren', body: 'Deadline morgen om 09:00' });
+
+  await page.getByRole('link', { name: 'Instellingen' }).last().click();
+  await expect(page.getByRole('switch', { name: /Herinneringen/ })).toBeChecked();
+  await expect(
+    page.getByText('In een browser en op iPhone komen herinneringen alleen als Planora open is.'),
+  ).toBeVisible();
+  await page.getByRole('switch', { name: /Herinneringen/ }).click();
+  await expect(page.getByRole('switch', { name: /Herinneringen/ })).not.toBeChecked();
+  await context.close();
+});

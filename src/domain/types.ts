@@ -183,6 +183,8 @@ export interface Preferences {
   weeklyReview: WeeklyMoment;
   /** Courses with their term and exam dates. Courses without dates exist only as task subjects. */
   courses?: Course[];
+  /** Reminders before study blocks and deadlines (missing = on). */
+  reminders?: boolean;
 }
 
 export const DEFAULT_PREFERENCES: Preferences = {
