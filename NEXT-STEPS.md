@@ -22,7 +22,7 @@
   25 October clock change: `src/integrations/google.test.ts`).
 
 ## Website: About page (merged in pull request #21, 10 October 2026)
-- New page `…/planora/about.html` (Dutch + English): what Planora is, how it works, who it's for, why, common
+- New page `…/planora/about.html` (Dutch + English; since 12 October 2026 aimed at students only, the teacher card is gone while Staff mode is hidden): what Planora is, how it works, who it's for, why, common
   questions, and a big "Open Planora" button. Linked from Settings (sharing card) and from the footer of
   the download page. The footer links to the official privacy policy, terms and contact pages.
 - The download page now says school-managed phones often block the .apk (use the website instead).

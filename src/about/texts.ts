@@ -31,7 +31,7 @@ export const texts: Record<Lang, Texts> = {
     pageTitle: 'Planora: je huiswerk, slim gepland',
     tagline: 'Zeg wat je moet doen. Planora zegt wanneer.',
     intro:
-      'Planora is een gratis planner voor scholieren, studenten en docenten. Je zet je toetsen, opdrachten en taken erin, en Planora plant de momenten om eraan te werken, ruim voor de deadline en om je lessen en afspraken heen.',
+      'Planora is een gratis planner voor scholieren en studenten. Je zet je toetsen, opdrachten en taken erin, en Planora plant de momenten om eraan te werken, ruim voor de deadline en om je lessen en afspraken heen.',
     openApp: 'Planora openen',
     download: 'Downloaden',
     noAccount: 'Werkt meteen in je browser. Geen account, geen e-mailadres nodig.',
@@ -75,8 +75,8 @@ export const texts: Record<Lang, Texts> = {
         text: 'Voor iedereen die vaak op het laatste moment begint, of niet weet waar te beginnen als alles tegelijk komt, zoals in de toetsweek.',
       },
       {
-        title: 'Docenten',
-        text: 'Plan nakijkwerk en lesvoorbereiding rond je lesrooster. Je kunt Planora ook aanraden aan je klas: iedereen gebruikt het met zijn eigen gegevens.',
+        title: 'Hogeschool en universiteit',
+        text: 'Zet je rooster erin met één bestand (bijvoorbeeld uit TimeEdit) en Planora plant om je colleges heen. Raad het gerust aan medestudenten aan: iedereen gebruikt het met zijn eigen gegevens.',
       },
     ],
     whyTitle: 'Waarom Planora?',
@@ -133,7 +133,7 @@ export const texts: Record<Lang, Texts> = {
     pageTitle: 'Planora: your schoolwork, planned for you',
     tagline: "Tell Planora what's due. It tells you when to do it.",
     intro:
-      'Planora is a free planner for students and teachers. Add your tests, assignments and tasks, and Planora plans when to work on them, well before the deadline and around your classes and appointments.',
+      'Planora is a free planner for students. Add your tests, assignments and tasks, and Planora plans when to work on them, well before the deadline and around your classes and appointments.',
     openApp: 'Open Planora',
     download: 'Download',
     noAccount: 'Works right away in your browser. No account, no e-mail address needed.',
@@ -177,8 +177,8 @@ export const texts: Record<Lang, Texts> = {
         text: "For anyone who often starts at the last minute, or doesn't know where to begin when everything is due at once, like in exam week.",
       },
       {
-        title: 'Teachers',
-        text: 'Plan grading and lesson prep around your timetable. You can also recommend Planora to your class: everyone uses it with their own data.',
+        title: 'College and university',
+        text: 'Add your timetable with one file (for example from TimeEdit) and Planora plans around your classes. Feel free to recommend it to classmates: everyone uses it with their own data.',
       },
     ],
     whyTitle: 'Why Planora?',
