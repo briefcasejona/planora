@@ -97,6 +97,12 @@
   the download page now say: tap "More details" > "Install anyway". The warning only disappears for good
   once Planora is in the Play Store (your call: a Google Play developer account, one-time fee).
 
+## Phone button bar covered buttons (12 October 2026, pull request pending)
+- On Android the phone's own Back/Home/Recent buttons covered the buttons at the bottom of dialogs (edit task etc.),
+  and the + button sat on top of "Save and replan" in Settings. Dialogs, the Save button and the page bottom now
+  keep clear of the phone's button bar, and Settings no longer shows the + button.
+- Website users get it after the merge; the Android app needs a new release (v0.4.1) to get it.
+
 ## What needs you
 0. **Legal**:
    - Done: legal pages live and entered in the Azure and Google portals (10 October 2026).

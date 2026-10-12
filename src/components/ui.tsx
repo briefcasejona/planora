@@ -37,7 +37,7 @@ export function Modal({
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: backdrop click-to-close; Escape is handled by the keydown listener above
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/50 sm:items-center sm:p-4"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/50 sm:items-center sm:p-4 sm:pb-[max(1rem,env(safe-area-inset-bottom))]"
       onMouseDown={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
@@ -45,7 +45,7 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={`flex max-h-[92vh] w-full flex-col rounded-t-3xl bg-white shadow-xl sm:rounded-3xl dark:bg-slate-900 ${wide ? 'sm:max-w-2xl' : 'sm:max-w-lg'}`}
+        className={`flex max-h-[calc(100dvh-env(safe-area-inset-top)-1rem)] w-full flex-col rounded-t-3xl bg-white pb-[env(safe-area-inset-bottom)] sm:max-h-[92vh] sm:pb-0 shadow-xl sm:rounded-3xl dark:bg-slate-900 ${wide ? 'sm:max-w-2xl' : 'sm:max-w-lg'}`}
       >
         <div className="flex items-center justify-between border-b border-slate-200 px-5 py-3 dark:border-slate-800">
           <h2 id={titleId} className="text-base font-semibold">

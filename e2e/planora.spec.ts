@@ -546,3 +546,20 @@ test('semester setup: deadlines in a timetable become tasks, and importing it ag
   await expect(page.getByText('1 deadline gevonden')).toBeVisible();
   await expect(page.getByText('Statistiek opdracht 2 due')).toBeVisible();
 });
+
+test('phone: the Save button in Settings and the buttons in a dialog are not covered by anything', async ({ page }) => {
+  await onboard(page);
+  const onTop = (name: string) =>
+    page.getByRole('button', { name }).evaluate((el) => {
+      const r = el.getBoundingClientRect();
+      const y = r.top + r.height / 2;
+      return [r.left + 4, r.left + r.width / 2, r.right - 4].every((x) => el.contains(document.elementFromPoint(x, y)));
+    });
+  await page.getByRole('link', { name: 'Instellingen' }).last().click();
+  await expect(page.getByRole('button', { name: 'Opslaan en opnieuw plannen' })).toBeVisible();
+  expect(await onTop('Opslaan en opnieuw plannen')).toBe(true);
+  await page.getByRole('link', { name: 'Inbox' }).last().click();
+  await page.getByRole('button', { name: 'Nieuwe taak' }).last().click();
+  await expect(page.getByRole('button', { name: 'Toevoegen en plannen' })).toBeInViewport({ ratio: 1 });
+  expect(await onTop('Toevoegen en plannen')).toBe(true);
+});
