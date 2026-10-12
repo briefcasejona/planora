@@ -82,7 +82,7 @@
   analyse 2", leaves out the "S1-wk6" week labels, and no longer treats "Herfstvakantie" as a class.
 - After that: a 5 to 10 student semester test, as the council suggested.
 
-## Page for college IT (12 October 2026, pull request pending)
+## Page for college IT (merged in pull request #28, 12 October 2026)
 - New page `…/planora/for-it.html` (Dutch + English), linked in the website footer as "For IT" / "Voor IT".
   It lists every Microsoft permission Planora asks for and why, explains that data stays on the device,
   and has a button that opens Microsoft's "approve for the whole organisation" screen, plus the same route
@@ -91,6 +91,11 @@
   (or that it wasn't approved) instead of showing nothing.
 - Not testable here: the approval button needs a real college Microsoft 365 organisation. If Microsoft
   shows an error about the reply address, IT can use the Entra admin center route on the same page.
+
+## Download page: Play Protect (12 October 2026)
+- A friend's phone blocked Planora.apk ("Google Play Protect doesn't recognise this app"). The Android steps on
+  the download page now say: tap "More details" > "Install anyway". The warning only disappears for good
+  once Planora is in the Play Store (your call: a Google Play developer account, one-time fee).
 
 ## What needs you
 0. **Legal**:
