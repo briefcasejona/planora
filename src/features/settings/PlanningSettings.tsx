@@ -32,9 +32,16 @@ export function PlanningSettings() {
       .catch(() => undefined);
   }, []);
   const remindersOn = prefs.reminders !== false;
-  // Courses, the reminder switches and the theme save themselves; this form never changes or overwrites them.
+  // Courses, the reminder switches, the theme and the Get started card save themselves; this form never changes or overwrites them.
   const formPart = (p: Preferences) =>
-    JSON.stringify({ ...p, courses: undefined, reminders: undefined, reminderNames: undefined, theme: undefined });
+    JSON.stringify({
+      ...p,
+      courses: undefined,
+      reminders: undefined,
+      reminderNames: undefined,
+      theme: undefined,
+      setupGuideHidden: undefined,
+    });
   const dirty = formPart(draft) !== formPart(prefs);
 
   const set = (patch: Partial<Preferences>) => {
@@ -51,6 +58,7 @@ export function PlanningSettings() {
       reminders: latest.reminders,
       reminderNames: latest.reminderNames,
       theme: latest.theme,
+      setupGuideHidden: latest.setupGuideHidden,
     });
     setSaved(true);
   };

@@ -73,6 +73,16 @@ export async function requestWebNotificationPermission(): Promise<boolean> {
   return (await Notification.requestPermission()) === 'granted';
 }
 
+/** The device's notification permission, without asking for it. */
+export async function notificationPermission(): Promise<'granted' | 'denied' | 'default' | 'unsupported'> {
+  if (Capacitor.isNativePlatform()) {
+    const display = (await LocalNotifications.checkPermissions()).display;
+    return display === 'granted' || display === 'denied' ? display : 'default';
+  }
+  if (typeof Notification === 'undefined') return 'unsupported';
+  return Notification.permission;
+}
+
 export function notificationsSupported(): boolean {
   return Capacitor.isNativePlatform() || typeof Notification !== 'undefined';
 }
