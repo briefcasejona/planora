@@ -27,10 +27,17 @@
   the download page. The footer links to the official privacy policy, terms and contact pages.
 - The download page now says school-managed phones often block the .apk (use the website instead).
 
-## Week view on phones (pull request #23, draft, 12 October 2026)
+## Overview page empty on iPhone (merged in pull request #22, 12 October 2026)
+- Cause: the iPhone home-screen app stays open across releases. After a new version is published, the old
+  file for the Overview page is gone, so opening it failed and the whole screen went blank.
+- Fix: the app now reloads once to get the new version; if that doesn't help (e.g. offline), it shows a
+  message with a "Reload" button and the menu stays. Same for Calendar and Settings.
+- Updates stay silent (your choice, 12 October 2026). To check on the iPhone: open Overview after the
+  next update is live; it should show the page, not an empty screen.
+
+## Week view on phones (merged in pull request #23, 12 October 2026)
 - The calendar on a phone now offers Day, Week and Month (Week was hidden on small screens). Short day
   headers ("ma 12") so the whole week fits. Phones still open on Day.
-- All checks pass. **Needs you**: look at it and merge when happy.
 
 ## What needs you
 0. **Legal**:

@@ -9,10 +9,15 @@
     "next": "Next",
     "ok": "OK",
     "open": "Open",
+    "reload": "Reload",
     "remove": "Remove",
     "save": "Save",
     "view": "View",
     "yes": "Yes"
+  },
+  "pageError": {
+    "title": "This page could not be shown",
+    "body": "Planora may have just been updated. Reload to get the latest version; your tasks are safe on this device."
   },
   "units": {
     "hour": "h",
