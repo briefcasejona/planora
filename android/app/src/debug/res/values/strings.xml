@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <!-- Name of the test build (see buildTypes.debug in build.gradle). -->
+    <string name="app_name">Planora Test</string>
+    <string name="title_activity_main">Planora Test</string>
+</resources>

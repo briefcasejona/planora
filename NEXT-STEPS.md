@@ -63,9 +63,13 @@
   desktop app and the browser only while Planora is open (Settings says so). Moving, finishing or deleting a
   block replaces its reminder. One switch in Settings > Planning, on by default. If you chose "Planora
   focus" for Outlook, reminders use that title too; otherwise they show the task name.
-- **Needs you (step 3):** try it on your Android phone, since I can't test a real phone from here. Build
-  with `npm run cap:sync`, plan a block 15 minutes ahead, close Planora and check the reminder comes about
-  10 minutes before. If Settings shows "Allow exact times", tap it first (Android 12 and later).
+- **Needs you (step 3):** try it on your Android phone, since I can't test a real phone from here. Check out
+  the branch, run `npm ci`, `npm run cap:sync` and `npm run android`, then press Run in Android Studio with
+  the phone connected. It installs as a separate app, "Planora Test", next to your real Planora (your
+  choice, 12 October 2026; only test builds get the id `app.planora.test`, releases are unchanged). Plan a
+  block 15 minutes ahead, close the app and check the reminder comes about 10 minutes before. If Settings
+  shows "Allow exact times", tap it first (Android 12 and later). With both apps installed, Google sign-in
+  may ask which app to return to.
 - Next: step 4, semester setup from a timetable file.
 
 ## What needs you
