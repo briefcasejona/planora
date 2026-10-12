@@ -75,8 +75,11 @@
   aren't holidays) and you add each one as a task with one tap, with the course guessed from your classes.
   Importing a newer export adds only deadlines you haven't added or hidden. A deadline entry no longer
   blocks study time on its day.
-- **Needs you (step 4):** one real .ics export from Brightspace, Canvas or MyTimetable, so I can check that
-  every deadline in it is found and nothing else is. Until then it works from the usual patterns.
+- Your TimeEdit export (12 October 2026) has no deadlines in it: TimeEdit only holds classes, tests and
+  excursions. Deadlines live in your learning platform, so the semester setup needs that platform's
+  calendar export. A follow-up pull request uses the TimeEdit file better: it reads whether a class is a
+  practicum, hoorcollege or werkcollege, takes "Wereldwijs" as the course from "AA1445. Wereldwijs, GIS
+  analyse 2", leaves out the "S1-wk6" week labels, and no longer treats "Herfstvakantie" as a class.
 - After that: a 5 to 10 student semester test, as the council suggested.
 
 ## What needs you

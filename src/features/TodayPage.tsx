@@ -5,7 +5,7 @@ import { Icon } from '../components/Icon';
 import { Banner, CategoryBadge, categoryLabel, Empty, Section, TypeBadge } from '../components/ui';
 import { actions, useStore } from '../data/store';
 import { dedupeBusy, expandBusy } from '../domain/busy';
-import { eventKey, guessSubject, testSuggestions } from '../domain/categories';
+import { eventKey, guessSubject, testSuggestions, timetableCourses } from '../domain/categories';
 import { feedbackDue } from '../domain/replan';
 import { sessionMinutes } from '../domain/scheduler';
 import type { WorkSession } from '../domain/types';
@@ -61,7 +61,9 @@ export function TodayPage() {
 
   const agenda = dedupeBusy(expandBusy(busy, startOfDay(now), addDays(startOfDay(now), 1)));
   const tests = testSuggestions(busy, tasks, dismissedTests, now);
-  const subjects = [...new Set(tasks.map((x) => x.subject).filter(Boolean))] as string[];
+  const subjects = [
+    ...new Set([...tasks.map((x) => x.subject), ...timetableCourses(busy)].filter(Boolean)),
+  ] as string[];
 
   const hour = now.getHours();
   const greeting = hour < 12 ? t('today.morning') : hour < 18 ? t('today.afternoon') : t('today.evening');

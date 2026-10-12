@@ -1,14 +1,18 @@
 import { addDays } from 'date-fns';
 import ICAL from 'ical.js';
-import { detectCategory } from '../domain/categories';
+import { classKindFromText, detectCategory, isDayOff } from '../domain/categories';
 import type { BusyBlock, EventCategory, Task, WorkSession } from '../domain/types';
+
+// Week labels some timetables add as events, such as TimeEdit's "S1-wk6" or "Week 7".
+const WEEK_MARKER = /^(s\d+\s*[-–]\s*)?(wk|week)\s*-?\d+$/i;
 
 /**
  * Parse an .ics file entirely on this device into busy blocks. Recurring
  * events are expanded within a window around today. `importId` groups the
  * blocks of one imported file so it can be replaced or removed on its own.
  * Every event gets `category` (what the user picked for the file), unless its
- * title says it is a test or excursion, or `overrides` has a choice for its UID.
+ * title says it is a test or excursion, its description names the kind of class
+ * (TimeEdit: "Practicum", "Hoorcollege"), or `overrides` has a choice for its UID.
  */
 export function parseIcs(
   text: string,
@@ -27,7 +31,11 @@ export function parseIcs(
     if (transp === 'TRANSPARENT') continue; // marked as "free"
     if (vevent.getFirstPropertyValue('status') === 'CANCELLED') continue;
     const title = event.summary || undefined;
-    const eventCategory = overrides[event.uid] ?? detectCategory(title, category);
+    if (title && WEEK_MARKER.test(title.trim())) continue; // "S1-wk6": a label, not an appointment
+    const description = vevent.getFirstPropertyValue('description');
+    const kind = classKindFromText(typeof description === 'string' ? description : undefined);
+    const eventCategory =
+      overrides[event.uid] ?? (isDayOff(title) ? undefined : detectCategory(title, kind ?? category));
     const push = (start: Date, end: Date, allDay: boolean) => {
       if (end <= from || start >= to) return;
       out.push({
