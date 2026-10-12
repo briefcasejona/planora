@@ -68,7 +68,7 @@ export function Shell() {
         </Link>
       </aside>
 
-      <main className="min-w-0 flex-1 px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-28 md:px-8 md:py-8">
+      <main className="min-w-0 flex-1 px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[calc(7rem+env(safe-area-inset-bottom))] md:px-8 md:py-8">
         <div className="mx-auto max-w-5xl">
           <PageErrorBoundary key={pathname}>
             <Suspense fallback={<p className="text-sm text-slate-500">{t('common.loading')}</p>}>
@@ -85,13 +85,16 @@ export function Shell() {
         </div>
       </main>
 
-      <button
-        className="btn-primary fixed right-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-30 h-14 w-14 rounded-full p-0 shadow-lg md:hidden"
-        onClick={() => setAdding(true)}
-        aria-label={t('nav.newTask')}
-      >
-        <Icon name="plus" className="h-6 w-6" />
-      </button>
+      {/* Settings has its own floating Save button in this spot. */}
+      {pathname !== '/settings' && (
+        <button
+          className="btn-primary fixed right-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-30 h-14 w-14 rounded-full p-0 shadow-lg md:hidden"
+          onClick={() => setAdding(true)}
+          aria-label={t('nav.newTask')}
+        >
+          <Icon name="plus" className="h-6 w-6" />
+        </button>
+      )}
       <nav
         className="fixed inset-x-0 bottom-0 z-20 flex border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden dark:border-slate-800 dark:bg-slate-900/95"
         aria-label={t('nav.main')}
