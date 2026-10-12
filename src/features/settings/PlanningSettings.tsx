@@ -272,7 +272,7 @@ export function PlanningSettings() {
       <UpdatesCard />
       <InstallCard />
 
-      <div className="sticky bottom-[calc(5rem+env(safe-area-inset-bottom))] z-10 flex items-center justify-end gap-3 md:bottom-4">
+      <div className="sticky bottom-[calc(5rem+var(--safe-bottom))] z-10 flex items-center justify-end gap-3 md:bottom-4">
         {saved && !dirty && <span className="text-sm text-emerald-600">{t('settings.saved')}</span>}
         <button className="btn-primary shadow-lg" disabled={!dirty} onClick={save}>
           {t('settings.saveReplan')}
