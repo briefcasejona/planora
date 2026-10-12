@@ -74,6 +74,7 @@ export default defineConfig({
         authRedirect: 'auth-redirect.html',
         download: 'download.html',
         about: 'about.html',
+        forIt: 'for-it.html',
       },
     },
   },

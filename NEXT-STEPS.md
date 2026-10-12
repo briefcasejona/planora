@@ -82,6 +82,16 @@
   analyse 2", leaves out the "S1-wk6" week labels, and no longer treats "Herfstvakantie" as a class.
 - After that: a 5 to 10 student semester test, as the council suggested.
 
+## Page for college IT (12 October 2026, pull request pending)
+- New page `…/planora/for-it.html` (Dutch + English), linked in the website footer as "For IT" / "Voor IT".
+  It lists every Microsoft permission Planora asks for and why, explains that data stays on the device,
+  and has a button that opens Microsoft's "approve for the whole organisation" screen, plus the same route
+  in the Entra admin center and how IT can limit Planora to certain groups.
+- When IT comes back from approving, the sign-in page now says "Planora is approved for your organisation"
+  (or that it wasn't approved) instead of showing nothing.
+- Not testable here: the approval button needs a real college Microsoft 365 organisation. If Microsoft
+  shows an error about the reply address, IT can use the Entra admin center route on the same page.
+
 ## What needs you
 0. **Legal**:
    - Done: legal pages live and entered in the Azure and Google portals (10 October 2026).
@@ -94,14 +104,15 @@
      (details: finding L9 in `legal/LEGAL-STATUS.md`).
 1. **About page** is live at <https://briefcasejona.github.io/planora/about.html> a few minutes after the merge.
    Optional: use that address as the homepage in the Google and Azure portals.
-   Later ideas (not built): a page for schools/IT, checksums for downloads, Microsoft publisher verification.
+   Later ideas (not built): checksums for downloads, Microsoft publisher verification.
 2. **v0.3.5** is released (legal pages + Legal card in Settings). Installed apps update themselves.
 3. **Test sync yourself**: Settings > Sync on the laptop (choose a passphrase), then on the phone
    (same Microsoft account and passphrase). Add a task on the phone; it should appear on the laptop
    within a minute. Report any error text to Claude.
 4. **Google Calendar (v0.3.1)**: create the Google OAuth client (README, "Connecting Google Calendar"), add
    repo variable `VITE_GOOGLE_CLIENT_ID`, then ask Claude to release v0.3.1.
-5. Optional: school IT approval for Outlook/Teams (request text is in the chat history).
+5. School IT approval for Outlook/Teams: send IT the link <https://briefcasejona.github.io/planora/for-it.html>
+   together with the request (the draft email is in the chat history).
 
 ## Keep safe
 - `C:\Users\haasn\planora-android-key\` holds the Android signing key (also stored as GitHub Secrets).

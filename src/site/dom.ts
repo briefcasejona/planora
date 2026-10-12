@@ -20,11 +20,12 @@ export function pageLang(): Lang {
   return navigator.language.toLowerCase().startsWith('nl') ? 'nl' : 'en';
 }
 
-const FOOTER: Record<Lang, Record<'app' | 'about' | 'download' | 'privacy' | 'terms' | 'contact', string>> = {
+const FOOTER: Record<Lang, Record<'app' | 'about' | 'download' | 'forIt' | 'privacy' | 'terms' | 'contact', string>> = {
   nl: {
     app: 'Planora openen',
     about: 'Over Planora',
     download: 'Downloaden',
+    forIt: 'Voor IT',
     privacy: 'Privacyverklaring',
     terms: 'Gebruiksvoorwaarden',
     contact: 'Contact',
@@ -33,6 +34,7 @@ const FOOTER: Record<Lang, Record<'app' | 'about' | 'download' | 'privacy' | 'te
     app: 'Open Planora',
     about: 'About Planora',
     download: 'Download',
+    forIt: 'For IT',
     privacy: 'Privacy policy',
     terms: 'Terms of use',
     contact: 'Contact',
@@ -53,6 +55,7 @@ export function siteFooter(lang: Lang): HTMLElement {
     link('./', f.app),
     link('about.html', f.about),
     link('download.html', f.download),
+    link('for-it.html', f.forIt),
     link(legalPath('privacy', lang), f.privacy),
     link(legalPath('terms', lang), f.terms),
     link(legalPath('contact', lang), f.contact),
