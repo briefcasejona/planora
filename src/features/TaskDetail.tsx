@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from '../components/Icon';
 import { Banner, Modal, Progress, TypeBadge } from '../components/ui';
-import { actions, useStore } from '../data/store';
+import { actions, type SeriesScope, useStore } from '../data/store';
 import { remainingMinutes, sessionMinutes, stepScale, workedMinutes } from '../domain/scheduler';
 import { useFormat } from '../lib/format';
 import { FeedbackDialog } from './FeedbackDialog';
@@ -36,21 +36,34 @@ export function TaskDetail({ taskId, onClose }: { taskId: string; onClose: () =>
     await actions.completeTask(task.id);
     setMode('feedback');
   };
-  const remove = async () => {
-    await actions.deleteTask(task.id);
+  const remove = async (scope: SeriesScope = 'one') => {
+    await actions.deleteTask(task.id, scope);
     onClose();
   };
 
   const footer =
     mode === 'confirmDelete' ? (
       <>
-        <span className="mr-auto self-center text-sm">{t('detail.confirmDelete')}</span>
+        <span className="mr-auto self-center text-sm">
+          {t(task.seriesId ? 'detail.confirmDeleteSeries' : 'detail.confirmDelete')}
+        </span>
         <button className="btn-secondary" onClick={() => setMode('view')}>
           {t('common.cancel')}
         </button>
-        <button className="btn-danger" onClick={remove}>
-          {t('common.delete')}
-        </button>
+        {task.seriesId ? (
+          <>
+            <button className="btn-danger" onClick={() => remove('one')}>
+              {t('detail.deleteOne')}
+            </button>
+            <button className="btn-danger" onClick={() => remove('later')}>
+              {t('detail.deleteLater')}
+            </button>
+          </>
+        ) : (
+          <button className="btn-danger" onClick={() => remove()}>
+            {t('common.delete')}
+          </button>
+        )}
       </>
     ) : (
       <>

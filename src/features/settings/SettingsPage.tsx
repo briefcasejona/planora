@@ -1,6 +1,7 @@
 import { useSearchParams } from 'react-router-dom';
 import { Chips } from '../../components/ui';
 import { useFormat } from '../../lib/format';
+import { CoursesCard } from './CoursesCard';
 import { MicrosoftCard } from './MicrosoftCard';
 import { GoogleCard, IcsCard } from './OtherCalendars';
 import { PlanningSettings } from './PlanningSettings';
@@ -29,7 +30,12 @@ export function SettingsPage() {
           ]}
         />
       </div>
-      {tab === 'planning' && <PlanningSettings />}
+      {tab === 'planning' && (
+        <>
+          <CoursesCard />
+          <PlanningSettings />
+        </>
+      )}
       {tab === 'calendars' && (
         <div>
           <div className="card mb-4">

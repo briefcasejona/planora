@@ -40,6 +40,8 @@ export interface Task {
   completedAt?: string;
   feedbackGiven: boolean;
   redoCount: number;
+  /** Tasks created together as "repeat every week" share this id. Each week is still a normal task. */
+  seriesId?: string;
   /** When this record last changed on any device (set by the database layer; used by sync). */
   updatedAt?: string;
 }
@@ -67,11 +69,26 @@ export interface WorkSession {
 export type BusySource = 'local' | 'microsoft' | 'google' | 'ics';
 
 /** What kind of appointment an event is. Events are planned around, never planned themselves. */
-export type EventCategory = 'lesson' | 'meeting' | 'work' | 'sport' | 'personal' | 'test' | 'excursion';
+export type EventCategory =
+  | 'lesson'
+  | 'lecture'
+  | 'tutorial'
+  | 'lab'
+  | 'officehours'
+  | 'meeting'
+  | 'work'
+  | 'sport'
+  | 'personal'
+  | 'test'
+  | 'excursion';
 export const EVENT_CATEGORIES: EventCategory[] = [
   'lesson',
+  'lecture',
+  'tutorial',
+  'lab',
   'test',
   'excursion',
+  'officehours',
   'meeting',
   'work',
   'sport',
@@ -136,6 +153,19 @@ export interface WeeklyMoment {
   time: string;
 }
 
+/**
+ * A course. Tasks belong to a course through their `subject` (the course name), so older app
+ * versions keep reading them. Stored in the preferences, which every version syncs whole.
+ */
+export interface Course {
+  name: string;
+  /** Last day of the term (yyyy-MM-dd): the default end of a weekly task. */
+  termEnd?: string;
+  /** Exam period (yyyy-MM-dd, both days included), shown in the calendar. */
+  examStart?: string;
+  examEnd?: string;
+}
+
 export interface Preferences {
   onboarded: boolean;
   role: Role;
@@ -151,6 +181,10 @@ export interface Preferences {
   deadlineBufferDays: number;
   weeklyPlan: WeeklyMoment;
   weeklyReview: WeeklyMoment;
+  /** Courses with their term and exam dates. Courses without dates exist only as task subjects. */
+  courses?: Course[];
+  /** Reminders before study blocks and deadlines (missing = on). */
+  reminders?: boolean;
 }
 
 export const DEFAULT_PREFERENCES: Preferences = {

@@ -1,8 +1,8 @@
 import { dedupeBusy } from './busy';
 import type { BusyBlock, EventCategory, Task } from './types';
 
-/** Categories that come from a school timetable; the "buffer after lessons" applies to these. */
-export const SCHOOL_CATEGORIES: EventCategory[] = ['lesson', 'test', 'excursion'];
+/** Categories that come from a school or university timetable; the "buffer after lessons" applies to these. */
+export const SCHOOL_CATEGORIES: EventCategory[] = ['lesson', 'lecture', 'tutorial', 'lab', 'test', 'excursion'];
 
 // Dutch words are matched inside compounds too ("wiskundetoets", "hertentamen", "eindexamen").
 const TEST_NL = /(toets|tentamen|proefwerk|examen)/i;
@@ -11,6 +11,11 @@ const TEST_EN = /\b(test|tests|exam|exams|quiz|midterm)\b/i;
 // Common school abbreviations, only in capitals: "SO Frans", "PW Engels".
 const TEST_ABBR = /\b(SO|PW)\b/;
 const EXCURSION = /(excursie|excursion|field ?trip|studiereis)/i;
+// Hand-in moments from timetables and learning platforms ("Deadline essay", "Paper due", "Inleveren verslag").
+const DEADLINE =
+  /(deadline|inleveren|inlevermoment|inleverdatum|indienen|\bdue\b|\bhand[- ]?in\b|\bsubmission\b|\bsubmit\b)/i;
+// All-day entries that are days off, not something to hand in.
+const DAY_OFF = /(vakantie|vrije? dag|feestdag|holiday|vacation|\bbreak\b|reading week|studiedag|no classes|geen les)/i;
 
 /**
  * The category of an event, guessed from its title. Tests and excursions are
@@ -42,7 +47,8 @@ export function guessSubject(title: string, knownSubjects: string[] = []): strin
   const rest = title
     .replace(new RegExp(TEST_NL.source, 'gi'), ' ')
     .replace(new RegExp(TEST_EN.source, 'gi'), ' ')
-    .replace(new RegExp(TEST_ABBR.source, 'g'), ' ');
+    .replace(new RegExp(TEST_ABBR.source, 'g'), ' ')
+    .replace(new RegExp(DEADLINE.source, 'gi'), ' ');
   const word = rest.split(/[^\p{L}]+/u).find((w) => w.length >= 3);
   return word ? word[0].toUpperCase() + word.slice(1) : undefined;
 }
@@ -74,4 +80,80 @@ export function testSuggestions(
     .filter(
       (b) => !taken.has(eventKey(b)) && !testDeadlines.some((d) => Math.abs(d - new Date(b.start).getTime()) <= 60000),
     );
+}
+
+/** A hand-in moment: the title says so (in Dutch or English), or an all-day entry that isn't a day off. */
+export function isDeadlineEvent(block: BusyBlock): boolean {
+  if (!block.title || block.repeatWeekdays?.length) return false;
+  if (DEADLINE.test(block.title)) return true;
+  return !!block.allDay && !DAY_OFF.test(block.title) && block.category !== 'test' && block.category !== 'excursion';
+}
+
+/**
+ * A hand-in moment named in the title that doesn't take up time: all day, or a short entry such as
+ * "Deadline essay 23:59". A one-hour "Deadline discussion" meeting is still busy time.
+ */
+export function isNamedDeadline(block: BusyBlock): boolean {
+  if (!block.title || !DEADLINE.test(block.title)) return false;
+  return !!block.allDay || new Date(block.end).getTime() - new Date(block.start).getTime() <= 30 * 60000;
+}
+
+/** When the work is due: the event's start, or the end of the day for an all-day entry. */
+export function deadlineOf(block: BusyBlock): Date {
+  const start = new Date(block.start);
+  if (!block.allDay) return start;
+  start.setHours(23, 59, 0, 0);
+  return start;
+}
+
+/**
+ * Stable key of a deadline entry. It leaves out which file it came from, so a newer export saved under
+ * another file name doesn't bring back deadlines that were already added or hidden.
+ */
+export function deadlineKey(block: BusyBlock): string {
+  return ['deadline', block.externalUid ?? block.title ?? '', deadlineOf(block).toISOString()].join('|');
+}
+
+/**
+ * Deadline entries in imported calendars that have no task yet and were not hidden, earliest first.
+ * Importing a newer export of the same calendar again brings back only entries that are new.
+ * A task with its deadline at the same moment counts as already added.
+ */
+export function deadlineSuggestions(
+  busy: BusyBlock[],
+  tasks: Task[],
+  dismissed: string[],
+  now: Date,
+  horizonDays = 180,
+): BusyBlock[] {
+  const taken = new Set([...dismissed, ...tasks.map((t) => t.externalId).filter(Boolean)]);
+  const deadlines = tasks.filter((t) => t.status !== 'dropped').map((t) => new Date(t.deadline).getTime());
+  const until = now.getTime() + horizonDays * 86400000;
+  const seen = new Set<string>();
+  return busy
+    .filter((b) => b.source === 'ics' && isDeadlineEvent(b))
+    .filter((b) => deadlineOf(b).getTime() > now.getTime() && deadlineOf(b).getTime() <= until)
+    .sort((a, b) => deadlineOf(a).getTime() - deadlineOf(b).getTime())
+    .filter((b) => {
+      const key = deadlineKey(b);
+      if (seen.has(key) || taken.has(key)) return false;
+      seen.add(key);
+      return !deadlines.some((d) => Math.abs(d - deadlineOf(b).getTime()) <= 60000);
+    });
+}
+
+// Words for the kind of class, left out when reading a course name from a timetable entry.
+const CLASS_WORDS =
+  /\b(hoorcollege|werkcollege|responsiecollege|college|practicum|lecture|tutorial|seminar|lab|workshop|les|lesson)\b/gi;
+
+/** Course names read from the classes in imported timetables ("Werkcollege Filosofie" → "Filosofie"). */
+export function timetableCourses(busy: BusyBlock[]): string[] {
+  const names = new Map<string, string>();
+  for (const b of busy) {
+    if (b.source !== 'ics' || !b.title || !b.category || !SCHOOL_CATEGORIES.includes(b.category)) continue;
+    if (b.category === 'test' || b.category === 'excursion' || isDeadlineEvent(b)) continue;
+    const name = b.title.replace(CLASS_WORDS, ' ').replace(/\s+/g, ' ').trim();
+    if (name.length >= 3 && !names.has(name.toLowerCase())) names.set(name.toLowerCase(), name);
+  }
+  return [...names.values()];
 }

@@ -1,11 +1,19 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Chips, Field } from '../../components/ui';
 import { actions, useStore } from '../../data/store';
 import type { Preferences, WeeklyMoment } from '../../domain/types';
+import { SHOW_STAFF_ROLE } from '../../lib/features';
 import { useFormat } from '../../lib/format';
-import { notificationsSupported, requestWebNotificationPermission } from '../../notifications';
+import { platform } from '../../lib/platform';
+import {
+  allowExactReminders,
+  exactRemindersAllowed,
+  notificationsSupported,
+  requestWebNotificationPermission,
+} from '../../notifications';
 import { DesktopCard } from './DesktopCard';
 import { InstallCard } from './InstallCard';
+import { Toggle } from './Toggle';
 import { UpdatesCard } from './UpdatesCard';
 
 const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0];
@@ -17,7 +25,16 @@ export function PlanningSettings() {
   const [saved, setSaved] = useState(false);
   const [notif, setNotif] = useState(typeof Notification !== 'undefined' ? Notification.permission : 'default');
   const dayName = (d: number) => locale.localize.day(d as 0, { width: 'wide' });
-  const dirty = JSON.stringify(draft) !== JSON.stringify(prefs);
+  const [exact, setExact] = useState(true);
+  useEffect(() => {
+    void exactRemindersAllowed()
+      .then(setExact)
+      .catch(() => undefined);
+  }, []);
+  const remindersOn = prefs.reminders !== false;
+  // Courses and the reminder switch save themselves; this form never changes or overwrites them.
+  const formPart = (p: Preferences) => JSON.stringify({ ...p, courses: undefined, reminders: undefined });
+  const dirty = formPart(draft) !== formPart(prefs);
 
   const set = (patch: Partial<Preferences>) => {
     setDraft({ ...draft, ...patch });
@@ -26,7 +43,8 @@ export function PlanningSettings() {
   const setDay = (d: number, patch: Partial<Preferences['availability'][number]>) =>
     set({ availability: draft.availability.map((a, i) => (i === d ? { ...a, ...patch } : a)) });
   const save = async () => {
-    await actions.savePrefs(draft);
+    const latest = useStore.getState().prefs;
+    await actions.savePrefs({ ...draft, courses: latest.courses, reminders: latest.reminders });
     setSaved(true);
   };
   const num = (v: string, min: number, max: number) => Math.min(max, Math.max(min, Number(v) || min));
@@ -74,18 +92,21 @@ export function PlanningSettings() {
             ]}
           />
         </div>
-        <div>
-          <span className="label">{t('settings.role')}</span>
-          <Chips
-            label={t('settings.role')}
-            value={draft.role}
-            onChange={(v) => set({ role: v })}
-            options={[
-              { value: 'student', label: t('role.student') },
-              { value: 'teacher', label: t('role.teacher') },
-            ]}
-          />
-        </div>
+        {/* Staff mode is hidden for now; someone who already uses it can still switch back. */}
+        {(SHOW_STAFF_ROLE || draft.role === 'teacher') && (
+          <div>
+            <span className="label">{t('settings.role')}</span>
+            <Chips
+              label={t('settings.role')}
+              value={draft.role}
+              onChange={(v) => set({ role: v })}
+              options={[
+                { value: 'student', label: t('role.student') },
+                { value: 'teacher', label: t('role.teacher') },
+              ]}
+            />
+          </div>
+        )}
       </div>
 
       <div className="card mb-4">
@@ -207,6 +228,30 @@ export function PlanningSettings() {
           </button>
         )}
         {notif === 'granted' && <p className="text-sm text-emerald-600">{t('settings.notificationsOn')}</p>}
+      </div>
+
+      <div className="card mb-4">
+        <Toggle
+          checked={remindersOn}
+          onChange={async (on) => {
+            void actions.savePrefs({ ...useStore.getState().prefs, reminders: on });
+            if (on && notif !== 'granted' && notificationsSupported())
+              setNotif((await requestWebNotificationPermission()) ? 'granted' : 'denied');
+          }}
+          label={t('settings.reminders')}
+          description={t('settings.remindersHint')}
+        />
+        {remindersOn && platform() === 'web' && (
+          <p className="mt-2 text-sm text-slate-500">{t('settings.remindersOpenOnly')}</p>
+        )}
+        {remindersOn && !exact && (
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <p className="text-sm text-slate-500">{t('settings.remindersExact')}</p>
+            <button className="btn-secondary" onClick={async () => setExact(await allowExactReminders())}>
+              {t('settings.remindersExactButton')}
+            </button>
+          </div>
+        )}
       </div>
 
       <DesktopCard />

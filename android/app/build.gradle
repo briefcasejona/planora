@@ -32,6 +32,12 @@ android {
         }
     }
     buildTypes {
+        // Test builds from Android Studio install as a separate "Planora Test" app next to the released one,
+        // so testing never means uninstalling Planora (and its plans). Releases are unchanged.
+        debug {
+            applicationIdSuffix ".test"
+            versionNameSuffix "-test"
+        }
         release {
             if (System.getenv("PLANORA_KEYSTORE")) signingConfig signingConfigs.release
             minifyEnabled false

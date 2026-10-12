@@ -39,6 +39,46 @@
 - The calendar on a phone now offers Day, Week and Month (Week was hidden on small screens). Short day
   headers ("ma 12") so the whole week fits. Phones still open on Day.
 
+## University roadmap, all 4 steps (pull request #24, 12 October 2026)
+- A council review and four specs, approved by you: <https://claude.ai/artifact/WsPPrFmuMCqvSaFJrfTMK5>.
+  Planora stays server-free (your decision).
+- Step 1 is in pull request #24: new event kinds lecture, tutorial (werkcollege), lab (practicum) and
+  office hours (spreekuur); the break after lessons also applies after lectures, tutorials and labs; a new
+  install starts in the device's language (Dutch device: Dutch, otherwise English); the welcome screens say
+  what happens if you lose your device.
+- Staff mode ("Teacher", now called "Staff (basic)") is hidden, as you asked; the code stays. To bring it
+  back, set `SHOW_STAFF_ROLE` to `true` in `src/lib/features.ts`. Anyone already using it can still switch back in Settings.
+- Also in #24: the Google test that failed around the 25 October clock change is fixed.
+- Good to know: a device still on v0.3.5 shows a synced lecture as "category.lecture" until it updates itself.
+- Step 2 is also in #24: courses and repeating tasks. Settings > Planning lists your courses (taken from
+  the "Course or subject" field of your tasks); each can get a term end and an exam period, and the exam
+  period shows as a light red band in the calendar. A task can repeat every week until a date (default: the
+  course's term end); Planora makes one normal task per week. Editing or deleting one asks "only this one"
+  or "this and later ones".
+- How it is stored: course dates live inside the settings record and each weekly task carries a series
+  number. Older app versions keep both when they sync (automatic test), so no database upgrade was needed.
+- Good to know: if you change a course's dates on two devices at the same moment, the last one to sync wins.
+- Step 3 is also in #24: reminders 10 minutes before each study block and at 18:00 the day before a
+  deadline, for the next 7 days. On Android they are set on the phone and come with Planora closed; in the
+  desktop app and the browser only while Planora is open (Settings says so). Moving, finishing or deleting a
+  block replaces its reminder. One switch in Settings > Planning, on by default. If you chose "Planora
+  focus" for Outlook, reminders use that title too; otherwise they show the task name.
+- **Needs you (step 3):** try it on your Android phone, since I can't test a real phone from here. Check out
+  the branch, run `npm ci`, `npm run cap:sync` and `npm run android`, then press Run in Android Studio with
+  the phone connected. It installs as a separate app, "Planora Test", next to your real Planora (your
+  choice, 12 October 2026; only test builds get the id `app.planora.test`, releases are unchanged). Plan a
+  block 15 minutes ahead, close the app and check the reminder comes about 10 minutes before. If Settings
+  shows "Allow exact times", tap it first (Android 12 and later). With both apps installed, Google sign-in
+  may ask which app to return to.
+- Step 4 is also in #24: "Set up my semester" at the top of the Inbox. Choose your timetable file (.ics);
+  Planora lists the deadlines in it (words like deadline, due, hand in, inleveren, or all-day entries that
+  aren't holidays) and you add each one as a task with one tap, with the course guessed from your classes.
+  Importing a newer export adds only deadlines you haven't added or hidden. A deadline entry no longer
+  blocks study time on its day.
+- **Needs you (step 4):** one real .ics export from Brightspace, Canvas or MyTimetable, so I can check that
+  every deadline in it is found and nothing else is. Until then it works from the usual patterns.
+- After that: a 5 to 10 student semester test, as the council suggested.
+
 ## What needs you
 0. **Legal**:
    - Done: legal pages live and entered in the Azure and Google portals (10 October 2026).

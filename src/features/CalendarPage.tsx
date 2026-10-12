@@ -6,9 +6,9 @@ import type { EventResizeDoneArg } from '@fullcalendar/interaction';
 import interactionPlugin from '@fullcalendar/interaction';
 import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
-import { addDays } from 'date-fns';
+import { addDays, format, parseISO } from 'date-fns';
 import { useMemo, useState } from 'react';
-import { BUSY_HEX, CATEGORY_HEX, eventColors, TYPE_HEX } from '../components/ui';
+import { BUSY_HEX, CATEGORY_HEX, categoryLabel, eventColors, TYPE_HEX } from '../components/ui';
 import { actions, useStore } from '../data/store';
 import { dedupeBusy, expandBusy } from '../domain/busy';
 import { type BusyBlock, EVENT_CATEGORIES } from '../domain/types';
@@ -42,7 +42,7 @@ function loadHidden(): Filter[] {
 
 export function CalendarPage() {
   const { t, lang } = useFormat();
-  const { tasks, sessions, busy } = useStore();
+  const { tasks, sessions, busy, prefs } = useStore();
   const google = useIntegrations((s) => s.google);
   const googleExpired = google.connected && (!google.tokenExpires || google.tokenExpires < Date.now() + 60_000);
   const [refreshing, setRefreshing] = useState(false);
@@ -102,7 +102,7 @@ export function CalendarPage() {
       const category = x.block.category;
       if (!show(category ?? 'busy')) continue;
       const local = x.block.source === 'local';
-      const name = category ? t('category.' + category) : t('calendar.busy');
+      const name = categoryLabel(t, category);
       out.push({
         id: 'b:' + x.block.id + ':' + x.start.getTime(),
         title: x.block.title ?? name + (local ? '' : ' (' + t('source.' + x.block.source) + ')'),
@@ -113,6 +113,18 @@ export function CalendarPage() {
         classNames: ['planora-event', category ? 'planora-cat-' + category : ''],
         editable: local && !x.block.repeatWeekdays?.length,
         extendedProps: { blockId: x.block.id },
+      });
+    }
+    for (const c of prefs.courses ?? []) {
+      if (!c.examStart || !c.examEnd) continue;
+      out.push({
+        id: 'exam:' + c.name,
+        title: t('courses.examEvent', { name: c.name }),
+        start: c.examStart,
+        end: format(addDays(parseISO(c.examEnd), 1), 'yyyy-MM-dd'),
+        allDay: true,
+        display: 'background',
+        classNames: ['planora-exam-period'],
       });
     }
     for (const task of show('deadlines') ? tasks : []) {
@@ -129,7 +141,7 @@ export function CalendarPage() {
       });
     }
     return out;
-  }, [tasks, sessions, busy, hidden, t]);
+  }, [tasks, sessions, busy, prefs.courses, hidden, t]);
 
   const findBlock = (id: string) => busy.find((b) => b.id === id);
 

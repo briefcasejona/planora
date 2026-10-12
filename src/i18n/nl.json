@@ -52,7 +52,7 @@
   },
   "role": {
     "student": "Leerling / student",
-    "teacher": "Docent"
+    "teacher": "Docent (basis)"
   },
   "status": {
     "open": "Open",
@@ -182,6 +182,13 @@
     "subject": "Vak of categorie",
     "subjectPlaceholder": "Bijv. Wiskunde",
     "deadline": "Deadline",
+    "repeat": "Elke week herhalen",
+    "repeatUntil": "Tot en met",
+    "repeatCount_one": "{{count}} week",
+    "repeatCount_other": "{{count}} weken",
+    "applyTo": "Wijzigingen toepassen op",
+    "applyOne": "Deze week",
+    "applyLater": "Deze en latere weken",
     "estimate": "Hoeveel tijd denk je nodig te hebben?",
     "steps": "Stappen",
     "stepsHint": "Zet alle stappen in de juiste volgorde, met per stap je schatting. Planora plant ze na elkaar vóór de deadline.",
@@ -215,6 +222,9 @@
     "redo": "Opnieuw plannen",
     "giveFeedback": "Feedback geven",
     "confirmDelete": "Taak en alle blokken verwijderen?",
+    "confirmDeleteSeries": "Deze wekelijkse taak verwijderen?",
+    "deleteOne": "Alleen deze week",
+    "deleteLater": "Deze en latere weken",
     "addToCalendar": "In agenda zetten",
     "addToCalendarHint": "Zet de blokken en deadline van deze taak in Apple Agenda of een andere agenda"
   },
@@ -494,9 +504,14 @@
     "notificationsOn": "Meldingen staan aan.",
     "saveReplan": "Opslaan en opnieuw plannen",
     "saved": "Opgeslagen",
-    "lessonBuffer": "Pauze na lessen",
-    "lessonBufferHint": "Minuten vrij na een les, toets of excursie. 0 = uit.",
-    "tabSync": "Synchroniseren"
+    "lessonBuffer": "Pauze na lessen en colleges",
+    "lessonBufferHint": "Minuten vrij na een les, hoorcollege, werkcollege, practicum, toets of excursie. 0 = uit.",
+    "tabSync": "Synchroniseren",
+    "reminders": "Herinneringen",
+    "remindersHint": "10 minuten voor elk studieblok, en om 18:00 de dag voor een deadline.",
+    "remindersOpenOnly": "In een browser en op iPhone komen herinneringen alleen als Planora open is.",
+    "remindersExact": "Android kan herinneringen een paar minuten later sturen tot je exacte tijden toestaat.",
+    "remindersExactButton": "Exacte tijden toestaan"
   },
   "onboarding": {
     "welcome": "Welkom bij Planora",
@@ -509,6 +524,7 @@
     "to": "Tot",
     "timeHint": "Lessen, sport en andere afspraken zet je in de agenda; Planora plant eromheen.",
     "privacyTitle": "Jouw privacy",
+    "loseDevice": "Je planning blijft op dit apparaat. Raak je het kwijt, dan is die weg, tenzij je synchroniseren aanzet of een back-up maakt. Allebei vind je in Instellingen, onder Privacy en gegevens en Synchroniseren.",
     "privacyIntegrations": "Koppelen met Outlook, Teams of Google is optioneel en kan later. Jij kiest precies wat Planora mag.",
     "start": "Beginnen",
     "privacyPolicy": "Lees de privacyverklaring"
@@ -517,7 +533,9 @@
     "planTitle": "Je weekplanning staat klaar",
     "planBody": "Bekijk wat er deze week op de planning staat.",
     "reviewTitle": "Tijd voor je terugblik",
-    "reviewBody": "Hoe ging deze week? Bekijk wat goed ging en wat beter kan."
+    "reviewBody": "Hoe ging deze week? Bekijk wat goed ging en wat beter kan.",
+    "blockBody": "{{minutes}} min studeren, begint om {{time}}",
+    "deadlineBody": "Deadline morgen om {{time}}"
   },
   "desktop": {
     "title": "Desktop-app",
@@ -537,8 +555,12 @@
   },
   "category": {
     "lesson": "Les",
+    "lecture": "Hoorcollege",
+    "tutorial": "Werkcollege",
+    "lab": "Practicum",
     "test": "Toets",
     "excursion": "Excursie",
+    "officehours": "Spreekuur",
     "meeting": "Afspraak",
     "work": "Werk",
     "sport": "Sport",
@@ -622,5 +644,25 @@
     "terms": "Gebruiksvoorwaarden",
     "contact": "Contact",
     "licenses": "Opensourcelicenties"
+  },
+  "courses": {
+    "title": "Vakken",
+    "intro": "Elk vak of onderwerp dat je bij een taak invult, is een vak. Vul het einde van het blok en de tentamenperiode in: wekelijkse taken lopen dan tot het einde van het blok, en de tentamenperiode staat in je agenda.",
+    "empty": "Nog geen vakken. Geef een taak een vak of onderwerp en het verschijnt hier.",
+    "termEnd": "Einde blok",
+    "examStart": "Tentamens vanaf",
+    "examEnd": "Tentamens tot en met",
+    "examEvent": "Tentamens: {{name}}"
+  },
+  "semester": {
+    "title": "Mijn semester instellen",
+    "intro": "Importeer je rooster (.ics) uit MyTimetable, Brightspace of Canvas. Planora zet de deadlines erin op een rij, zodat je ze elk als taak kunt toevoegen.",
+    "choose": "Roosterbestand kiezen",
+    "imported_one": "{{events}} afspraken geïmporteerd, {{count}} deadline om toe te voegen.",
+    "imported_other": "{{events}} afspraken geïmporteerd, {{count}} deadlines om toe te voegen.",
+    "found_one": "{{count}} deadline gevonden",
+    "found_other": "{{count}} deadlines gevonden",
+    "add": "Als taak toevoegen",
+    "hide": "Verbergen"
   }
 }

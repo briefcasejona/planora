@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import { type ReactNode, useEffect, useId, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { EventCategory, TaskType } from '../domain/types';
@@ -185,6 +186,10 @@ export const TYPE_HEX: Record<TaskType, string> = {
 /** Colours of appointment categories; chosen to stay apart from the task-type colours above. */
 export const CATEGORY_HEX: Record<EventCategory, string> = {
   lesson: '#2563eb',
+  lecture: '#4f46e5',
+  tutorial: '#c2410c',
+  lab: '#16a34a',
+  officehours: '#ca8a04',
   test: '#e11d48',
   excursion: '#0891b2',
   meeting: '#c026d3',
@@ -195,9 +200,19 @@ export const CATEGORY_HEX: Record<EventCategory, string> = {
 /** Events whose kind is unknown (free/busy from Outlook or Google). */
 export const BUSY_HEX = '#64748b';
 
+/** Colour of an event kind; kinds this version doesn't know (from a newer device) look like plain busy time. */
+export function categoryHex(category?: EventCategory): string {
+  return (category && CATEGORY_HEX[category]) || BUSY_HEX;
+}
+
+/** Name of an event kind; kinds this version doesn't know (from a newer device) read as "Busy". */
+export function categoryLabel(t: TFunction, category?: EventCategory): string {
+  return category ? t('category.' + category, { defaultValue: t('calendar.busy') }) : t('calendar.busy');
+}
+
 /** Light fill with a coloured edge, so appointments never look like (solid) study blocks. */
 export function eventColors(category?: EventCategory) {
-  const hex = category ? CATEGORY_HEX[category] : BUSY_HEX;
+  const hex = categoryHex(category);
   return {
     backgroundColor: `color-mix(in srgb, ${hex} 18%, var(--planora-event-base))`,
     borderColor: hex,
@@ -207,14 +222,14 @@ export function eventColors(category?: EventCategory) {
 
 export function CategoryBadge({ category }: { category?: EventCategory }) {
   const { t } = useTranslation();
-  const hex = category ? CATEGORY_HEX[category] : BUSY_HEX;
+  const hex = categoryHex(category);
   return (
     <span
       className="inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium"
       style={{ borderColor: hex, color: hex }}
     >
       <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: hex }} aria-hidden />
-      {category ? t('category.' + category) : t('calendar.busy')}
+      {categoryLabel(t, category)}
     </span>
   );
 }

@@ -3,7 +3,7 @@ import { expect, type Page, test } from '@playwright/test';
 async function onboard(page: Page) {
   await page.goto('./');
   await expect(page.getByRole('heading', { name: 'Welkom bij Planora' })).toBeVisible();
-  for (let i = 0; i < 3; i++) await page.getByRole('button', { name: 'Volgende' }).click();
+  for (let i = 0; i < 2; i++) await page.getByRole('button', { name: 'Volgende' }).click();
   await page.getByRole('button', { name: 'Beginnen' }).click();
   await expect(page.getByRole('heading', { name: /Goede(morgen|middag|navond)/ })).toBeVisible();
 }
@@ -325,6 +325,19 @@ test('report a problem: a pre-filled GitHub report with technical details, never
   expect(new URL((await link.getAttribute('href'))!).searchParams.has('details')).toBe(false);
 });
 
+test('first start: the app opens in the device language and says where your data lives', async ({ browser }) => {
+  for (const locale of ['en-GB', 'nl-NL']) {
+    const nl = locale === 'nl-NL';
+    const context = await browser.newContext({ locale });
+    const page = await context.newPage();
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: nl ? 'Welkom bij Planora' : 'Welcome to Planora' })).toBeVisible();
+    for (let i = 0; i < 2; i++) await page.getByRole('button', { name: nl ? 'Volgende' : 'Next' }).click();
+    await expect(page.getByText(nl ? /Raak je het kwijt/ : /If you lose it/)).toBeVisible();
+    await context.close();
+  }
+});
+
 test.describe(() => {
   // Let the test stand in for the server; otherwise the offline copy answers first.
   test.use({ serviceWorkers: 'block' });
@@ -347,4 +360,161 @@ test.describe(() => {
     await expect(page.getByText('Deze pagina kon niet worden getoond')).toBeVisible();
     await expect(page.getByRole('link', { name: 'Vandaag' }).last()).toBeVisible();
   });
+});
+
+test('courses: a weekly reading becomes one task per week, and the exam period shows in the calendar', async ({
+  page,
+}) => {
+  await onboard(page);
+  const p = (n: number) => String(n).padStart(2, '0');
+  const day = (d: Date) => `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+  const first = new Date(Date.now() + 2 * 86400000);
+
+  await page.getByRole('button', { name: 'Nieuwe taak' }).last().click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByPlaceholder('Bijv. Toets geschiedenis, essay Engels').fill('Leesopdracht');
+  await dialog.getByPlaceholder('Bijv. Wiskunde').fill('Statistiek');
+  await dialog.locator('input[type="datetime-local"]').fill(`${day(first)}T09:00`);
+  await dialog.getByLabel('Elke week herhalen').check();
+  await dialog.getByLabel('Tot en met').fill(day(new Date(first.getTime() + 21 * 86400000)));
+  await expect(dialog.getByText('4 weken')).toBeVisible();
+  await dialog.getByRole('button', { name: 'Toevoegen en plannen' }).click();
+  await expect(dialog).toBeHidden();
+
+  await page.getByRole('link', { name: 'Inbox' }).last().click();
+  await expect(page.getByText('Leesopdracht')).toHaveCount(4);
+  await page.getByText('Leesopdracht').nth(1).click();
+  await page.getByRole('button', { name: 'Verwijderen' }).click();
+  await page.getByRole('button', { name: 'Deze en latere weken' }).click();
+  await expect(page.getByText('Leesopdracht')).toHaveCount(1);
+
+  await page.getByRole('link', { name: 'Instellingen' }).last().click();
+  await page.getByLabel('Statistiek: Tentamens vanaf').fill(day(new Date()));
+  await page.getByLabel('Statistiek: Tentamens tot en met').fill(day(new Date(Date.now() + 86400000)));
+  await page.getByRole('link', { name: 'Agenda' }).last().click();
+  await page.getByRole('button', { name: 'Maand' }).click();
+  await expect(page.locator('.planora-exam-period').first()).toBeAttached();
+});
+
+test('reminders: a deadline reminder comes at 18:00 the day before, and Settings explains the browser limit', async ({
+  browser,
+}) => {
+  const context = await browser.newContext({ locale: 'nl-NL', timezoneId: 'Europe/Amsterdam' });
+  const page = await context.newPage();
+  // Record notifications instead of showing them.
+  await page.addInitScript(() => {
+    const shown: { title: string; body?: string }[] = [];
+    (window as unknown as { shown: typeof shown }).shown = shown;
+    class FakeNotification {
+      static permission = 'granted';
+      static requestPermission = async () => 'granted';
+      constructor(title: string, options?: { body?: string }) {
+        shown.push({ title, body: options?.body });
+      }
+    }
+    (window as unknown as { Notification: unknown }).Notification = FakeNotification;
+  });
+  await page.clock.install({ time: new Date('2026-10-13T17:00:00+02:00') });
+  await onboard(page);
+
+  await page.getByRole('button', { name: 'Nieuwe taak' }).last().click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByPlaceholder('Bijv. Toets geschiedenis, essay Engels').fill('Essay inleveren');
+  await dialog.getByPlaceholder('Bijv. Wiskunde').fill('Filosofie');
+  await dialog.locator('input[type="datetime-local"]').fill('2026-10-14T09:00');
+  await dialog.getByRole('button', { name: 'Toevoegen en plannen' }).click();
+  await expect(dialog).toBeHidden();
+
+  await page.clock.runFor('01:05:00');
+  const shown = await page.evaluate(() => (window as unknown as { shown: { title: string; body?: string }[] }).shown);
+  expect(shown).toContainEqual({ title: 'Filosofie: Essay inleveren', body: 'Deadline morgen om 09:00' });
+
+  await page.getByRole('link', { name: 'Instellingen' }).last().click();
+  await expect(page.getByRole('switch', { name: /Herinneringen/ })).toBeChecked();
+  await expect(
+    page.getByText('In een browser en op iPhone komen herinneringen alleen als Planora open is.'),
+  ).toBeVisible();
+  await page.getByRole('switch', { name: /Herinneringen/ }).click();
+  await expect(page.getByRole('switch', { name: /Herinneringen/ })).not.toBeChecked();
+  await context.close();
+});
+
+test('semester setup: deadlines in a timetable become tasks, and importing it again adds nothing new', async ({
+  page,
+}) => {
+  await onboard(page);
+
+  const p = (n: number) => String(n).padStart(2, '0');
+  const ymd = (d: Date) => `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}`;
+  const day = (offset: number) => new Date(Date.now() + offset * 86400000);
+  const timed = (uid: string, offset: number, hm: string, title: string) => [
+    'BEGIN:VEVENT',
+    `UID:${uid}`,
+    'DTSTAMP:20261001T000000Z',
+    `DTSTART:${ymd(day(offset))}T${hm}00`,
+    `DTEND:${ymd(day(offset))}T${hm}00`,
+    `SUMMARY:${title}`,
+    'END:VEVENT',
+  ];
+  const allDay = (uid: string, offset: number, title: string) => [
+    'BEGIN:VEVENT',
+    `UID:${uid}`,
+    'DTSTAMP:20261001T000000Z',
+    `DTSTART;VALUE=DATE:${ymd(day(offset))}`,
+    `DTEND;VALUE=DATE:${ymd(day(offset + 1))}`,
+    `SUMMARY:${title}`,
+    'END:VEVENT',
+  ];
+  const lecture = (uid: string, offset: number, title: string) => [
+    'BEGIN:VEVENT',
+    `UID:${uid}`,
+    'DTSTAMP:20261001T000000Z',
+    `DTSTART:${ymd(day(offset))}T110000`,
+    `DTEND:${ymd(day(offset))}T130000`,
+    `SUMMARY:${title}`,
+    'END:VEVENT',
+  ];
+  const ics = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:e2e',
+    ...lecture('hc1', 2, 'Hoorcollege Statistiek'),
+    ...lecture('wc1', 3, 'Werkcollege Filosofie'),
+    ...lecture('pr1', 4, 'Practicum Biologie'),
+    ...timed('d1', 9, '2359', 'Deadline essay Filosofie'),
+    ...timed('d2', 12, '1700', 'Inleveren verslag Biologie'),
+    ...allDay('d3', 15, 'Statistiek opdracht 2 due'),
+    ...allDay('vak', 20, 'Herfstvakantie'),
+    'END:VCALENDAR',
+  ].join('\r\n');
+  const importFile = () =>
+    page
+      .getByLabel('Roosterbestand kiezen')
+      .setInputFiles({ name: 'mytimetable.ics', mimeType: 'text/calendar', buffer: Buffer.from(ics) });
+
+  await page.getByRole('link', { name: 'Inbox' }).last().click();
+  await expect(page.getByText('Mijn semester instellen')).toBeVisible();
+  await importFile();
+  await expect(page.getByText('7 afspraken geïmporteerd, 3 deadlines om toe te voegen.')).toBeVisible();
+  await expect(page.getByText('3 deadlines gevonden')).toBeVisible();
+  for (const title of ['Deadline essay Filosofie', 'Inleveren verslag Biologie', 'Statistiek opdracht 2 due'])
+    await expect(page.getByText(title)).toBeVisible();
+  await expect(page.getByText('Herfstvakantie')).toBeHidden();
+
+  await page.getByRole('button', { name: 'Als taak toevoegen' }).first().click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog.getByPlaceholder('Bijv. Toets geschiedenis, essay Engels')).toHaveValue(
+    'Deadline essay Filosofie',
+  );
+  await expect(dialog.getByPlaceholder('Bijv. Wiskunde')).toHaveValue('Filosofie');
+  await expect(dialog.getByRole('radio', { name: 'Opdracht' })).toBeChecked();
+  await dialog.getByRole('button', { name: 'Toevoegen en plannen' }).click();
+  await expect(dialog).toBeHidden();
+  await page.getByRole('button', { name: 'Verbergen' }).first().click();
+  await expect(page.getByText('1 deadline gevonden')).toBeVisible();
+
+  await importFile();
+  await expect(page.getByText('7 afspraken geïmporteerd, 1 deadline om toe te voegen.')).toBeVisible();
+  await expect(page.getByText('1 deadline gevonden')).toBeVisible();
+  await expect(page.getByText('Statistiek opdracht 2 due')).toBeVisible();
 });

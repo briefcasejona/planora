@@ -2,7 +2,7 @@ import { addDays, differenceInCalendarDays, isSameDay, startOfDay } from 'date-f
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Icon } from '../components/Icon';
-import { Banner, CategoryBadge, Empty, Section, TypeBadge } from '../components/ui';
+import { Banner, CategoryBadge, categoryLabel, Empty, Section, TypeBadge } from '../components/ui';
 import { actions, useStore } from '../data/store';
 import { dedupeBusy, expandBusy } from '../domain/busy';
 import { eventKey, guessSubject, testSuggestions } from '../domain/categories';
@@ -246,7 +246,7 @@ export function TodayPage() {
                     )}
                   </div>
                   <span className="min-w-0 flex-1 truncate font-medium">
-                    {x.block.title ?? (x.block.category ? t('category.' + x.block.category) : t('calendar.busy'))}
+                    {x.block.title ?? categoryLabel(t, x.block.category)}
                   </span>
                   <CategoryBadge category={x.block.category} />
                 </li>

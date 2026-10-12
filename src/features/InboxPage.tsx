@@ -7,6 +7,7 @@ import { workedMinutes } from '../domain/scheduler';
 import type { Task } from '../domain/types';
 import { useIntegrations } from '../integrations/settings';
 import { useFormat } from '../lib/format';
+import { SemesterSetup } from './SemesterSetup';
 import { TaskDetail } from './TaskDetail';
 import { TaskForm } from './TaskForm';
 
@@ -72,6 +73,8 @@ export function InboxPage() {
           {t('inbox.add')}
         </button>
       </form>
+
+      <SemesterSetup />
 
       {showImport && (
         <Suspense fallback={null}>

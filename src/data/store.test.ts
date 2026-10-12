@@ -19,6 +19,40 @@ describe('store: plan, learn, replan', () => {
   });
   afterAll(() => vi.useRealTimers());
 
+  it('creates one task per week for a weekly task, each with its own blocks', async () => {
+    const first = await actions.addTask({
+      title: 'Reading',
+      type: 'assignment',
+      subject: 'Statistics',
+      deadline: new Date(2026, 9, 14, 9).toISOString(),
+      userEstimateMin: 60,
+      useSuggestion: false,
+      repeatUntil: '2026-11-04',
+    });
+    const weeks = useStore.getState().tasks.filter((t) => t.seriesId && t.seriesId === first.seriesId);
+    expect(weeks.map((t) => new Date(t.deadline).getDate())).toEqual([14, 21, 28, 4]);
+    for (const w of weeks) expect(useStore.getState().sessions.some((s) => s.taskId === w.id)).toBe(true);
+  });
+
+  it('changes this and later weeks of a weekly task, and deletes them the same way', async () => {
+    const weeks = () =>
+      useStore
+        .getState()
+        .tasks.filter((t) => t.seriesId && t.subject === 'Statistics')
+        .sort((a, b) => a.deadline.localeCompare(b.deadline));
+    const second = weeks()[1];
+    await actions.updateTask({ ...second, title: 'Chapter reading', userEstimateMin: 90 }, 'later');
+    expect(weeks().map((t) => t.title)).toEqual(['Reading', 'Chapter reading', 'Chapter reading', 'Chapter reading']);
+    expect(weeks()[3].userEstimateMin).toBe(90);
+    expect(new Date(weeks()[3].deadline).getHours()).toBe(9);
+
+    await actions.updateTask({ ...weeks()[2], title: 'Week 3 only' }, 'one');
+    expect(weeks().map((t) => t.title)).toEqual(['Reading', 'Chapter reading', 'Week 3 only', 'Chapter reading']);
+
+    await actions.deleteTask(weeks()[1].id, 'later');
+    expect(weeks().map((t) => t.title)).toEqual(['Reading']);
+  });
+
   it('schedules a new test right away', async () => {
     const task = await actions.addTask({
       title: 'Biologie H1',

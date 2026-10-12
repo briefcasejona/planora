@@ -1,4 +1,3 @@
-import { addDays } from 'date-fns';
 import { repo } from '../data/repo';
 import { actions, useStore } from '../data/store';
 import type { BusyBlock } from '../domain/types';
@@ -194,12 +193,16 @@ async function token(interactive: boolean): Promise<string | null> {
 }
 
 const WINDOW_DAYS = 45;
+const DAY_MS = 86400000;
 
-/** The period Planora reads (a week back, 90 days ahead), in windows Google accepts. */
+/**
+ * The period Planora reads (a week back, 90 days ahead), in windows Google accepts.
+ * Days are counted as exactly 24 hours: a window across a clock change must not grow an hour longer.
+ */
 export function freeBusyWindows(now: Date, from = -7, to = 90): { start: Date; end: Date }[] {
   const out: { start: Date; end: Date }[] = [];
-  for (let d = from; d < to; d += WINDOW_DAYS)
-    out.push({ start: addDays(now, d), end: addDays(now, Math.min(d + WINDOW_DAYS, to)) });
+  const at = (days: number) => new Date(now.getTime() + days * DAY_MS);
+  for (let d = from; d < to; d += WINDOW_DAYS) out.push({ start: at(d), end: at(Math.min(d + WINDOW_DAYS, to)) });
   return out;
 }
 

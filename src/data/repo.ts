@@ -1,5 +1,6 @@
 import type { BusyBlock, FeedbackRecord, Preferences, Task, WeekReport, WorkSession } from '../domain/types';
 import { DEFAULT_PREFERENCES } from '../domain/types';
+import { deviceLanguage } from '../lib/language';
 import { type CryptoConfig, decryptJSON, encryptJSON } from './crypto';
 import { db, type PlanoraDB, type StoredRow, type SyncLogEntry } from './db';
 import { isSyncedBusy, isSyncedSession, type SyncRecords, type SyncTable, sameContent } from './sync/merge';
@@ -161,7 +162,8 @@ export const repo = {
 
   async getPrefs(): Promise<Preferences> {
     const stored = await repo.getKv<Partial<Preferences>>('prefs', {});
-    return { ...DEFAULT_PREFERENCES, ...stored };
+    // Until the user picks a language, follow the device.
+    return { ...DEFAULT_PREFERENCES, language: deviceLanguage(), ...stored };
   },
   async savePrefs(prefs: Preferences, updatedAt?: string): Promise<void> {
     const old = await repo.getKv<Preferences | null>('prefs', null);
