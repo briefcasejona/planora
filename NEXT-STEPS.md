@@ -39,7 +39,7 @@
 - The calendar on a phone now offers Day, Week and Month (Week was hidden on small screens). Short day
   headers ("ma 12") so the whole week fits. Phones still open on Day.
 
-## University roadmap, all 4 steps (pull request #24, 12 October 2026)
+## University roadmap, all 4 steps (pull requests #24 to #26, released in v0.4.0, 12 October 2026)
 - A council review and four specs, approved by you: <https://claude.ai/artifact/WsPPrFmuMCqvSaFJrfTMK5>.
   Planora stays server-free (your decision).
 - Step 1 is in pull request #24: new event kinds lecture, tutorial (werkcollege), lab (practicum) and
