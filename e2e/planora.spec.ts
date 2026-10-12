@@ -562,4 +562,10 @@ test('phone: the Save button in Settings and the buttons in a dialog are not cov
   await page.getByRole('button', { name: 'Nieuwe taak' }).last().click();
   await expect(page.getByRole('button', { name: 'Toevoegen en plannen' })).toBeInViewport({ ratio: 1 });
   expect(await onTop('Toevoegen en plannen')).toBe(true);
+  // The Android app reports a 48px button bar the way Capacitor does; the dialog buttons stay above it.
+  await page.evaluate(() => document.documentElement.style.setProperty('--safe-area-inset-bottom', '48px'));
+  const bottom = await page
+    .getByRole('button', { name: 'Toevoegen en plannen' })
+    .evaluate((el) => window.innerHeight - el.getBoundingClientRect().bottom);
+  expect(bottom).toBeGreaterThanOrEqual(48);
 });

@@ -101,7 +101,8 @@
 - On Android the phone's own Back/Home/Recent buttons covered the buttons at the bottom of dialogs (edit task etc.),
   and the + button sat on top of "Save and replan" in Settings. Dialogs, the Save button and the page bottom now
   keep clear of the phone's button bar, and Settings no longer shows the + button.
-- Installed apps get it with v0.4.1 (Android: tap Update in the banner).
+- Installed apps get it with v0.4.1 (Android: tap Update in the banner). v0.4.2 makes it sturdier: it also uses the
+  button-bar size the Android app reports itself, in case the phone's browser engine reports 0.
 
 ## What needs you
 0. **Legal**:

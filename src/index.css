@@ -10,6 +10,13 @@
   --color-brand-700: #4338ca;
 }
 
+/* Room for the phone's status bar and button bar. Browsers report it through env(); the Android app
+   (Capacitor) also sets --safe-area-inset-*, which still works on WebViews whose env() stays 0. */
+:root {
+  --safe-top: max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px));
+  --safe-bottom: max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px));
+}
+
 @custom-variant dark (@media (prefers-color-scheme: dark));
 
 html,
