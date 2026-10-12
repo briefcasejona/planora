@@ -44,7 +44,13 @@ export async function setImportCategory(importId: string, category: EventCategor
   const imp = useIntegrations.getState().icsImports.find((i) => i.id === importId);
   if (!imp) return;
   const overrides = imp.overrides ?? {};
-  const blocks = useStore.getState().busy.filter((b) => b.source === 'ics' && b.importId === importId);
+  // Events whose description named another kind of class (a lab in a file of lectures) keep that kind.
+  const blocks = useStore
+    .getState()
+    .busy.filter(
+      (b) =>
+        b.source === 'ics' && b.importId === importId && (!b.category || b.category === (imp.category ?? 'lesson')),
+    );
   await actions.saveBusy(
     blocks.map((b) => ({
       ...b,

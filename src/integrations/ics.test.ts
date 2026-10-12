@@ -61,6 +61,64 @@ describe('ics import', () => {
     expect(parseIcs(SAMPLE, NOW, 'school', 'lesson').find((b) => b.title === 'Training')?.category).toBe('lesson');
   });
 
+  it('reads the kind of class from a TimeEdit description and leaves out week labels', () => {
+    const event = (uid: string, start: string, end: string, summary: string, description: string) => [
+      'BEGIN:VEVENT',
+      `UID:${uid}`,
+      'DTSTAMP:20261009T123429Z',
+      `DTSTART:${start}`,
+      `DTEND:${end}`,
+      `SUMMARY:${summary}`,
+      `DESCRIPTION:${description}`,
+      'END:VEVENT',
+    ];
+    const timeEdit = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//TimeEdit//EN',
+      ...event('w', '20261012T060000Z', '20261012T063000Z', 'S1-wk7', 'ID 330393'),
+      ...event(
+        'p',
+        '20261012T070000Z',
+        '20261012T090000Z',
+        'AA1445. Wereldwijs\\, GIS Storymap 2',
+        'AB \\nPracticum \\n1AA1-01\\nID 1',
+      ),
+      ...event(
+        'h',
+        '20261013T090000Z',
+        '20261013T100000Z',
+        'AA1445. Wereldwijs\\, SDG',
+        'AB \\nHoorcollege \\n1AA1-01\\nID 2',
+      ),
+      ...event(
+        'c',
+        '20261013T100000Z',
+        '20261013T110000Z',
+        'AA1445. Wereldwijs\\, Inloop',
+        'AB \\nWerkcollege \\nID 3',
+      ),
+      ...event(
+        't',
+        '20261015T070000Z',
+        '20261015T093000Z',
+        'AA1445. Wereldwijs\\, ANS geografie',
+        'AB \\nToetsing / Assessments \\nID 4',
+      ),
+      ...event(
+        'x',
+        '20261013T120000Z',
+        '20261013T130000Z',
+        'AA1445. Wereldwijs\\, Weekvoortgang',
+        'AB \\nCoaching \\nID 5',
+      ),
+      ...event('v', '20261019T060000Z', '20261019T070000Z', 'Herfstvakantie', 'ID 6'),
+      'END:VCALENDAR',
+    ].join('\r\n');
+    const kinds = Object.fromEntries(parseIcs(timeEdit, NOW, 'te', 'lecture').map((b) => [b.externalUid, b.category]));
+    expect(kinds).toEqual({ p: 'lab', h: 'lecture', c: 'tutorial', t: 'test', x: 'lecture', v: undefined });
+  });
+
   it('derives a stable import id from the file name', () => {
     expect(importIdFor('Rooster School.ics')).toBe('rooster-school');
     expect(importIdFor('rooster school.ICS')).toBe('rooster-school');

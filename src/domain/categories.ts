@@ -30,6 +30,29 @@ export function detectCategory(title: string | undefined, fallback?: EventCatego
   return fallback;
 }
 
+// The kind of class as timetables (TimeEdit, MyTimetable) write it in the event description.
+const KIND_IN_TEXT: [RegExp, EventCategory][] = [
+  [/(toetsing|assessment|tentamen|toets|\bexams?\b)/i, 'test'],
+  [EXCURSION, 'excursion'],
+  [/\b(practicum|lab|laboratorium)\b/i, 'lab'],
+  [/\b(werkcollege|responsiecollege|werkgroep|tutorial|seminar|workgroup)\b/i, 'tutorial'],
+  [/\b(hoorcollege|gastcollege|lecture)\b/i, 'lecture'],
+];
+
+/**
+ * The kind of class named in an event's description ("Practicum", "Hoorcollege", "Toetsing / Assessments"),
+ * or undefined. The kind mentioned first wins, so "Hoorcollege, tentamenvoorbereiding" stays a lecture.
+ */
+export function classKindFromText(text: string | undefined): EventCategory | undefined {
+  if (!text) return undefined;
+  let best: { at: number; kind: EventCategory } | undefined;
+  for (const [re, kind] of KIND_IN_TEXT) {
+    const at = text.search(re);
+    if (at >= 0 && (!best || at < best.at)) best = { at, kind };
+  }
+  return best?.kind;
+}
+
 /** Stable key of one event occurrence, used to link a study task to the test it prepares for. */
 export function eventKey(block: BusyBlock): string {
   return [block.source, block.importId ?? '', block.externalUid ?? block.id, block.start].join('|');
@@ -80,6 +103,11 @@ export function testSuggestions(
     .filter(
       (b) => !taken.has(eventKey(b)) && !testDeadlines.some((d) => Math.abs(d - new Date(b.start).getTime()) <= 60000),
     );
+}
+
+/** A day off such as "Herfstvakantie" or "Reading week": not a class, whatever file it came from. */
+export function isDayOff(title: string | undefined): boolean {
+  return !!title && DAY_OFF.test(title);
 }
 
 /** A hand-in moment: the title says so (in Dutch or English), or an all-day entry that isn't a day off. */
@@ -151,9 +179,20 @@ export function timetableCourses(busy: BusyBlock[]): string[] {
   const names = new Map<string, string>();
   for (const b of busy) {
     if (b.source !== 'ics' || !b.title || !b.category || !SCHOOL_CATEGORIES.includes(b.category)) continue;
-    if (b.category === 'test' || b.category === 'excursion' || isDeadlineEvent(b)) continue;
-    const name = b.title.replace(CLASS_WORDS, ' ').replace(/\s+/g, ' ').trim();
+    if (b.category === 'test' || b.category === 'excursion' || isDeadlineEvent(b) || isDayOff(b.title)) continue;
+    const name = courseName(b.title);
     if (name.length >= 3 && !names.has(name.toLowerCase())) names.set(name.toLowerCase(), name);
   }
   return [...names.values()];
+}
+
+/**
+ * The course in a timetable entry's title: "AA1445. Wereldwijs, GIS analyse 2" → "Wereldwijs" (course code
+ * and topic left out), "Werkcollege Filosofie" → "Filosofie".
+ */
+export function courseName(title: string): string {
+  const withoutCode = title.replace(/^\s*[A-Z]{1,5}\s?\d{2,6}\s*\.?\s*/, '');
+  const coded = withoutCode !== title;
+  const main = coded || withoutCode.includes(',') ? withoutCode.split(',')[0] : withoutCode;
+  return main.replace(CLASS_WORDS, ' ').replace(/\s+/g, ' ').trim();
 }

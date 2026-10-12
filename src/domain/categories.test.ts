@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+  classKindFromText,
+  courseName,
   deadlineKey,
   deadlineOf,
   deadlineSuggestions,
@@ -173,5 +175,25 @@ describe('deadline entries', () => {
   it('guesses the course without the deadline words', () => {
     expect(guessSubject('Deadline essay Filosofie', ['Filosofie'])).toBe('Filosofie');
     expect(guessSubject('Inleveren Statistiek opdracht 2')).toBe('Statistiek');
+  });
+});
+
+describe('timetable details', () => {
+  it('reads the kind of class from a description, the first one named', () => {
+    expect(classKindFromText('AB, LW \nPracticum \n1AA1-01')).toBe('lab');
+    expect(classKindFromText('Practicum, Hoorcollege')).toBe('lab');
+    expect(classKindFromText('Hoorcollege')).toBe('lecture');
+    expect(classKindFromText('Werkcollege')).toBe('tutorial');
+    expect(classKindFromText('Toetsing / Assessments \nSummatieve toets')).toBe('test');
+    expect(classKindFromText('Excursie')).toBe('excursion');
+    expect(classKindFromText('Hoorcollege \ntentamenvoorbereiding')).toBe('lecture');
+    expect(classKindFromText('Coaching \nID 381064')).toBeUndefined();
+    expect(classKindFromText(undefined)).toBeUndefined();
+  });
+
+  it('reads the course from a title, without code or topic', () => {
+    expect(courseName('AA1445. Wereldwijs, GIS analyse 2')).toBe('Wereldwijs');
+    expect(courseName('AA1405 . Data & AI 101, AI vaardigheden')).toBe('Data & AI 101');
+    expect(courseName('Werkcollege Filosofie')).toBe('Filosofie');
   });
 });
