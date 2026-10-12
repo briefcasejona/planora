@@ -82,7 +82,7 @@
   analyse 2", leaves out the "S1-wk6" week labels, and no longer treats "Herfstvakantie" as a class.
 - After that: a 5 to 10 student semester test, as the council suggested.
 
-## Page for college IT (12 October 2026, pull request pending)
+## Page for college IT (merged in pull request #28, 12 October 2026)
 - New page `…/planora/for-it.html` (Dutch + English), linked in the website footer as "For IT" / "Voor IT".
   It lists every Microsoft permission Planora asks for and why, explains that data stays on the device,
   and has a button that opens Microsoft's "approve for the whole organisation" screen, plus the same route
