@@ -159,7 +159,7 @@
   between your devices. Users who already did all three never see it.
 - Released together with this change (Jonathan's OK on 12 October 2026, before the project-group test).
 
-## Undo for accidental taps (13 October 2026, pull request #38 open)
+## Undo for accidental taps (13 October 2026, pull request #38, released in v0.4.6)
 - Why: you tapped Afronden by accident and lost a task's blocks. A council review (file
   `council/undo-for-every-action-2026-10-13.md` in the project) advised undo only for the taps that lose
   something, not for every action. You chose to build all of its advice.
@@ -176,6 +176,6 @@
 - Settings > Agenda's: re-importing a file with the same name and removing an imported timetable now ask
   first.
 - A task finished before this change can't use Undo: open it and tap Opnieuw plannen.
-- Needs the owner: merge (the website then updates itself; iPhone uses the website). Installed apps get it
-  only with a release, when you ask. Add "Did you ever lose something you didn't mean to?" to the
+- Merged and released as v0.4.6 (your OK, 13 October 2026). Installed apps update themselves.
+- Still for you: add "Did you ever lose something you didn't mean to?" to the
   questionnaire, and ask the group to post accidents in the group chat right away.
