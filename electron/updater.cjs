@@ -8,7 +8,7 @@ const crypto = require('node:crypto');
 const fs = require('node:fs');
 const https = require('node:https');
 const path = require('node:path');
-const { spawn } = require('node:child_process');
+const childProcess = require('node:child_process');
 
 const LATEST = 'https://api.github.com/repos/briefcasejona/planora/releases/latest';
 const DOWNLOAD_PAGE = 'https://briefcasejona.github.io/planora/download.html';
@@ -108,10 +108,42 @@ const download = (url, file) =>
   });
 
 /**
+ * Start a program and wait until Windows has actually started it. Resolves with
+ * the error when it couldn't (for example when antivirus or a policy blocks it):
+ * Node reports some of these by throwing and others later as an 'error' event.
+ */
+function launch(spawn, file, args) {
+  return new Promise((resolve) => {
+    let child;
+    try {
+      child = spawn(file, args, { detached: true, stdio: 'ignore' });
+    } catch (e) {
+      resolve(e);
+      return;
+    }
+    child.once('error', resolve);
+    child.once('spawn', () => {
+      child.unref();
+      resolve(null);
+    });
+  });
+}
+
+/**
  * The updater. `send(status)` tells the window what's going on:
  * { state: 'idle'|'checking'|'none'|'available'|'downloading'|'ready'|'error', version?, lastCheck?, error?, kind }
  */
-function createUpdater({ app, send, platform = process.platform, arch = process.arch, env = process.env }) {
+function createUpdater({
+  app,
+  send,
+  platform = process.platform,
+  arch = process.arch,
+  env = process.env,
+  spawn = childProcess.spawn,
+  // Replaceable in tests:
+  latestRelease = () => getJson(LATEST),
+  fetchFile = download,
+}) {
   const kind = updateKind(platform, env);
   let status = { state: 'idle', kind, current: app.getVersion() };
   let file = null;
@@ -123,18 +155,19 @@ function createUpdater({ app, send, platform = process.platform, arch = process.
   };
 
   async function run() {
+    const readyVersion = status.state === 'ready' && file ? status.version : null;
     set({ state: 'checking', error: undefined });
-    const found = pickAsset(await getJson(LATEST), app.getVersion(), platform, arch);
+    const found = pickAsset(await latestRelease(), app.getVersion(), platform, arch);
     const lastCheck = new Date().toISOString();
     if (!found) return set({ state: 'none', lastCheck, version: undefined });
     if (kind === 'notify') return set({ state: 'available', lastCheck, version: found.version, url: DOWNLOAD_PAGE });
-    if (status.state === 'ready' && status.version === found.version) return set({ lastCheck });
+    if (readyVersion === found.version) return set({ state: 'ready', lastCheck });
     set({ state: 'downloading', lastCheck, version: found.version });
     const target = path.join(
       app.getPath('temp'),
       platform === 'win32' ? `Planora-Setup-${found.version}.exe` : `Planora-${found.version}.AppImage`,
     );
-    await download(found.url, target);
+    await fetchFile(found.url, target);
     if (!found.sha256 || (await sha256File(target)) !== found.sha256) {
       fs.rmSync(target, { force: true });
       throw new Error('update-checksum');
@@ -154,20 +187,43 @@ function createUpdater({ app, send, platform = process.platform, arch = process.
       }
       return busy;
     },
-    /** Install the downloaded update. `restart`: start Planora again afterwards. */
-    install(restart = true) {
+    /**
+     * Install the downloaded update. `restart`: start Planora again afterwards.
+     * Resolves to false when the installer couldn't be started; the window then
+     * offers the download page instead, so the button never silently does nothing.
+     */
+    async install(restart = true) {
       if (status.state !== 'ready' || !file) return false;
+      const target = file;
+      file = null; // a second click while this one is busy does nothing
+      let error = null;
       if (platform === 'win32') {
-        // The one-click installer installs silently over the current version; --force-run starts Planora again.
-        spawn(file, restart ? ['/S', '--force-run'] : ['/S'], { detached: true, stdio: 'ignore' }).unref();
+        // The one-click installer installs silently over the current version. --updated: it is an
+        // update, so the installer gives Planora a moment to close by itself before stopping it.
+        // --force-run starts Planora again afterwards.
+        const args = restart ? ['/S', '--updated', '--force-run'] : ['/S', '--updated'];
+        error = await launch(spawn, target, args);
       } else {
-        const appImage = env.APPIMAGE;
-        fs.copyFileSync(file, appImage + '.new');
-        fs.chmodSync(appImage + '.new', 0o755);
-        fs.renameSync(appImage + '.new', appImage);
-        if (restart) app.relaunch({ execPath: appImage });
+        try {
+          const appImage = env.APPIMAGE;
+          fs.copyFileSync(target, appImage + '.new');
+          fs.chmodSync(appImage + '.new', 0o755);
+          fs.renameSync(appImage + '.new', appImage);
+          if (restart) app.relaunch({ execPath: appImage });
+        } catch (e) {
+          error = e;
+        }
       }
-      file = null;
+      if (error) {
+        file = target;
+        set({
+          state: 'available',
+          url: DOWNLOAD_PAGE,
+          // Only the error code: messages can hold file paths, and with them the Windows user name.
+          error: 'install-failed:' + (error.code || 'unknown'),
+        });
+        return false;
+      }
       status = { ...status, state: 'idle' };
       return true;
     },

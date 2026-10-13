@@ -631,6 +631,7 @@
     "androidUpdate": "Update",
     "restartHint": "The update is downloaded and checked. Restart now, or it's installed when you quit Planora.",
     "downloadHint": "Download the new version and install it over the old one; your data is kept.",
+    "installFailed": "Planora couldn't install the update by itself. Download the new version and install it over the old one; your data is kept.",
     "androidHint": "Tap Update, open the download and choose Update. Your data is kept."
   },
   "report": {

@@ -631,6 +631,7 @@
     "androidUpdate": "Bijwerken",
     "restartHint": "De update is al gedownload en gecontroleerd. Herstart nu, of hij wordt geïnstalleerd als je Planora afsluit.",
     "downloadHint": "Download de nieuwe versie en installeer hem over de oude heen; je gegevens blijven bewaard.",
+    "installFailed": "Planora kon de update niet zelf installeren. Download de nieuwe versie en installeer hem over de oude heen; je gegevens blijven bewaard.",
     "androidHint": "Tik op Bijwerken, open de download en kies Bijwerken. Je gegevens blijven bewaard."
   },
   "report": {
