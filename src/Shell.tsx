@@ -2,6 +2,7 @@ import { Suspense, useState } from 'react';
 import { Link, Navigate, NavLink, Route, Routes, useLocation } from 'react-router-dom';
 import { Icon, type IconName } from './components/Icon';
 import { PageErrorBoundary } from './components/PageErrorBoundary';
+import { UndoBar } from './components/UndoBar';
 import { useStore } from './data/store';
 import { InboxPage } from './features/InboxPage';
 import { TaskForm } from './features/TaskForm';
@@ -120,6 +121,7 @@ export function Shell() {
           </NavLink>
         ))}
       </nav>
+      <UndoBar />
       <TaskForm open={adding} onClose={() => setAdding(false)} />
     </div>
   );

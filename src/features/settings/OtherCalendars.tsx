@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
-import { Chips } from '../../components/ui';
+import { Banner, Chips } from '../../components/ui';
 import { repo } from '../../data/repo';
 import { actions, useStore } from '../../data/store';
 import { EVENT_CATEGORIES, type EventCategory } from '../../domain/types';
@@ -16,6 +16,7 @@ import {
   googleSignIn,
   pullGoogleBusy,
 } from '../../integrations/google';
+import { importIdFor } from '../../integrations/ics';
 import { patchGoogle, saveIntegrations, useIntegrations } from '../../integrations/settings';
 import { useFormat } from '../../lib/format';
 import { platform } from '../../lib/platform';
@@ -128,7 +129,15 @@ export function IcsCard() {
   ));
   const setExport = (patch: Partial<typeof exp>) => saveIntegrations({ icsExport: { ...exp, ...patch } });
 
+  const [confirmRemove, setConfirmRemove] = useState<string | null>(null);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  // A file with the same name replaces its earlier import, so ask first.
+  const pick = (file: File) => {
+    if (imports.some((i) => i.id === importIdFor(file.name))) setPendingFile(file);
+    else void onFile(file);
+  };
   const onFile = async (file: File) => {
+    setPendingFile(null);
     try {
       setMsg(t('ics.imported', { count: await importCalendarFile(file.name, await file.text(), category) }));
     } catch {
@@ -163,7 +172,7 @@ export function IcsCard() {
         className="hidden"
         onChange={(e) => {
           const f = e.target.files?.[0];
-          if (f) void onFile(f);
+          if (f) pick(f);
           e.target.value = '';
         }}
       />
@@ -179,6 +188,26 @@ export function IcsCard() {
         </button>
       </div>
       <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{t('ics.categoryHint')}</p>
+      {pendingFile && (
+        <div className="mt-3">
+          <Banner
+            tone="warn"
+            icon="alert"
+            action={
+              <div className="flex gap-2">
+                <button className="btn-secondary" onClick={() => setPendingFile(null)}>
+                  {t('common.cancel')}
+                </button>
+                <button className="btn-primary" onClick={() => void onFile(pendingFile)}>
+                  {t('ics.replace')}
+                </button>
+              </div>
+            }
+          >
+            {t('ics.confirmReplace', { name: pendingFile.name })}
+          </Banner>
+        </div>
+      )}
       {imports.length > 0 && (
         <ul className="mt-3 divide-y divide-slate-100 text-sm dark:divide-slate-800">
           {imports.map((i) => (
@@ -195,9 +224,27 @@ export function IcsCard() {
               >
                 {categoryOptions}
               </select>
-              <button className="btn-ghost px-2 py-1 text-rose-600" onClick={() => removeCalendarImport(i.id)}>
-                {t('common.remove')}
-              </button>
+              {confirmRemove === i.id ? (
+                <span className="flex basis-full flex-wrap items-center justify-end gap-2 sm:basis-auto">
+                  <span className="text-xs">{t('ics.confirmRemove')}</span>
+                  <button className="btn-secondary px-2 py-1" onClick={() => setConfirmRemove(null)}>
+                    {t('common.cancel')}
+                  </button>
+                  <button
+                    className="btn-danger px-2 py-1"
+                    onClick={() => {
+                      setConfirmRemove(null);
+                      void removeCalendarImport(i.id);
+                    }}
+                  >
+                    {t('common.remove')}
+                  </button>
+                </span>
+              ) : (
+                <button className="btn-ghost px-2 py-1 text-rose-600" onClick={() => setConfirmRemove(i.id)}>
+                  {t('common.remove')}
+                </button>
+              )}
               {alsoInOutlook.has(i.id) && (
                 <span className="basis-full text-xs text-slate-500 dark:text-slate-400">{t('ics.alsoInOutlook')}</span>
               )}

@@ -1,15 +1,27 @@
 import { useState } from 'react';
-import { Chips, DurationInput, Field, Modal } from '../components/ui';
+import { Icon } from '../components/Icon';
+import { Banner, Chips, DurationInput, Field, Modal } from '../components/ui';
 import { actions, useStore } from '../data/store';
 import { doneMinutesFor } from '../domain/replan';
 import type { FeedbackRecord } from '../domain/types';
+import { canUndo as undoable } from '../domain/undo';
 import { useFormat } from '../lib/format';
 import { ReopenDialog } from './ReopenDialog';
 
-export function FeedbackDialog({ taskId, onClose }: { taskId: string; onClose: () => void }) {
+export function FeedbackDialog({
+  taskId,
+  onClose,
+  onUndo,
+}: {
+  taskId: string;
+  onClose: () => void;
+  /** Where to go after undoing a finish (default: close). */
+  onUndo?: () => void;
+}) {
   const { t, duration } = useFormat();
   const task = useStore((s) => s.tasks.find((x) => x.id === taskId));
   const sessions = useStore((s) => s.sessions);
+  const canUndo = useStore((s) => s.undo?.kind === 'complete' && s.undo.taskId === taskId && undoable(s.undo, s));
   const worked = task ? doneMinutesFor(task.id, sessions) : 0;
   const [completed, setCompleted] = useState(task?.status === 'done');
   const [actualMin, setActualMin] = useState(worked || task?.plannedEstimateMin || 60);
@@ -37,6 +49,10 @@ export function FeedbackDialog({ taskId, onClose }: { taskId: string; onClose: (
     if (!completed) setFollowUp(true);
     else onClose();
   };
+  const undo = async () => {
+    await actions.undoLast();
+    (onUndo ?? onClose)();
+  };
 
   return (
     <Modal
@@ -54,6 +70,22 @@ export function FeedbackDialog({ taskId, onClose }: { taskId: string; onClose: (
         </>
       }
     >
+      {canUndo && (
+        <div className="mb-4">
+          <Banner
+            tone="success"
+            icon="check"
+            action={
+              <button className="btn-secondary" onClick={undo}>
+                <Icon name="undo" className="h-4 w-4" />
+                {t('detail.undoComplete')}
+              </button>
+            }
+          >
+            {t('feedback.justFinished')}
+          </Banner>
+        </div>
+      )}
       <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">{t('feedback.intro')}</p>
       {task.status !== 'done' && (
         <div className="mb-4">

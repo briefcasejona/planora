@@ -1,8 +1,12 @@
 import type { TFunction } from 'i18next';
 import { type ReactNode, useEffect, useId, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { create } from 'zustand';
 import type { EventCategory, TaskType } from '../domain/types';
 import { Icon, type IconName } from './Icon';
+
+/** How many dialogs are open, so floating bars can stay out of their way. */
+export const useOpenModals = create<{ count: number }>(() => ({ count: 0 }));
 
 export function Modal({
   open,
@@ -22,6 +26,11 @@ export function Modal({
   const { t } = useTranslation();
   const ref = useRef<HTMLDivElement>(null);
   const titleId = useId();
+  useEffect(() => {
+    if (!open) return;
+    useOpenModals.setState((s) => ({ count: s.count + 1 }));
+    return () => useOpenModals.setState((s) => ({ count: s.count - 1 }));
+  }, [open]);
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();

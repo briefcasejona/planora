@@ -158,3 +158,24 @@
 - "Hide" closes it for good; it also goes away for good once all three steps are done. The choice syncs
   between your devices. Users who already did all three never see it.
 - Released together with this change (Jonathan's OK on 12 October 2026, before the project-group test).
+
+## Undo for accidental taps (13 October 2026, pull request #38, released in v0.4.6)
+- Why: you tapped Afronden by accident and lost a task's blocks. A council review (file
+  `council/undo-for-every-action-2026-10-13.md` in the project) advised undo only for the taps that lose
+  something, not for every action. You chose to build all of its advice.
+- A bar at the bottom of the screen ("Afgerond: Essay · Ongedaan maken") appears for 10 seconds after:
+  Afronden, Schrappen ("Laat maar zitten"), marking a block done/missed, and dragging a block in the calendar.
+  It stays while you point at it; on a computer Ctrl+Z (Cmd+Z) works too. Undo puts the task and its
+  blocks back as they were (pinned and past blocks exactly; the rest is replanned the same way).
+- Right after Afronden, the "Hoe ging het?" window also has the Ongedaan maken button, and an accidentally
+  finished or dropped task shows Ongedaan maken as its main button until you rate it or reload.
+- Safety: undo only works if nothing else changed those records in the meantime (a rating, another edit or
+  a sync from your other device); then it quietly does nothing. It lives in memory only, on the device
+  where you tapped, so nothing about stored data or sync changed.
+- Bewerken now sits on the left next to Verwijderen, away from Afronden.
+- Settings > Agenda's: re-importing a file with the same name and removing an imported timetable now ask
+  first.
+- A task finished before this change can't use Undo: open it and tap Opnieuw plannen.
+- Merged and released as v0.4.6 (your OK, 13 October 2026). Installed apps update themselves.
+- Still for you: add "Did you ever lose something you didn't mean to?" to the
+  questionnaire, and ask the group to post accidents in the group chat right away.
