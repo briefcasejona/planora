@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { canUndoFinish, finishTask } from './finish';
+import { finishTask } from './finish';
 import { makeTask } from './testUtils';
 import type { WorkSession } from './types';
 
@@ -43,20 +43,9 @@ describe('finishing a task', () => {
     expect(r.skipped.map((s) => [s.id, s.status])).toEqual([['past', 'skipped']]);
   });
 
-  it('remembers the task and its planned blocks exactly as they were', () => {
-    const { undo } = finishTask(task, sessions, now);
-    expect(undo.task).toBe(task);
-    expect(undo.task.steps?.map((s) => s.done)).toEqual([false, true]);
-    expect(undo.sessions.map((s) => s.id)).toEqual(['past', 'future', 'locked']);
-    expect(undo.sessions.every((s) => s.status === 'planned')).toBe(true);
-    expect(undo.sessions.find((s) => s.id === 'locked')?.locked).toBe(true);
-  });
-
-  it('can be undone only while the task is still done', () => {
-    const r = finishTask(task, sessions, now);
-    expect(canUndoFinish(r.undo, [r.task])).toBe(true);
-    expect(canUndoFinish(null, [r.task])).toBe(false);
-    expect(canUndoFinish(r.undo, [])).toBe(false);
-    expect(canUndoFinish(r.undo, [{ ...r.task, status: 'open', completedAt: undefined }])).toBe(false);
+  it('leaves the original task untouched, so it can be put back', () => {
+    finishTask(task, sessions, now);
+    expect(task.status).toBe('open');
+    expect(task.steps?.map((s) => s.done)).toEqual([false, true]);
   });
 });

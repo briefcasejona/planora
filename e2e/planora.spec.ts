@@ -67,6 +67,44 @@ test('plan a test, complete it, give feedback, switch language, and never call t
   expect(external).toEqual([]);
 });
 
+test('undo bar: completing a task by accident can be undone after closing the window', async ({ page }) => {
+  await onboard(page);
+  await page.getByRole('button', { name: 'Nieuwe taak' }).last().click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByPlaceholder('Bijv. Toets geschiedenis, essay Engels').fill('Essay Engels');
+  const deadline = new Date(Date.now() + 10 * 86400000);
+  const p = (n: number) => String(n).padStart(2, '0');
+  await dialog
+    .locator('input[type="datetime-local"]')
+    .fill(`${deadline.getFullYear()}-${p(deadline.getMonth() + 1)}-${p(deadline.getDate())}T09:00`);
+  await dialog.getByRole('button', { name: 'Toevoegen en plannen' }).click();
+  await expect(dialog).toBeHidden();
+
+  await page.getByRole('link', { name: 'Inbox' }).last().click();
+  await page.getByText('Essay Engels').click();
+  const blocks = page.getByRole('dialog').getByText(/Blokken \(\d+\)/);
+  const blockCount = await blocks.textContent();
+  // Edit and Complete are no longer next to each other.
+  const edit = await page.getByRole('button', { name: 'Bewerken' }).boundingBox();
+  const complete = await page.getByRole('button', { name: 'Afronden' }).boundingBox();
+  const centre = (b: typeof edit) => ({ x: (b?.x ?? 0) + (b?.width ?? 0) / 2, y: (b?.y ?? 0) + (b?.height ?? 0) / 2 });
+  const [a, b] = [centre(edit), centre(complete)];
+  expect(Math.hypot(a.x - b.x, a.y - b.y)).toBeGreaterThan(100);
+
+  // Complete by accident and close the questions with "Later": the bar offers Undo.
+  await page.getByRole('button', { name: 'Afronden' }).click();
+  await page.getByRole('button', { name: 'Later' }).click();
+  await expect(page.getByRole('dialog')).toBeHidden();
+  const bar = page.getByRole('status').filter({ hasText: 'Afgerond: Essay Engels' });
+  await expect(bar).toBeVisible();
+  await bar.getByRole('button', { name: 'Ongedaan maken' }).click();
+  await expect(bar).toBeHidden();
+
+  await page.getByText('Essay Engels').click();
+  await expect(page.getByRole('dialog').getByText('Open', { exact: true })).toBeVisible();
+  await expect(page.getByRole('dialog').getByText(blockCount ?? '')).toBeVisible();
+});
+
 test('calendar: day, week and month can be chosen on every screen size', async ({ page }) => {
   await onboard(page);
   await page.getByRole('link', { name: 'Agenda' }).last().click();
@@ -110,6 +148,14 @@ test('timetable import:lessons, tests and excursions are kept apart from study w
   await page
     .locator('input[type="file"][accept*=".ics"]')
     .setInputFiles({ name: 'rooster.ics', mimeType: 'text/calendar', buffer: Buffer.from(ics) });
+  await expect(page.getByText('3 afspraken geïmporteerd.')).toBeVisible();
+  // The same file again replaces its events, so Planora asks first.
+  await page
+    .locator('input[type="file"][accept*=".ics"]')
+    .setInputFiles({ name: 'rooster.ics', mimeType: 'text/calendar', buffer: Buffer.from(ics) });
+  await expect(page.getByText('Er is al een rooster met de naam rooster.ics.', { exact: false })).toBeVisible();
+  await page.getByRole('button', { name: 'Vervangen' }).click();
+  await expect(page.getByText('Er is al een rooster', { exact: false })).toBeHidden();
   await expect(page.getByText('3 afspraken geïmporteerd.')).toBeVisible();
 
   await page.getByRole('link', { name: 'Vandaag' }).last().click();

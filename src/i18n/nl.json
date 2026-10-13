@@ -424,7 +424,10 @@
     "category": "Afspraken in dit bestand zijn",
     "categoryHint": "Toetsen (\"toets\", \"tentamen\", …) en excursies worden aan hun naam herkend. Losse afspraken pas je aan door erop te klikken in de agenda.",
     "categoryOf": "Soort afspraken in {{name}}",
-    "alsoInOutlook": "Dit bestand staat ook in je Outlook-agenda. Je kunt het weghalen als je wilt; er gaat niets mis als je het laat staan."
+    "alsoInOutlook": "Dit bestand staat ook in je Outlook-agenda. Je kunt het weghalen als je wilt; er gaat niets mis als je het laat staan.",
+    "replace": "Vervangen",
+    "confirmReplace": "Er is al een rooster met de naam {{name}}. Importeren vervangt alle afspraken uit dat bestand.",
+    "confirmRemove": "Alle afspraken uit dit bestand weghalen?"
   },
   "log": {
     "connect": "gekoppeld",
@@ -688,5 +691,11 @@
     "remindersAction": "Herinneringen toestaan",
     "remindersDenied": "Herinneringen zijn geblokkeerd. Sta meldingen voor Planora toe in de instellingen van je apparaat.",
     "hide": "Verbergen"
+  },
+  "undo": {
+    "complete": "Afgerond: {{title}}",
+    "drop": "Geschrapt: {{title}}",
+    "sessionStatus": "Blok bijgewerkt: {{title}}",
+    "move": "Blok verplaatst en vastgezet: {{title}}"
   }
 }

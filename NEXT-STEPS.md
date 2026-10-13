@@ -147,13 +147,23 @@
   between your devices. Users who already did all three never see it.
 - Released together with this change (Jonathan's OK on 12 October 2026, before the project-group test).
 
-## Undo for "Afronden" (13 October 2026, pull request open)
-- After tapping Afronden (Complete), the "Hoe ging het?" window now says the task is finished and its blocks
-  were removed, with an **Ongedaan maken** (Undo) button. Undo puts the task back as it was (open, steps
-  unticked) with its blocks; pinned and past blocks come back exactly, the rest is replanned the same way.
-- Tapped "Later" instead? Open the task again (Inbox): the main button is **Ongedaan maken** until you
-  rate the task, reload the app or lock it. Undo lives in memory only, on the device where you tapped Afronden.
-- A task finished earlier (before this change) can't use Undo: open it and tap **Opnieuw plannen**, fill in the
-  time that's still needed and the deadline, and Planora plans new blocks.
+## Undo for accidental taps (13 October 2026, pull request #38 open)
+- Why: you tapped Afronden by accident and lost a task's blocks. A council review (file
+  `council/undo-for-every-action-2026-10-13.md` in the project) advised undo only for the taps that lose
+  something, not for every action. You chose to build all of its advice.
+- A bar at the bottom of the screen ("Afgerond: Essay · Ongedaan maken") appears for 10 seconds after:
+  Afronden, Schrappen ("Laat maar zitten"), marking a block done/missed, and dragging a block in the calendar.
+  It stays while you point at it; on a computer Ctrl+Z (Cmd+Z) works too. Undo puts the task and its
+  blocks back as they were (pinned and past blocks exactly; the rest is replanned the same way).
+- Right after Afronden, the "Hoe ging het?" window also has the Ongedaan maken button, and an accidentally
+  finished or dropped task shows Ongedaan maken as its main button until you rate it or reload.
+- Safety: undo only works if nothing else changed those records in the meantime (a rating, another edit or
+  a sync from your other device); then it quietly does nothing. It lives in memory only, on the device
+  where you tapped, so nothing about stored data or sync changed.
+- Bewerken now sits on the left next to Verwijderen, away from Afronden.
+- Settings > Agenda's: re-importing a file with the same name and removing an imported timetable now ask
+  first.
+- A task finished before this change can't use Undo: open it and tap Opnieuw plannen.
 - Needs the owner: merge (the website then updates itself; iPhone uses the website). Installed apps get it
-  only with a release, when you ask.
+  only with a release, when you ask. Add "Did you ever lose something you didn't mean to?" to the
+  questionnaire, and ask the group to post accidents in the group chat right away.

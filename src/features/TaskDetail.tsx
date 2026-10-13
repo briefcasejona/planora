@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Icon } from '../components/Icon';
 import { Banner, Modal, Progress, TypeBadge } from '../components/ui';
 import { actions, type SeriesScope, useStore } from '../data/store';
-import { canUndoFinish } from '../domain/finish';
 import { remainingMinutes, sessionMinutes, stepScale, workedMinutes } from '../domain/scheduler';
+import { canUndo as undoable } from '../domain/undo';
 import { useFormat } from '../lib/format';
 import { FeedbackDialog } from './FeedbackDialog';
 import { ReopenDialog } from './ReopenDialog';
@@ -18,7 +18,9 @@ export function TaskDetail({ taskId, onClose }: { taskId: string; onClose: () =>
   const task = useStore((s) => s.tasks.find((x) => x.id === taskId));
   const allSessions = useStore((s) => s.sessions);
   const allWarnings = useStore((s) => s.warnings);
-  const canUndo = useStore((s) => s.lastFinished?.task.id === taskId && canUndoFinish(s.lastFinished, s.tasks));
+  const canUndo = useStore(
+    (s) => (s.undo?.kind === 'complete' || s.undo?.kind === 'drop') && s.undo.taskId === taskId && undoable(s.undo, s),
+  );
   const [mode, setMode] = useState<Mode>('view');
   if (!task) return null;
   if (mode === 'edit') return <TaskForm open task={task} onClose={() => setMode('view')} />;
@@ -69,10 +71,16 @@ export function TaskDetail({ taskId, onClose }: { taskId: string; onClose: () =>
       </>
     ) : (
       <>
-        <button className="btn-ghost mr-auto text-rose-600" onClick={() => setMode('confirmDelete')}>
-          <Icon name="trash" className="h-4 w-4" />
-          {t('common.delete')}
-        </button>
+        {/* Edit sits on the left, away from Complete, so one isn't tapped for the other. */}
+        <div className="mr-auto flex gap-2">
+          <button className="btn-ghost text-rose-600" onClick={() => setMode('confirmDelete')}>
+            <Icon name="trash" className="h-4 w-4" />
+            {t('common.delete')}
+          </button>
+          <button className="btn-secondary" onClick={() => setMode('edit')}>
+            {t('common.edit')}
+          </button>
+        </div>
         {open && planned > 0 && (
           <button
             className="btn-secondary"
@@ -83,16 +91,13 @@ export function TaskDetail({ taskId, onClose }: { taskId: string; onClose: () =>
             {t('detail.addToCalendar')}
           </button>
         )}
-        <button className="btn-secondary" onClick={() => setMode('edit')}>
-          {t('common.edit')}
-        </button>
         {open ? (
           <button className="btn-primary" onClick={complete}>
             <Icon name="check" className="h-4 w-4" />
             {t('detail.complete')}
           </button>
         ) : canUndo ? (
-          <button className="btn-primary" onClick={() => void actions.undoCompleteTask()}>
+          <button className="btn-primary" onClick={() => void actions.undoLast()}>
             <Icon name="undo" className="h-4 w-4" />
             {t('detail.undoComplete')}
           </button>

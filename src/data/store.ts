@@ -2,7 +2,7 @@ import { addDays, addHours, differenceInCalendarDays } from 'date-fns';
 import { create } from 'zustand';
 import { seriesScope, weeklyDeadlines } from '../domain/courses';
 import { suggestEstimate } from '../domain/estimator';
-import { canUndoFinish, type FinishUndo, finishTask } from '../domain/finish';
+import { finishTask } from '../domain/finish';
 import { buildWeeklyPlan, buildWeeklyReview, type WeeklyReviewData } from '../domain/insights';
 import { reopenTask as reopen } from '../domain/replan';
 import { schedule } from '../domain/scheduler';
@@ -20,6 +20,7 @@ import type {
   WorkSession,
 } from '../domain/types';
 import { DEFAULT_PREFERENCES } from '../domain/types';
+import { canUndo, pick, type UndoEntry, type UndoKind } from '../domain/undo';
 import { deviceLanguage } from '../lib/language';
 import { unlock } from './crypto';
 import { currentPlanWeek, latestReviewWeek, planMoment, reviewMoment } from './moments';
@@ -65,8 +66,8 @@ export interface AppState {
   reports: WeekReport[];
   prefs: Preferences;
   warnings: ScheduleWarning[];
-  /** The last task finished on this device, until undone, rated or reloaded. Not stored. */
-  lastFinished: FinishUndo | null;
+  /** The last action that can be undone, on this device until reload. Not stored. */
+  undo: UndoEntry | null;
 }
 
 type Listener = (state: AppState) => void;
@@ -90,7 +91,7 @@ export const useStore = create<AppState>(() => ({
   reports: [],
   prefs: { ...DEFAULT_PREFERENCES, language: deviceLanguage() },
   warnings: [],
-  lastFinished: null,
+  undo: null,
 }));
 
 const get = useStore.getState;
@@ -211,6 +212,27 @@ async function ensureReportsNow(): Promise<void> {
   }
 }
 
+let undoCounter = 0;
+/**
+ * Run an action that offers Undo: remember the task and these sessions before and right after
+ * the action (including the replan), so Undo can put them back if nothing else changed them.
+ */
+async function withUndo(kind: UndoKind, task: Task, sessionIds: string[], fn: () => Promise<void>): Promise<void> {
+  const before = pick(get(), [task.id], sessionIds);
+  await fn();
+  await replanNow();
+  set({
+    undo: {
+      id: ++undoCounter,
+      kind,
+      taskId: task.id,
+      title: task.title,
+      before,
+      after: pick(get(), [task.id], sessionIds),
+    },
+  });
+}
+
 function patchTask(task: Task): Promise<void> {
   set({ tasks: get().tasks.map((t) => (t.id === task.id ? task : t)) });
   return repo.putTasks([task]);
@@ -251,7 +273,7 @@ export const actions = {
       feedback: [],
       reports: [],
       warnings: [],
-      lastFinished: null,
+      undo: null,
     });
   },
 
@@ -270,6 +292,8 @@ export const actions = {
   applyExternal: (fn: () => Promise<boolean>) =>
     serial(async () => {
       if (await fn()) {
+        // Data from another device: an undo offered before it could overwrite newer changes.
+        set({ undo: null });
         await loadAll();
         await replanNow();
       }
@@ -386,39 +410,51 @@ export const actions = {
       const task = get().tasks.find((t) => t.id === id);
       if (!task) return;
       // Leftover sessions for a finished task are no longer needed.
-      const r = finishTask(task, get().sessions, new Date());
-      await patchTask(r.task);
-      await repo.deleteSessions(r.removedIds);
-      await repo.putSessions(r.skipped);
-      const skippedById = new Map(r.skipped.map((s) => [s.id, s]));
+      const planned = get()
+        .sessions.filter((s) => s.taskId === id && s.status === 'planned')
+        .map((s) => s.id);
+      await withUndo('complete', task, planned, async () => {
+        const r = finishTask(task, get().sessions, new Date());
+        await patchTask(r.task);
+        await repo.deleteSessions(r.removedIds);
+        await repo.putSessions(r.skipped);
+        const skippedById = new Map(r.skipped.map((s) => [s.id, s]));
+        set({
+          sessions: get()
+            .sessions.filter((s) => !r.removedIds.includes(s.id))
+            .map((s) => skippedById.get(s.id) ?? s),
+        });
+      });
+    }),
+
+  /** Undo the last action: the records it touched come back exactly as they were, then Planora replans. */
+  undoLast: () =>
+    serial(async () => {
+      const entry = get().undo;
+      set({ undo: null });
+      if (!canUndo(entry, get())) return;
+      await repo.putTasks(entry.before.tasks);
+      await repo.putSessions(entry.before.sessions);
+      const taskIds = new Set(entry.before.tasks.map((t) => t.id));
+      const sessionIds = new Set(entry.before.sessions.map((s) => s.id));
       set({
-        sessions: get()
-          .sessions.filter((s) => !r.removedIds.includes(s.id))
-          .map((s) => skippedById.get(s.id) ?? s),
-        lastFinished: r.undo,
+        tasks: get().tasks.map((t) => (taskIds.has(t.id) ? (entry.before.tasks.find((x) => x.id === t.id) ?? t) : t)),
+        sessions: [...get().sessions.filter((s) => !sessionIds.has(s.id)), ...entry.before.sessions],
       });
       await replanNow();
     }),
 
-  /** Undo the last "Finish": the task and its planned sessions come back as they were. */
-  undoCompleteTask: () =>
-    serial(async () => {
-      const undo = get().lastFinished;
-      set({ lastFinished: null });
-      if (!canUndoFinish(undo, get().tasks)) return;
-      await patchTask(undo.task);
-      await repo.putSessions(undo.sessions);
-      const ids = new Set(undo.sessions.map((s) => s.id));
-      set({ sessions: [...get().sessions.filter((s) => !ids.has(s.id)), ...undo.sessions] });
-      await replanNow();
-    }),
+  /** Forget the offered undo (the user closed the bar). */
+  dismissUndo: () => set({ undo: null }),
 
   dropTask: (id: string) =>
     serial(async () => {
       const task = get().tasks.find((t) => t.id === id);
       if (!task) return;
-      await patchTask({ ...task, status: 'dropped', feedbackGiven: true });
-      await replanNow();
+      const planned = get()
+        .sessions.filter((s) => s.taskId === id && s.status === 'planned')
+        .map((s) => s.id);
+      await withUndo('drop', task, planned, () => patchTask({ ...task, status: 'dropped', feedbackGiven: true }));
     }),
 
   reopenTask: (id: string, remainingMin: number, newDeadline?: string) =>
@@ -432,22 +468,26 @@ export const actions = {
   setSessionStatus: (id: string, status: SessionStatus, actualMin?: number) =>
     serial(async () => {
       const s = get().sessions.find((x) => x.id === id);
-      if (!s) return;
+      const task = get().tasks.find((t) => t.id === s?.taskId);
+      if (!s || !task) return;
       const updated: WorkSession = { ...s, status, actualMin: status === 'done' ? actualMin : undefined };
-      await repo.putSessions([updated]);
-      set({ sessions: get().sessions.map((x) => (x.id === id ? updated : x)) });
-      await replanNow();
+      await withUndo('sessionStatus', task, [id], async () => {
+        await repo.putSessions([updated]);
+        set({ sessions: get().sessions.map((x) => (x.id === id ? updated : x)) });
+      });
     }),
 
   /** The user moved a session: pin it there so the scheduler plans around it. */
   moveSession: (id: string, start: Date, end: Date) =>
     serial(async () => {
       const s = get().sessions.find((x) => x.id === id);
-      if (!s) return;
+      const task = get().tasks.find((t) => t.id === s?.taskId);
+      if (!s || !task) return;
       const updated: WorkSession = { ...s, start: start.toISOString(), end: end.toISOString(), locked: true };
-      await repo.putSessions([updated]);
-      set({ sessions: get().sessions.map((x) => (x.id === id ? updated : x)) });
-      await replanNow();
+      await withUndo('move', task, [id], async () => {
+        await repo.putSessions([updated]);
+        set({ sessions: get().sessions.map((x) => (x.id === id ? updated : x)) });
+      });
     }),
 
   unlockSession: (id: string) =>
@@ -535,9 +575,7 @@ export const actions = {
         feedbackGiven: true,
         ...(finished ? { status: 'done' as const, completedAt: now.toISOString() } : {}),
       });
-      // Once the user has rated the task, the finish is confirmed.
-      const lastFinished = get().lastFinished?.task.id === task.id ? null : get().lastFinished;
-      set({ feedback: [...get().feedback, record], lastFinished });
+      set({ feedback: [...get().feedback, record] });
       await replanNow();
     }),
 
@@ -567,7 +605,7 @@ export const actions = {
         feedback: [],
         reports: [],
         warnings: [],
-        lastFinished: null,
+        undo: null,
         prefs: { ...DEFAULT_PREFERENCES, language: deviceLanguage() },
         locked: false,
       });

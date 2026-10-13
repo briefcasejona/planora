@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { Icon } from '../components/Icon';
 import { Banner, Chips, DurationInput, Field, Modal } from '../components/ui';
 import { actions, useStore } from '../data/store';
-import { canUndoFinish } from '../domain/finish';
 import { doneMinutesFor } from '../domain/replan';
 import type { FeedbackRecord } from '../domain/types';
+import { canUndo as undoable } from '../domain/undo';
 import { useFormat } from '../lib/format';
 import { ReopenDialog } from './ReopenDialog';
 
@@ -21,7 +21,7 @@ export function FeedbackDialog({
   const { t, duration } = useFormat();
   const task = useStore((s) => s.tasks.find((x) => x.id === taskId));
   const sessions = useStore((s) => s.sessions);
-  const canUndo = useStore((s) => s.lastFinished?.task.id === taskId && canUndoFinish(s.lastFinished, s.tasks));
+  const canUndo = useStore((s) => s.undo?.kind === 'complete' && s.undo.taskId === taskId && undoable(s.undo, s));
   const worked = task ? doneMinutesFor(task.id, sessions) : 0;
   const [completed, setCompleted] = useState(task?.status === 'done');
   const [actualMin, setActualMin] = useState(worked || task?.plannedEstimateMin || 60);
@@ -50,7 +50,7 @@ export function FeedbackDialog({
     else onClose();
   };
   const undo = async () => {
-    await actions.undoCompleteTask();
+    await actions.undoLast();
     (onUndo ?? onClose)();
   };
 
