@@ -97,9 +97,11 @@ export function TodayPage() {
               {t(
                 update.kind === 'android'
                   ? 'updates.androidHint'
-                  : update.kind === 'install'
-                    ? 'updates.restartHint'
-                    : 'updates.downloadHint',
+                  : update.error?.startsWith('install-failed')
+                    ? 'updates.installFailed'
+                    : update.kind === 'install'
+                      ? 'updates.restartHint'
+                      : 'updates.downloadHint',
               )}
             </p>
           </Banner>

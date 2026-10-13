@@ -234,12 +234,13 @@ const updater = createUpdater({
 let updateUnattended = false;
 ipcMain.handle('update-status', () => updater.status());
 ipcMain.handle('check-update', () => updater.check().then(() => updater.status()));
-ipcMain.handle('install-update', () => {
+ipcMain.handle('install-update', async () => {
   if (updater.status().state === 'available') {
     void shell.openExternal(DOWNLOAD_PAGE);
     return false;
   }
-  if (!updater.install(true)) return false;
+  // Only quit once the installer is really running; otherwise Planora stays open and offers the download.
+  if (!(await updater.install(true))) return false;
   updateUnattended = true;
   quitting = true;
   app.quit();
@@ -304,7 +305,7 @@ if (!app.requestSingleInstanceLock()) {
   app.on('before-quit', () => {
     quitting = true;
     // An update that was downloaded but not installed yet is installed while quitting.
-    if (!updateUnattended && updater.status().state === 'ready') updater.install(false);
+    if (!updateUnattended && updater.status().state === 'ready') void updater.install(false);
   });
   // Mac: clicking the Dock icon brings the (hidden) window back.
   app.on('activate', () => {

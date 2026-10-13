@@ -35,6 +35,18 @@
 - Updates stay silent (your choice, 12 October 2026). To check on the iPhone: open Overview after the
   next update is live; it should show the page, not an empty screen.
 
+## Windows "Restart and update" did nothing (fixed in v0.4.5, 12 October 2026)
+- Cause (confirmed from the code): the button started the downloaded installer and only then closed
+  Planora. When Windows refused to start the installer, the error stopped the button before Planora
+  closed, so nothing happened. Why Windows refused is inferred: most likely Windows Defender or
+  SmartScreen, because the installer is new and not code-signed.
+- Fix (your OK, 12 October 2026): Planora waits until the installer really runs before closing. If Windows
+  blocks it, Planora stays open, says it couldn't install the update itself, and the button becomes
+  "Download". The installer is told it's an update, so Planora gets a moment to close properly.
+- Copies that are already installed still have the old button: update them once by hand from the
+  download page (data is kept). From v0.4.5 on, the button either works or offers the download.
+- Worth considering later: code-signing the Windows installer, so Windows stops blocking it.
+
 ## Week view on phones (merged in pull request #23, 12 October 2026)
 - The calendar on a phone now offers Day, Week and Month (Week was hidden on small screens). Short day
   headers ("ma 12") so the whole week fits. Phones still open on Day.

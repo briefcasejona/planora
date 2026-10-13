@@ -22,13 +22,15 @@ export function UpdatesCard() {
       ? t('updates.checking')
       : u.state === 'downloading'
         ? t('updates.downloading', { version: u.version })
-        : u.state === 'ready' || u.state === 'available'
-          ? t('updates.found', { version: u.version })
-          : u.state === 'none'
-            ? t('updates.upToDate')
-            : u.state === 'error'
-              ? t('updates.failed')
-              : '';
+        : u.error?.startsWith('install-failed')
+          ? t('updates.installFailed')
+          : u.state === 'ready' || u.state === 'available'
+            ? t('updates.found', { version: u.version })
+            : u.state === 'none'
+              ? t('updates.upToDate')
+              : u.state === 'error'
+                ? t('updates.failed')
+                : '';
   return (
     <div className="card mb-4">
       <h3 className="mb-1 font-semibold">{t('updates.title')}</h3>
