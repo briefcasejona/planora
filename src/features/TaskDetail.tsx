@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Icon } from '../components/Icon';
 import { Banner, Modal, Progress, TypeBadge } from '../components/ui';
 import { actions, type SeriesScope, useStore } from '../data/store';
+import { canUndoFinish } from '../domain/finish';
 import { remainingMinutes, sessionMinutes, stepScale, workedMinutes } from '../domain/scheduler';
 import { useFormat } from '../lib/format';
 import { FeedbackDialog } from './FeedbackDialog';
@@ -17,11 +18,12 @@ export function TaskDetail({ taskId, onClose }: { taskId: string; onClose: () =>
   const task = useStore((s) => s.tasks.find((x) => x.id === taskId));
   const allSessions = useStore((s) => s.sessions);
   const allWarnings = useStore((s) => s.warnings);
+  const canUndo = useStore((s) => s.lastFinished?.task.id === taskId && canUndoFinish(s.lastFinished, s.tasks));
   const [mode, setMode] = useState<Mode>('view');
   if (!task) return null;
   if (mode === 'edit') return <TaskForm open task={task} onClose={() => setMode('view')} />;
   if (mode === 'reopen') return <ReopenDialog taskId={task.id} onClose={() => setMode('view')} />;
-  if (mode === 'feedback') return <FeedbackDialog taskId={task.id} onClose={onClose} />;
+  if (mode === 'feedback') return <FeedbackDialog taskId={task.id} onClose={onClose} onUndo={() => setMode('view')} />;
 
   const warnings = allWarnings.filter((w) => w.taskId === taskId);
   const sessions = allSessions.filter((s) => s.taskId === task.id).sort((a, b) => a.start.localeCompare(b.start));
@@ -88,6 +90,11 @@ export function TaskDetail({ taskId, onClose }: { taskId: string; onClose: () =>
           <button className="btn-primary" onClick={complete}>
             <Icon name="check" className="h-4 w-4" />
             {t('detail.complete')}
+          </button>
+        ) : canUndo ? (
+          <button className="btn-primary" onClick={() => void actions.undoCompleteTask()}>
+            <Icon name="undo" className="h-4 w-4" />
+            {t('detail.undoComplete')}
           </button>
         ) : (
           <button className="btn-primary" onClick={() => setMode('reopen')}>

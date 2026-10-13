@@ -220,6 +220,7 @@
     "noSessions": "Nog geen blokken.",
     "complete": "Afronden",
     "redo": "Opnieuw plannen",
+    "undoComplete": "Ongedaan maken",
     "giveFeedback": "Feedback geven",
     "confirmDelete": "Taak en alle blokken verwijderen?",
     "confirmDeleteSeries": "Deze wekelijkse taak verwijderen?",
@@ -230,6 +231,7 @@
   },
   "feedback": {
     "title": "Hoe ging het: {{title}}?",
+    "justFinished": "Afgerond. De geplande blokken zijn uit je agenda gehaald. Per ongeluk op Afronden getikt? Zet alles terug zoals het was.",
     "intro": "Een paar korte vragen. Zo leert Planora hoeveel tijd jij echt nodig hebt en plant het de volgende keer beter.",
     "completed": "Is de taak af?",
     "notYet": "Nee, nog niet",

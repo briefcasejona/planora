@@ -2,6 +2,7 @@ import { addDays, addHours, differenceInCalendarDays } from 'date-fns';
 import { create } from 'zustand';
 import { seriesScope, weeklyDeadlines } from '../domain/courses';
 import { suggestEstimate } from '../domain/estimator';
+import { canUndoFinish, type FinishUndo, finishTask } from '../domain/finish';
 import { buildWeeklyPlan, buildWeeklyReview, type WeeklyReviewData } from '../domain/insights';
 import { reopenTask as reopen } from '../domain/replan';
 import { schedule } from '../domain/scheduler';
@@ -64,6 +65,8 @@ export interface AppState {
   reports: WeekReport[];
   prefs: Preferences;
   warnings: ScheduleWarning[];
+  /** The last task finished on this device, until undone, rated or reloaded. Not stored. */
+  lastFinished: FinishUndo | null;
 }
 
 type Listener = (state: AppState) => void;
@@ -87,6 +90,7 @@ export const useStore = create<AppState>(() => ({
   reports: [],
   prefs: { ...DEFAULT_PREFERENCES, language: deviceLanguage() },
   warnings: [],
+  lastFinished: null,
 }));
 
 const get = useStore.getState;
@@ -239,7 +243,16 @@ export const actions = {
 
   lock(): void {
     setEncryptionKey(null);
-    set({ locked: true, tasks: [], sessions: [], busy: [], feedback: [], reports: [], warnings: [] });
+    set({
+      locked: true,
+      tasks: [],
+      sessions: [],
+      busy: [],
+      feedback: [],
+      reports: [],
+      warnings: [],
+      lastFinished: null,
+    });
   },
 
   reload: () =>
@@ -372,25 +385,31 @@ export const actions = {
     serial(async () => {
       const task = get().tasks.find((t) => t.id === id);
       if (!task) return;
-      const now = new Date();
-      await patchTask({
-        ...task,
-        status: 'done',
-        completedAt: now.toISOString(),
-        steps: task.steps?.map((s) => ({ ...s, done: true })),
-      });
       // Leftover sessions for a finished task are no longer needed.
-      const leftovers = get().sessions.filter((s) => s.taskId === id && s.status === 'planned');
-      const future = leftovers.filter((s) => new Date(s.start) >= now).map((s) => s.id);
-      const past = leftovers.filter((s) => new Date(s.start) < now).map((s) => ({ ...s, status: 'skipped' as const }));
-      await repo.deleteSessions(future);
-      await repo.putSessions(past);
-      const pastById = new Map(past.map((s) => [s.id, s]));
+      const r = finishTask(task, get().sessions, new Date());
+      await patchTask(r.task);
+      await repo.deleteSessions(r.removedIds);
+      await repo.putSessions(r.skipped);
+      const skippedById = new Map(r.skipped.map((s) => [s.id, s]));
       set({
         sessions: get()
-          .sessions.filter((s) => !future.includes(s.id))
-          .map((s) => pastById.get(s.id) ?? s),
+          .sessions.filter((s) => !r.removedIds.includes(s.id))
+          .map((s) => skippedById.get(s.id) ?? s),
+        lastFinished: r.undo,
       });
+      await replanNow();
+    }),
+
+  /** Undo the last "Finish": the task and its planned sessions come back as they were. */
+  undoCompleteTask: () =>
+    serial(async () => {
+      const undo = get().lastFinished;
+      set({ lastFinished: null });
+      if (!canUndoFinish(undo, get().tasks)) return;
+      await patchTask(undo.task);
+      await repo.putSessions(undo.sessions);
+      const ids = new Set(undo.sessions.map((s) => s.id));
+      set({ sessions: [...get().sessions.filter((s) => !ids.has(s.id)), ...undo.sessions] });
       await replanNow();
     }),
 
@@ -516,7 +535,9 @@ export const actions = {
         feedbackGiven: true,
         ...(finished ? { status: 'done' as const, completedAt: now.toISOString() } : {}),
       });
-      set({ feedback: [...get().feedback, record] });
+      // Once the user has rated the task, the finish is confirmed.
+      const lastFinished = get().lastFinished?.task.id === task.id ? null : get().lastFinished;
+      set({ feedback: [...get().feedback, record], lastFinished });
       await replanNow();
     }),
 
@@ -546,6 +567,7 @@ export const actions = {
         feedback: [],
         reports: [],
         warnings: [],
+        lastFinished: null,
         prefs: { ...DEFAULT_PREFERENCES, language: deviceLanguage() },
         locked: false,
       });

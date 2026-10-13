@@ -220,6 +220,7 @@
     "noSessions": "No blocks yet.",
     "complete": "Complete",
     "redo": "Replan",
+    "undoComplete": "Undo",
     "giveFeedback": "Give feedback",
     "confirmDelete": "Delete the task and all its blocks?",
     "confirmDeleteSeries": "Delete this weekly task?",
@@ -230,6 +231,7 @@
   },
   "feedback": {
     "title": "How did it go: {{title}}?",
+    "justFinished": "Finished. Its planned blocks were removed from your calendar. Tapped Complete by accident? Put everything back as it was.",
     "intro": "A few quick questions. This teaches Planora how much time you really need so it plans better next time.",
     "completed": "Is the task finished?",
     "notYet": "No, not yet",

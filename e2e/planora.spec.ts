@@ -35,7 +35,17 @@ test('plan a test, complete it, give feedback, switch language, and never call t
   await expect(page.getByText(/blokken gepland/)).toBeVisible();
 
   await page.getByText('Toets biologie H4').click();
-  await expect(page.getByRole('dialog').getByText(/Blokken \(\d+\)/)).toBeVisible();
+  const blocks = page.getByRole('dialog').getByText(/Blokken \(\d+\)/);
+  await expect(blocks).toBeVisible();
+  const blockCount = await blocks.textContent();
+
+  // Tapped by accident: undo puts the task and its blocks back.
+  await page.getByRole('button', { name: 'Afronden' }).click();
+  await expect(page.getByRole('heading', { name: /Hoe ging het/ })).toBeVisible();
+  await page.getByRole('button', { name: 'Ongedaan maken' }).click();
+  await expect(page.getByRole('dialog').getByText(blockCount ?? '')).toBeVisible();
+  await expect(page.getByRole('dialog').getByText('Open', { exact: true })).toBeVisible();
+
   await page.getByRole('button', { name: 'Afronden' }).click();
   await expect(page.getByRole('heading', { name: /Hoe ging het/ })).toBeVisible();
   await page.getByRole('radio', { name: 'Te weinig' }).click();

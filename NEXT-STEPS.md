@@ -146,3 +146,14 @@
 - "Hide" closes it for good; it also goes away for good once all three steps are done. The choice syncs
   between your devices. Users who already did all three never see it.
 - Released together with this change (Jonathan's OK on 12 October 2026, before the project-group test).
+
+## Undo for "Afronden" (13 October 2026, pull request open)
+- After tapping Afronden (Complete), the "Hoe ging het?" window now says the task is finished and its blocks
+  were removed, with an **Ongedaan maken** (Undo) button. Undo puts the task back as it was (open, steps
+  unticked) with its blocks; pinned and past blocks come back exactly, the rest is replanned the same way.
+- Tapped "Later" instead? Open the task again (Inbox): the main button is **Ongedaan maken** until you
+  rate the task, reload the app or lock it. Undo lives in memory only, on the device where you tapped Afronden.
+- A task finished earlier (before this change) can't use Undo: open it and tap **Opnieuw plannen**, fill in the
+  time that's still needed and the deadline, and Planora plans new blocks.
+- Needs the owner: merge (the website then updates itself; iPhone uses the website). Installed apps get it
+  only with a release, when you ask.
