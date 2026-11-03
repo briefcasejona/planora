@@ -1,0 +1,40 @@
+# TEMPORARY: runs the pre-merge checks for PRs #40 and #41. Lives only on branch claude/checks; never merged.
+name: Temporary checks
+
+on:
+  push:
+    branches: [claude/checks]
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Unit tests
+        run: npm test
+        continue-on-error: true
+        id: test
+      - name: Lint
+        run: npm run lint
+        continue-on-error: true
+        id: lint
+      - name: Build
+        run: npm run build
+        continue-on-error: true
+        id: build
+      - name: End-to-end tests
+        run: npx playwright test --reporter=line
+        continue-on-error: true
+        id: e2e
+      - name: Summary
+        run: |
+          echo "test=${{ steps.test.outcome }} lint=${{ steps.lint.outcome }} build=${{ steps.build.outcome }} e2e=${{ steps.e2e.outcome }}"
+          [ "${{ steps.test.outcome }}${{ steps.lint.outcome }}${{ steps.build.outcome }}${{ steps.e2e.outcome }}" = "successsuccesssuccesssuccess" ]
