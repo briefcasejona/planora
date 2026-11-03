@@ -4,7 +4,16 @@ import { isNamedDeadline, SCHOOL_CATEGORIES } from './categories';
 import { suggestSessionCount } from './estimator';
 import { evenDayOffsets, spacedDayOffsets, splitMinutes } from './spacing';
 import { atMinutes, type Interval, minutesBetween, parseHM, roundUpToSlot, subtractIntervals } from './time';
-import type { BusyBlock, FeedbackRecord, Preferences, ScheduleWarning, SessionKind, Task, WorkSession } from './types';
+import type {
+  BusyBlock,
+  FeedbackRecord,
+  Preferences,
+  ProjectStep,
+  ScheduleWarning,
+  SessionKind,
+  Task,
+  WorkSession,
+} from './types';
 
 export interface ScheduleInput {
   now: Date;
@@ -102,7 +111,7 @@ function buildChunks(task: Task, kept: WorkSession[], input: ScheduleInput, earl
   const chunks: Chunk[] = [];
 
   if (task.type === 'project' && task.steps && task.steps.length > 0) {
-    const steps = [...task.steps].sort((a, b) => a.order - b.order).filter((s) => !s.done);
+    const steps = openSteps(task);
     const remaining = steps.map((s) => remainingMinutes(task, kept, s.id));
     const total = remaining.reduce((a, b) => a + b, 0);
     if (total === 0) return [];
@@ -292,6 +301,18 @@ export function schedule(input: ScheduleInput): ScheduleResult {
   const created: WorkSession[] = [];
   const stepEnd = new Map<string, Date>();
   const stepKey = (taskId: string, order: number) => taskId + '|' + order;
+  // Kept sessions (locked, done, in progress) count too: a later step starts after them.
+  for (const task of plannable) {
+    openSteps(task).forEach((step, i) => {
+      for (const s of keep) {
+        if (s.taskId !== task.id || s.stepId !== step.id) continue;
+        const key = stepKey(task.id, i + 1);
+        const end = new Date(s.end);
+        const prev = stepEnd.get(key);
+        if (!prev || end > prev) stepEnd.set(key, end);
+      }
+    });
+  }
 
   const place = (chunk: Chunk, until: Date): number => {
     let remaining = chunk.minutes;
@@ -354,6 +375,79 @@ export function schedule(input: ScheduleInput): ScheduleResult {
     if (!unplaced.has(taskId)) warnings.push({ taskId, kind: 'buffer-squeezed' });
   }
 
-  created.sort((a, b) => a.start.localeCompare(b.start));
-  return { keep, created, removedIds, warnings };
+  const ordered = plannable.reduce(
+    (list, task) => keepStepOrder(task, list, keep, Math.min(prefs.minBlockMin, 15), newId),
+    created,
+  );
+  ordered.sort((a, b) => a.start.localeCompare(b.start));
+  return { keep, created: ordered, removedIds, warnings };
+}
+
+/** A project's steps that still need work, in the user's order. */
+function openSteps(task: Task): ProjectStep[] {
+  if (task.type !== 'project' || !task.steps) return [];
+  return [...task.steps].sort((a, b) => a.order - b.order).filter((s) => !s.done);
+}
+
+/**
+ * Hand a project's planned time slots to its steps in the user's order, so step 1 always gets
+ * the earliest slots. Placement can leave part of an early step for the second pass, after later
+ * steps were placed; this puts the order right without changing any slot's time. A slot that holds
+ * the end of one step and the start of the next is split in two back-to-back sessions. A slot
+ * before a kept session of an earlier step stays with the step before.
+ */
+function keepStepOrder(
+  task: Task,
+  sessions: WorkSession[],
+  keep: WorkSession[],
+  absorbMin: number,
+  newId: () => string,
+): WorkSession[] {
+  const steps = openSteps(task);
+  const mine = sessions.filter((s) => s.taskId === task.id).sort((a, b) => a.start.localeCompare(b.start));
+  if (steps.length < 2 || mine.length === 0) return sessions;
+  const need = steps.map((s) => remainingMinutes(task, keep, s.id));
+  // The earliest moment step k may start: after every kept session of the steps before it.
+  const notBefore: number[] = [];
+  let bound = 0;
+  steps.forEach((step, k) => {
+    notBefore[k] = bound;
+    for (const s of keep) if (s.taskId === task.id && s.stepId === step.id) bound = Math.max(bound, +new Date(s.end));
+  });
+
+  const out: WorkSession[] = [];
+  const last = steps.length - 1;
+  let k = 0;
+  let left = need[0];
+  const nextStep = () => {
+    while (k < last && left < absorbMin) {
+      k++;
+      left = need[k];
+    }
+  };
+  for (const session of mine) {
+    let start = +new Date(session.start);
+    const end = +new Date(session.end);
+    let first = true;
+    while (start < end) {
+      nextStep();
+      const piece = { ...session, id: first ? session.id : newId(), start: new Date(start).toISOString() };
+      first = false;
+      if (k > 0 && start < notBefore[k]) {
+        out.push({ ...piece, stepId: steps[k - 1].id });
+        break;
+      }
+      const len = (end - start) / 60000;
+      if (k === last || len - left < absorbMin || left < absorbMin) {
+        out.push({ ...piece, stepId: steps[k].id });
+        left -= len;
+        break;
+      }
+      const cut = start + left * 60000;
+      out.push({ ...piece, stepId: steps[k].id, end: new Date(cut).toISOString() });
+      left = 0;
+      start = cut;
+    }
+  }
+  return [...sessions.filter((s) => s.taskId !== task.id), ...out];
 }

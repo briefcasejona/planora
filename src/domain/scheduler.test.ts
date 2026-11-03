@@ -139,6 +139,99 @@ describe('schedule: project in seven weeks', () => {
   });
 });
 
+describe('schedule: project steps stay in order in a full week', () => {
+  // Five chapters this week, with another task and two busy evenings competing for time.
+  const chapters = [1, 2, 3, 4, 5].map((n) => ({
+    id: 'ch' + n,
+    title: 'Chapter ' + n,
+    estimateMin: 120,
+    order: n - 1,
+    done: false,
+  }));
+  const project = makeTask({
+    type: 'project',
+    steps: chapters,
+    userEstimateMin: 600,
+    plannedEstimateMin: 600,
+    deadline: new Date(2026, 9, 19, 9, 0).toISOString(),
+  });
+  const other = makeTask({
+    userEstimateMin: 300,
+    plannedEstimateMin: 300,
+    deadline: new Date(2026, 9, 16, 9, 0).toISOString(),
+  });
+  const busy: BusyBlock[] = [
+    {
+      id: 'b1',
+      source: 'local',
+      start: new Date(2026, 9, 12, 16, 0).toISOString(),
+      end: new Date(2026, 9, 12, 20, 0).toISOString(),
+    },
+    {
+      id: 'b2',
+      source: 'local',
+      start: new Date(2026, 9, 13, 16, 0).toISOString(),
+      end: new Date(2026, 9, 13, 20, 30).toISOString(),
+    },
+  ];
+
+  /** Fails when any session of a step starts before a session of an earlier step ends. */
+  function expectInOrder(sessions: WorkSession[]) {
+    let lastEnd = 0;
+    for (const step of chapters) {
+      const ss = sessions.filter((s) => s.stepId === step.id);
+      if (ss.length === 0) continue;
+      expect(Math.min(...ss.map((s) => +new Date(s.start)))).toBeGreaterThanOrEqual(lastEnd);
+      lastEnd = Math.max(lastEnd, ...ss.map((s) => +new Date(s.end)));
+    }
+  }
+
+  it('never plans part of chapter 1 after a later chapter', () => {
+    const r = schedule({
+      now: NOW,
+      tasks: [project, other],
+      sessions: [],
+      busy,
+      prefs: prefsEveryEvening(),
+      feedback: [],
+      newId: seqId,
+    });
+    expectInOrder(r.created);
+    const projectMin = r.created.filter((s) => s.taskId === project.id).reduce((a, s) => a + sessionMinutes(s), 0);
+    expect(projectMin).toBe(600);
+    // Every chapter still gets its own two hours (give or take a tiny absorbed leftover).
+    for (const step of chapters) {
+      const min = r.created.filter((s) => s.stepId === step.id).reduce((a, s) => a + sessionMinutes(s), 0);
+      expect(Math.abs(min - 120)).toBeLessThanOrEqual(15);
+    }
+    const sorted = [...r.created].sort((a, b) => a.start.localeCompare(b.start));
+    for (let i = 1; i < sorted.length; i++) expect(overlaps(sorted[i - 1], sorted[i])).toBe(false);
+  });
+
+  it('starts later chapters after a locked session of an earlier chapter', () => {
+    const locked: WorkSession = {
+      id: 'locked1',
+      taskId: project.id,
+      stepId: 'ch1',
+      start: new Date(2026, 9, 15, 16, 0).toISOString(),
+      end: new Date(2026, 9, 15, 17, 0).toISOString(),
+      status: 'planned',
+      kind: 'work',
+      locked: true,
+    };
+    const r = schedule({
+      now: NOW,
+      tasks: [project],
+      sessions: [locked],
+      busy: [],
+      prefs: prefsEveryEvening(),
+      feedback: [],
+      newId: seqId,
+    });
+    expectInOrder([locked, ...r.created]);
+  });
+});
+
 describe('schedule: infeasible and replanning', () => {
   it('reports work that does not fit before the deadline', () => {
     const task = makeTask({
