@@ -4,6 +4,7 @@ import { Icon } from '../components/Icon';
 import { Chips, DurationInput, Field, Modal, toLocalInput } from '../components/ui';
 import { actions, type NewTaskInput, type SeriesScope, useStore } from '../data/store';
 import { courseList, findCourse, weeklyDeadlines } from '../domain/courses';
+import { locationSuggestions } from '../domain/locations';
 import { STUDENT_TYPES, type Task, type TaskType, TEACHER_TYPES } from '../domain/types';
 import { useFormat } from '../lib/format';
 
@@ -50,6 +51,8 @@ function TaskFormInner({ onClose, initial, task }: { onClose: () => void; initia
   const [estimate, setEstimate] = useState(task?.userEstimateMin ?? 120);
   const [difficulty, setDifficulty] = useState<number>(task?.difficulty ?? 3);
   const [notes, setNotes] = useState(task?.notes ?? '');
+  const [location, setLocation] = useState(task?.location ?? '');
+  const [showLocation, setShowLocation] = useState(!!task?.location);
   const [steps, setSteps] = useState<StepDraft[]>(
     task?.steps?.map((s) => ({ ...s })) ?? [{ title: '', estimateMin: 120 }],
   );
@@ -60,6 +63,7 @@ function TaskFormInner({ onClose, initial, task }: { onClose: () => void; initia
   const [scope, setScope] = useState<SeriesScope>('one');
 
   const subjects = useMemo(() => courseList(prefs.courses, allTasks).map((c) => c.name), [prefs.courses, allTasks]);
+  const locations = useMemo(() => locationSuggestions(allTasks, new Date()), [allTasks]);
   const isProject = type === 'project';
   const canRepeat = !task && !isProject;
   // Until the user picks an end: the end of the course's term, otherwise ten weeks.
@@ -102,6 +106,7 @@ function TaskFormInner({ onClose, initial, task }: { onClose: () => void; initia
           plannedEstimateMin: planned,
           difficulty: difficulty as Task['difficulty'],
           notes: notes.trim() || undefined,
+          location: location.trim() || undefined,
           steps: isProject
             ? validSteps.map((s, i) => ({
                 id: s.id ?? crypto.randomUUID(),
@@ -124,6 +129,7 @@ function TaskFormInner({ onClose, initial, task }: { onClose: () => void; initia
         useSuggestion: hasSuggestion && useSuggestion,
         difficulty: difficulty as Task['difficulty'],
         notes: notes.trim() || undefined,
+        location: location.trim() || undefined,
         steps: isProject ? validSteps.map((s) => ({ title: s.title.trim(), estimateMin: s.estimateMin })) : undefined,
         source: initial.source,
         externalId: initial.externalId,
@@ -334,6 +340,27 @@ function TaskFormInner({ onClose, initial, task }: { onClose: () => void; initia
           options={[1, 2, 3, 4, 5].map((d) => ({ value: d, label: t('difficulty.' + d) }))}
         />
       </div>
+      {showLocation ? (
+        <Field label={t('form.location')}>
+          <input
+            className="input"
+            list="planora-locations"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            placeholder={t('form.locationPlaceholder')}
+            maxLength={60}
+          />
+          <datalist id="planora-locations">
+            {locations.map((l) => (
+              <option key={l} value={l} />
+            ))}
+          </datalist>
+        </Field>
+      ) : (
+        <button type="button" className="btn-ghost mb-3 px-0 text-sm" onClick={() => setShowLocation(true)}>
+          <Icon name="plus" className="h-4 w-4" /> {t('form.addLocation')}
+        </button>
+      )}
       <Field label={t('form.notes')}>
         <textarea
           className="input min-h-16"

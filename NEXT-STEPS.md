@@ -195,8 +195,17 @@
   download packages in this session, so `npm test`, `npm run lint`, `npm run build` and the Playwright tests
   still have to run on your computer before merging.
 
-## Location on a task or project (spec, needs your OK before building)
-A council review (3 November 2026) and the spec-sharpener led to this. You already approved the idea.
+## Location on a task or project (built 3 November 2026, pull request for you to check)
+A council review (3 November 2026) and the spec-sharpener led to this. You approved the spec on 3 November 2026,
+including the two cuts below. Built as described; how it looks:
+- In the add/edit screen, tap "Add location (optional)" above Notes. Today, Calendar, the block popup and the
+  task details then show "📍 library". In the phone week view the location comes after the title, so a
+  small block still shows the title first.
+- Checked here: location suggestions and sync tests pass; the encryption test was extended but could not run
+  here (it needs packages npm couldn't download). Please run all checks on your computer, and try adding a
+  location once on your phone.
+
+The spec:
 - Problem: you work on tasks in different places and want to see where a block happens without retyping it.
 - In: one optional "Location" field on a task or project (under "more"), encrypted like the title, with
   "e.g. library" as hint. Steps use the project's location. While typing, Planora suggests locations from

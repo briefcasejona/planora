@@ -111,7 +111,7 @@ describe('devices on an older version', () => {
   // A device that doesn't know newer fields still merges whole records and settings,
   // so fields it doesn't know are passed on unchanged instead of being dropped.
   it('keeps task fields and settings this version does not know', () => {
-    const newer = { ...makeTask({ id: 't1', updatedAt: at(2) }), seriesId: 's1' };
+    const newer = { ...makeTask({ id: 't1', updatedAt: at(2) }), seriesId: 's1', location: 'Library' };
     const prefs = {
       value: { ...emptyPrefs(), courses: [{ name: 'Biology' }], theme: 'dark' as const },
       updatedAt: at(2),
@@ -121,8 +121,17 @@ describe('devices on an older version', () => {
       snap({ tasks: [makeTask({ id: 't1', updatedAt: at(1) })] }),
       NOW,
     );
-    expect(merged.tables.tasks[0]).toMatchObject({ seriesId: 's1' });
+    expect(merged.tables.tasks[0]).toMatchObject({ seriesId: 's1', location: 'Library' });
     expect(merged.prefs?.value).toMatchObject({ courses: [{ name: 'Biology' }], theme: 'dark' });
+  });
+
+  it('keeps a location when an older version edits the task', () => {
+    // An older version edits a task by spreading the stored record (TaskForm, finish, reopen),
+    // so a field it doesn't know, like the location, goes along unchanged.
+    const stored = makeTask({ id: 't1', location: 'Library', updatedAt: at(1) });
+    const editedByOld = { ...stored, title: 'Renamed', updatedAt: at(2) };
+    const merged = mergeSnapshots(snap({ tasks: [editedByOld] }), snap({ tasks: [stored] }), NOW);
+    expect(merged.tables.tasks[0]).toMatchObject({ title: 'Renamed', location: 'Library' });
   });
 
   it('drops parts of the sync file it does not know, so new data must live in tasks or settings', () => {

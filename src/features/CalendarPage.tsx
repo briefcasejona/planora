@@ -84,7 +84,10 @@ export function CalendarPage() {
       out.push({
         id: 's:' + s.id,
         title:
-          task.title + (step ? ' · ' + step.title : '') + (s.kind === 'review' ? ' (' + t('kind.review') + ')' : ''),
+          task.title +
+          (step ? ' · ' + step.title : '') +
+          (s.kind === 'review' ? ' (' + t('kind.review') + ')' : '') +
+          (task.location ? ' · 📍 ' + task.location : ''),
         start: s.start,
         end: s.end,
         backgroundColor: s.status === 'missed' ? 'transparent' : color,

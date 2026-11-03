@@ -76,6 +76,11 @@ export function SessionDialog({
         {t('kind.' + session.kind)}
         {step ? ' · ' + step.title : ''} · {t('session.' + session.status)}
       </p>
+      {task.location && (
+        <p className="mt-1 text-sm">
+          📍 {t('form.location')}: {task.location}
+        </p>
+      )}
       {session.status === 'planned' && (
         <label className="mt-4 flex items-center gap-2 text-sm">
           {t('today.actualMinutes')}

@@ -28,11 +28,12 @@ describe('repo with encryption', () => {
   it('stores titles encrypted and reads them back with the key', async () => {
     const { config, key } = await createCryptoConfig('correct horse');
     setEncryptionKey(key);
-    const task = makeTask({ title: 'Geheime toets', subject: 'Biologie' });
+    const task = makeTask({ title: 'Geheime toets', subject: 'Biologie', location: 'Bibliotheek Leiden' });
     await repo.putTasks([task]);
     const raw = await db.tasks.get(task.id);
     expect(JSON.stringify(raw)).not.toContain('Geheime');
     expect(JSON.stringify(raw)).not.toContain('Biologie');
+    expect(JSON.stringify(raw)).not.toContain('Bibliotheek');
     expect(raw?.deadline).toBe(task.deadline);
     expect((await repo.listTasks())[0].title).toBe('Geheime toets');
 
@@ -41,6 +42,7 @@ describe('repo with encryption', () => {
     expect(await unlock('wrong', config)).toBeNull();
     setEncryptionKey(await unlock('correct horse', config));
     expect((await repo.listTasks())[0].subject).toBe('Biologie');
+    expect((await repo.listTasks())[0].location).toBe('Bibliotheek Leiden');
   });
 
   it('turns encryption on and off for existing data', async () => {

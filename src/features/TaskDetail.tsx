@@ -122,6 +122,7 @@ export function TaskDetail({ taskId, onClose }: { taskId: string; onClose: () =>
       <div className="mb-4 flex flex-wrap items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
         <TypeBadge type={task.type} />
         {task.subject && <span className="font-medium">{task.subject}</span>}
+        {task.location && <span>· 📍 {task.location}</span>}
         <span>
           · {t('detail.deadline')}: {date(task.deadline, 'EEEE d MMMM HH:mm')} ({relativeDay(task.deadline)})
         </span>
