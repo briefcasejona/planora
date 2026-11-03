@@ -48,6 +48,8 @@ export function planReminders(
   for (const s of sessions) {
     const task = byId.get(s.taskId);
     if (!task || s.status !== 'planned') continue;
+    // No reminder halfway through a sitting: one project step running straight into the next.
+    if (sessions.some((p) => p.taskId === s.taskId && p.status === 'planned' && p.end === s.start)) continue;
     const at = subMinutes(parseISO(s.start), BLOCK_LEAD_MIN);
     if (inWindow(at)) out.push({ id: reminderId(`block:${s.id}`), at, kind: 'block', task, session: s });
   }

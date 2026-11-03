@@ -44,6 +44,14 @@ describe('reminders', () => {
     expect(list).toEqual([]);
   });
 
+  it('gives no reminder for a block that continues straight after another block of the same task', () => {
+    const task = makeTask({ deadline: new Date(2026, 9, 15, 9, 0).toISOString() });
+    const first = block(task.id, new Date(2026, 9, 13, 14, 0), 30);
+    const next = block(task.id, new Date(2026, 9, 13, 14, 30), 45);
+    const list = planReminders(now, [task], [first, next]).filter((r) => r.kind === 'block');
+    expect(list.map((r) => r.session?.id)).toEqual([first.id]);
+  });
+
   it('gives a moved block the same id, so its old reminder is replaced', () => {
     const task = makeTask();
     const b = block(task.id, new Date(2026, 9, 13, 14, 0));

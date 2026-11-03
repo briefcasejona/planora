@@ -179,3 +179,37 @@
 - Merged and released as v0.4.6 (your OK, 13 October 2026). Installed apps update themselves.
 - Still for you: add "Did you ever lose something you didn't mean to?" to the
   questionnaire, and ask the group to post accidents in the group chat right away.
+
+## Project steps kept in your order (3 November 2026, pull request for you to check)
+- Why: you planned "chapter 1 to 5 this week" as one project with steps, and part of chapter 1 ended up
+  after chapter 3. Cause (found and reproduced): when chapter 1 didn't fully fit in its share of the week,
+  the leftover was planned last, after the later chapters. A locked block of an earlier step was also
+  ignored, so later steps could start before it.
+- Fix: Planora now always gives the earliest planned blocks of a project to step 1, then step 2, and so
+  on. No block moves in time and no extra time is planned; only which chapter a block is for changes. If
+  one block holds the end of one chapter and the start of the next, it becomes two blocks right after each
+  other (with one reminder, not two). Blocks you dragged or pinned stay where you put them.
+- There is no on/off switch: keeping your order is simply how it works now. No data or sync change.
+- Your existing plans may shift a little after the update, because the order is put right.
+- Checked here: the scheduler and reminder tests pass (new tests fail without the fix). npm could not
+  download packages in this session, so `npm test`, `npm run lint`, `npm run build` and the Playwright tests
+  still have to run on your computer before merging.
+
+## Location on a task or project (spec, needs your OK before building)
+A council review (3 November 2026) and the spec-sharpener led to this. You already approved the idea.
+- Problem: you work on tasks in different places and want to see where a block happens without retyping it.
+- In: one optional "Location" field on a task or project (under "more"), encrypted like the title, with
+  "e.g. library" as hint. Steps use the project's location. While typing, Planora suggests locations from
+  your open tasks and tasks of the last 60 days. Planned blocks in Today and Calendar show the location.
+  Weekly tasks: "this and later weeks" also changes the location.
+- Cut from what we discussed: the ✕ to hide a suggestion (it would need a new synced list); a typo fixes
+  itself by correcting the task and fades after 60 days. Also no new database version: the field isn't
+  searched on, so the database layout stays the same; older app versions keep the field when they edit a
+  task (checked in the code), and a test will prove it.
+- Out: a location per block or per step, GPS, opening hours, travel time, sending the location to Outlook.
+- Riskiest unknown: does a location line fit on small blocks in the phone week view? First step: a quick
+  look at the week view on a phone-size screen with a long location name.
+- Done when: (1) a location typed on a task shows on its blocks in Today and Calendar; (2) a second task
+  offers it as a suggestion; (3) with encryption on, the stored task holds no readable location; (4) a
+  task with a location, edited and synced by the previous app version, still has its location;
+  (5) the privacy notes mention the location field.
