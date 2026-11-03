@@ -180,7 +180,7 @@
 - Still for you: add "Did you ever lose something you didn't mean to?" to the
   questionnaire, and ask the group to post accidents in the group chat right away.
 
-## Project steps kept in your order (3 November 2026, pull request for you to check)
+## Project steps kept in your order (3 November 2026, pull request #40, released in v0.4.7)
 - Why: you planned "chapter 1 to 5 this week" as one project with steps, and part of chapter 1 ended up
   after chapter 3. Cause (found and reproduced): when chapter 1 didn't fully fit in its share of the week,
   the leftover was planned last, after the later chapters. A locked block of an earlier step was also
@@ -191,12 +191,20 @@
   other (with one reminder, not two). Blocks you dragged or pinned stay where you put them.
 - There is no on/off switch: keeping your order is simply how it works now. No data or sync change.
 - Your existing plans may shift a little after the update, because the order is put right.
-- Checked here: the scheduler and reminder tests pass (new tests fail without the fix). npm could not
-  download packages in this session, so `npm test`, `npm run lint`, `npm run build` and the Playwright tests
-  still have to run on your computer before merging.
+- All checks passed on GitHub before merging (148 unit tests, lint, build, 36 end-to-end tests), using a
+  temporary check workflow on branch `claude/checks` (your OK, 3 November 2026). The workflow file is removed
+  again; please delete that branch on GitHub (Claude can't delete branches from here).
 
-## Location on a task or project (spec, needs your OK before building)
-A council review (3 November 2026) and the spec-sharpener led to this. You already approved the idea.
+## Location on a task or project (pull request #41, released in v0.4.7, 3 November 2026)
+A council review (3 November 2026) and the spec-sharpener led to this. You approved the spec on 3 November 2026,
+including the two cuts below. Built as described; how it looks:
+- In the add/edit screen, tap "Add location (optional)" above Notes. Today, Calendar, the block popup and the
+  task details then show "📍 library". In the phone week view the location comes after the title, so a
+  small block still shows the title first.
+- All checks passed on GitHub before merging (same run as above). Released as v0.4.7 (your OK, 3 November
+  2026). Still for you: add a location once on your phone and check that it looks right.
+
+The spec:
 - Problem: you work on tasks in different places and want to see where a block happens without retyping it.
 - In: one optional "Location" field on a task or project (under "more"), encrypted like the title, with
   "e.g. library" as hint. Steps use the project's location. While typing, Planora suggests locations from

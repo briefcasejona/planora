@@ -287,6 +287,11 @@ export function TodayPage() {
                       {task && <TypeBadge type={task.type} />}
                       {t('kind.' + s.kind)}
                       {task?.steps && s.stepId && <span>· {task.steps.find((x) => x.id === s.stepId)?.title}</span>}
+                      {task?.location && (
+                        <span className="min-w-0 truncate" title={t('form.location')}>
+                          · 📍 {task.location}
+                        </span>
+                      )}
                     </p>
                   </button>
                   {s.status === 'done' ? (

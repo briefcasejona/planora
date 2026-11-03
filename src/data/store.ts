@@ -35,6 +35,7 @@ export interface NewTaskInput {
   useSuggestion: boolean;
   difficulty?: Task['difficulty'];
   notes?: string;
+  location?: string;
   steps?: Omit<ProjectStep, 'id' | 'done' | 'order'>[];
   source?: TaskSource;
   externalId?: string;
@@ -326,6 +327,7 @@ export const actions = {
         status: 'open',
         steps,
         notes: input.notes,
+        location: input.location?.trim() || undefined,
         source: input.source ?? 'manual',
         externalId: input.externalId,
         createdAt: new Date().toISOString(),
@@ -375,6 +377,7 @@ export const actions = {
             plannedEstimateMin: task.plannedEstimateMin,
             difficulty: task.difficulty,
             notes: task.notes,
+            location: task.location,
             deadline: d.toISOString(),
           });
         }

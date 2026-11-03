@@ -34,6 +34,8 @@ export interface Task {
   status: TaskStatus;
   steps?: ProjectStep[];
   notes?: string;
+  /** Where the user works on it, as they typed it ("library"). Free text, so encrypted like the title. */
+  location?: string;
   source: TaskSource;
   externalId?: string;
   createdAt: string;

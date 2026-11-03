@@ -6,7 +6,7 @@ RESEARCH NOTES — NOT LEGAL ADVICE. Generated 2026-10-10 by app-legal-guard.
 |---|---|---|
 | Children as a (possible) target group? | **Yes** — school pupils are likely users. | README, role choice, Teams assignments |
 | Special-category data (health, religion, biometrics…)? | No (users could type anything into task notes, but it stays on their device). | `src/data/` |
-| Location tracking or large-scale monitoring? | No. | CSP, no location APIs |
+| Location tracking or large-scale monitoring? | No. Since 3 November 2026 a task can carry an optional place the user types (e.g. "library"): free text, stored and encrypted like task titles, never sent to Outlook, Google or .ics files. No GPS or location APIs. | CSP, no location APIs, `src/domain/locations.ts` |
 | Profiling / automated decisions with real effects? | Personal time-estimate correction, on device only, no legal or similarly significant effect. | `src/domain/estimator.ts` |
 | New technology (AI) applied to personal data? | No. | — |
 | Data combined from multiple sources? | Yes, but only on the user's device (own calendar + Outlook/Google busy times + To Do/Teams). | `src/integrations/` |
