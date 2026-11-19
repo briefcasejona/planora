@@ -31,5 +31,95 @@
   "css": {
     "parser": { "tailwindDirectives": true },
     "formatter": { "quoteStyle": "single" }
-  }
+  },
+  "overrides": [
+    {
+      "includes": [
+        "src/data/**",
+        "src/lib/**",
+        "src/integrations/**",
+        "src/components/**",
+        "src/notifications/**",
+        "src/i18n/**"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {},
+                "patterns": [
+                  {
+                    "group": ["../features", "../features/**", "../../features", "../../features/**"],
+                    "message": "Only pages (src/features, App, Shell) may import from src/features. Move shared code to src/components or src/lib."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/data/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "react": "src/data is storage and sync only: no React or UI. Put UI in src/features or src/components.",
+                  "react-dom": "src/data is storage and sync only: no React or UI. Put UI in src/features or src/components.",
+                  "react-router-dom": "src/data is storage and sync only: no React or UI. Put UI in src/features or src/components.",
+                  "react-i18next": "src/data is storage and sync only: no React or UI. Put UI in src/features or src/components.",
+                  "i18next": "src/data is storage and sync only: no React or UI. Put UI in src/features or src/components."
+                },
+                "patterns": [
+                  {
+                    "group": ["../features", "../features/**", "../../features", "../../features/**"],
+                    "message": "Only pages (src/features, App, Shell) may import from src/features. Move shared code to src/components or src/lib."
+                  },
+                  {
+                    "group": ["**/components", "**/components/**"],
+                    "message": "src/data must not depend on UI components."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/domain/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "react": "src/domain is pure planning logic: no UI, storage or state libraries. Pass data in as arguments instead.",
+                  "react-dom": "src/domain is pure planning logic: no UI, storage or state libraries. Pass data in as arguments instead.",
+                  "react-router-dom": "src/domain is pure planning logic: no UI, storage or state libraries. Pass data in as arguments instead.",
+                  "react-i18next": "src/domain is pure planning logic: no UI, storage or state libraries. Pass data in as arguments instead.",
+                  "i18next": "src/domain is pure planning logic: no UI, storage or state libraries. Pass data in as arguments instead.",
+                  "dexie": "src/domain is pure planning logic: no UI, storage or state libraries. Pass data in as arguments instead.",
+                  "zustand": "src/domain is pure planning logic: no UI, storage or state libraries. Pass data in as arguments instead."
+                },
+                "patterns": [
+                  {
+                    "group": ["../*", "../**"],
+                    "message": "src/domain may only import other domain files and date-fns. Move this dependency to the caller (data/ or features/)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
 }
