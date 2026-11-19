@@ -1,0 +1,12 @@
+{
+  "maxLines": 400,
+  "include": ["src", "electron", "scripts", "e2e"],
+  "extensions": [".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".css"],
+  "ignore": [],
+  "baseline": {
+    "e2e/planora.spec.ts": 707,
+    "src/data/store.ts": 616,
+    "src/domain/scheduler.ts": 453,
+    "src/domain/scheduler.test.ts": 427
+  }
+}
