@@ -11,7 +11,7 @@
     "test:watch": "vitest",
     "e2e": "playwright test",
     "typecheck": "tsc -b --noEmit",
-    "lint": "biome check .",
+    "lint": "biome check . && node scripts/check-file-size.mjs",
     "format": "biome check --write .",
     "cap:sync": "npm run build && cap sync",
     "android": "cap open android",
@@ -21,7 +21,8 @@
     "e2e:desktop": "npm run build && playwright test -c playwright.desktop.config.ts",
     "dist:mac": "npm run build && electron-builder --mac --publish never -c.electronDist=",
     "dist:linux": "npm run build && electron-builder --linux --publish never -c.electronDist=",
-    "legal": "node scripts/legal-pages.mjs"
+    "legal": "node scripts/legal-pages.mjs",
+    "knip": "knip"
   },
   "dependencies": {
     "@azure/msal-browser": "^5.25.0",
@@ -59,6 +60,7 @@
     "electron": "^44.7.0",
     "electron-builder": "^26.15.3",
     "fake-indexeddb": "^6.2.5",
+    "knip": "^6.46.1",
     "sharp": "^0.35.5",
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2",

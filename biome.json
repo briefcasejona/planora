@@ -1,7 +1,11 @@
 {
-  "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
   "files": {
-    "includes": ["**", "!android", "!build", "!public", "!**/package-lock.json"]
+    "includes": ["**", "!android", "!build", "!public", "!**/package-lock.json", "!file-size.config.json"]
   },
   "formatter": {
     "enabled": true,
@@ -21,15 +25,287 @@
     "enabled": true,
     "rules": {
       "preset": "recommended",
-      "a11y": { "useButtonType": "off" },
-      "style": { "useTemplate": "off", "noNonNullAssertion": "off" }
+      "a11y": {
+        "useButtonType": "off"
+      },
+      "style": {
+        "useTemplate": "off",
+        "noNonNullAssertion": "off"
+      }
     }
   },
   "assist": {
-    "actions": { "source": { "organizeImports": "on" } }
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
   },
   "css": {
-    "parser": { "tailwindDirectives": true },
-    "formatter": { "quoteStyle": "single" }
-  }
+    "parser": {
+      "tailwindDirectives": true
+    },
+    "formatter": {
+      "quoteStyle": "single"
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["src/domain/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "react",
+                      "react-dom",
+                      "react-dom/**",
+                      "react-i18next",
+                      "i18next",
+                      "@fullcalendar/**",
+                      "react-router-dom",
+                      "dexie",
+                      "zustand",
+                      "@capacitor/**",
+                      "@azure/**",
+                      "ical.js"
+                    ],
+                    "message": "src/domain is pure planning logic: no UI, storage, platform or network packages. Put this code in src/data, src/integrations, src/lib or src/features and pass the result into the domain function."
+                  },
+                  {
+                    "group": ["../**"],
+                    "message": "src/domain may only import other src/domain files (and date-fns). Move the shared piece into src/domain, or call the domain function from the other layer instead."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/lib/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["dexie"],
+                    "message": "src/lib holds small helpers used everywhere, so it may only import src/domain. Move code that needs app state, storage, integrations or UI into src/data, src/integrations, src/components or src/features."
+                  },
+                  {
+                    "group": [
+                      "../data",
+                      "../data/**",
+                      "../features",
+                      "../features/**",
+                      "../components",
+                      "../components/**",
+                      "../integrations",
+                      "../integrations/**",
+                      "../notifications",
+                      "../notifications/**"
+                    ],
+                    "message": "src/lib holds small helpers used everywhere, so it may only import src/domain. Move code that needs app state, storage, integrations or UI into src/data, src/integrations, src/components or src/features."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/data/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "react",
+                      "react-dom",
+                      "react-dom/**",
+                      "react-i18next",
+                      "@fullcalendar/**",
+                      "react-router-dom"
+                    ],
+                    "message": "src/data must not import UI packages. Keep React code in src/components or src/features."
+                  },
+                  {
+                    "group": [
+                      "../features",
+                      "../features/**",
+                      "../../features",
+                      "../../features/**",
+                      "../components",
+                      "../components/**",
+                      "../../components",
+                      "../../components/**",
+                      "../notifications",
+                      "../notifications/**",
+                      "../../notifications",
+                      "../../notifications/**",
+                      "../integrations",
+                      "../integrations/**",
+                      "../../integrations",
+                      "../../integrations/**",
+                      "!../../integrations/settings"
+                    ],
+                    "message": "src/data is storage and app state: it may import src/domain and src/lib, not UI or integrations. Have the feature or integration call src/data instead."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/components/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "../features",
+                      "../features/**",
+                      "../../features",
+                      "../../features/**",
+                      "../integrations",
+                      "../integrations/**",
+                      "../../integrations",
+                      "../../integrations/**",
+                      "../notifications",
+                      "../notifications/**",
+                      "../../notifications",
+                      "../../notifications/**"
+                    ],
+                    "message": "src/components is shared UI: it must not import pages (src/features), integrations or notifications. Pass what it needs in as props from the feature."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/integrations/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "../features",
+                      "../features/**",
+                      "../../features",
+                      "../../features/**",
+                      "../notifications",
+                      "../notifications/**",
+                      "../../notifications",
+                      "../../notifications/**"
+                    ],
+                    "message": "src/integrations must not import pages (src/features) or src/notifications. Let the feature call the integration instead."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/notifications/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "../features",
+                      "../features/**",
+                      "../../features",
+                      "../../features/**",
+                      "../components",
+                      "../components/**",
+                      "../../components",
+                      "../../components/**",
+                      "../integrations",
+                      "../integrations/**",
+                      "../../integrations",
+                      "../../integrations/**"
+                    ],
+                    "message": "src/notifications must not import pages, shared UI or integrations. Have the feature call src/notifications instead."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/about/**", "src/download/**", "src/site/**", "src/forit/**", "!src/forit/**/*.test.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "../data",
+                      "../data/**",
+                      "../../data",
+                      "../../data/**",
+                      "../features",
+                      "../features/**",
+                      "../../features",
+                      "../../features/**",
+                      "../components",
+                      "../components/**",
+                      "../../components",
+                      "../../components/**",
+                      "../integrations",
+                      "../integrations/**",
+                      "../../integrations",
+                      "../../integrations/**",
+                      "../notifications",
+                      "../notifications/**",
+                      "../../notifications",
+                      "../../notifications/**"
+                    ],
+                    "message": "The public pages (about, download, for IT, site) ship as small separate bundles: they must not import the app (src/data, src/features, src/components, src/integrations, src/notifications). Use src/lib or src/site."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
 }
