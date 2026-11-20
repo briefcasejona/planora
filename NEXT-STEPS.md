@@ -221,3 +221,15 @@ The spec:
   offers it as a suggestion; (3) with encryption on, the stored task holds no readable location; (4) a
   task with a location, edited and synced by the previous app version, still has its location;
   (5) the privacy notes mention the location field.
+
+## Code structure checks (merged in pull request #43, released in v0.4.8, 20 November 2026)
+- `npm run lint` now also enforces which folders may import which (e.g. planning logic can't import the
+  database or screens) and keeps files under 400 lines. Four files that were already bigger are frozen at
+  their current size: `src/data/store.ts`, `src/domain/scheduler.ts`, its test, and `e2e/planora.spec.ts`.
+- `npm run knip` lists unused code. It found 20 unused exports and 16 unused types, nothing deleted yet.
+- With your OK (20 November 2026): the calendar-connection settings moved to `src/data/integrationSettings.ts`
+  (file moved, code unchanged, same storage key), so the folder rules now have no exceptions. New tests
+  check that timetable files, dismissed tests and the Outlook writer still reach your other device and
+  survive a restart, and that settings saved by older versions still load.
+- Flaky test (also on `main`): "about page works…" sometimes can't find the "Microsoft Graph permissions"
+  heading on the For IT page (about 1 in 6 runs).

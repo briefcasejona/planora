@@ -1,9 +1,9 @@
 import { useRef, useState } from 'react';
 import { Icon } from '../components/Icon';
+import { saveIntegrations, useIntegrations } from '../data/integrationSettings';
 import { useStore } from '../data/store';
 import { deadlineKey, deadlineOf, deadlineSuggestions, guessSubject, timetableCourses } from '../domain/categories';
 import { courseList } from '../domain/courses';
-import { saveIntegrations, useIntegrations } from '../integrations/settings';
 import { useFormat } from '../lib/format';
 import { TaskForm, type TaskPrefill } from './TaskForm';
 

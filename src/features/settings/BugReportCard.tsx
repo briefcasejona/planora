@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Icon } from '../../components/Icon';
 import { Field } from '../../components/ui';
+import { useIntegrations } from '../../data/integrationSettings';
 import { repo } from '../../data/repo';
 import { useSync } from '../../data/sync/engine';
-import { useIntegrations } from '../../integrations/settings';
 import { buildBugReportText, buildBugReportUrl, REPORT_EMAIL, type ReportPlatform } from '../../lib/bugReport';
 import { useFormat } from '../../lib/format';
 import { APP_VERSION, isIos, platform } from '../../lib/platform';

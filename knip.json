@@ -1,0 +1,6 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": ["electron/preload.cjs", "scripts/*.mjs"],
+  "project": ["src/**/*.{ts,tsx}", "electron/**/*.cjs", "scripts/**/*.mjs", "e2e/**/*.ts"],
+  "ignoreDependencies": ["tailwindcss"]
+}

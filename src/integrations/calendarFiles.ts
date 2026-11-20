@@ -1,10 +1,10 @@
+import { saveIntegrations, useIntegrations } from '../data/integrationSettings';
 import { repo } from '../data/repo';
 import { actions, useStore } from '../data/store';
 import { detectCategory } from '../domain/categories';
 import type { BusyBlock, EventCategory } from '../domain/types';
 import { exportFile } from '../lib/files';
 import { buildIcs, importIdFor, parseIcs } from './ics';
-import { saveIntegrations, useIntegrations } from './settings';
 
 /**
  * Import an .ics file (e.g. exported from Apple Calendar or a school timetable).

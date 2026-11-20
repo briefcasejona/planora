@@ -1,8 +1,8 @@
+import { patchGoogle, useIntegrations } from '../data/integrationSettings';
 import { repo } from '../data/repo';
 import { actions, useStore } from '../data/store';
 import type { BusyBlock } from '../domain/types';
 import { appUrl, isIosStandalone, isNativeApp } from '../lib/platform';
-import { patchGoogle, useIntegrations } from './settings';
 
 const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
 export const googleConfigured = !!clientId;

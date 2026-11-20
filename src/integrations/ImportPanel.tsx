@@ -2,6 +2,7 @@ import { addDays } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { Icon } from '../components/Icon';
 import { DurationInput, toLocalInput } from '../components/ui';
+import { useIntegrations } from '../data/integrationSettings';
 import { repo } from '../data/repo';
 import { actions, useStore } from '../data/store';
 import { findManualMatch } from '../domain/matching';
@@ -10,7 +11,6 @@ import { useFormat } from '../lib/format';
 import { MS_SCOPES } from './microsoft/auth';
 import { fetchTeamsAssignments, fetchTodoTasks, type ImportCandidate } from './microsoft/graph';
 import { microsoftToken } from './microsoft/sync';
-import { useIntegrations } from './settings';
 
 interface Draft extends ImportCandidate {
   type: TaskType;
