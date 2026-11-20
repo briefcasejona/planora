@@ -1,8 +1,8 @@
+import { loadIntegrations, useIntegrations } from '../data/integrationSettings';
 import { onPlanChanged } from '../data/store';
 import { isIosStandalone, isNativeApp } from '../lib/platform';
 import { startDeviceSync } from './deviceSync';
 import { completeGoogleRedirect, pullGoogleBusy } from './google';
-import { loadIntegrations, useIntegrations } from './settings';
 import { startUpdates } from './updates';
 
 /** Same check as microsoft/auth.ts, without loading the Microsoft library. */

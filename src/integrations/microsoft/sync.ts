@@ -1,8 +1,8 @@
 import { addDays } from 'date-fns';
+import { patchMicrosoft, saveIntegrations, useIntegrations } from '../../data/integrationSettings';
 import { repo } from '../../data/repo';
 import { actions, useStore } from '../../data/store';
 import { deviceId, useSync } from '../../data/sync/engine';
-import { patchMicrosoft, saveIntegrations, useIntegrations } from '../settings';
 import { MS_SCOPES, type MsPending, msHandleRedirect, msToken } from './auth';
 import { createEvent, deleteEvent, fetchBusy, type OutlookEventInput, updateEvent } from './graph';
 

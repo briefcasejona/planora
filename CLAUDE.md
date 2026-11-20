@@ -4,10 +4,10 @@ Privacy-first planning app for students and teachers: Vite + React + TypeScript,
 
 ## Where things live
 - `src/domain/` – pure planning logic (scheduler, estimator, replan, busy times, categories, insights). Imports only `date-fns` and other domain files: no React, no database, no network. Every module has a `*.test.ts` next to it; new logic gets tests there.
-- `src/data/` – local storage and privacy: `db.ts` (Dexie schema), `repo.ts` (which fields are encrypted), `crypto.ts`, `backup.ts`, `store.ts` (Zustand app state), `sync/` (end-to-end encrypted OneDrive sync between the owner's devices).
+- `src/data/` – local storage and privacy: `db.ts` (Dexie schema), `repo.ts` (which fields are encrypted), `crypto.ts`, `backup.ts`, `store.ts` (Zustand app state), `integrationSettings.ts` (calendar-connection settings; sync shares part of them), `sync/` (end-to-end encrypted OneDrive sync between the owner's devices).
 - `src/features/` – pages and dialogs (Today, Calendar, Inbox, Review, settings, …). Keep logic out of components; put it in `domain/` or `data/`.
 - `src/components/` – shared UI pieces. `src/lib/` – small helpers (platform detection, formatting, files, updates, bug reports).
-- `src/integrations/` – Microsoft (Outlook/Teams), Google Calendar, `.ics` import, and their settings store (`settings.ts`).
+- `src/integrations/` – Microsoft (Outlook/Teams), Google Calendar, `.ics` import. Their settings live in `src/data/integrationSettings.ts`.
 - `src/notifications/` – local reminders (Capacitor notifications).
 - `src/about/`, `src/download/`, `src/forit/`, `src/site/` – the public pages (about, download, For IT), each a small separate bundle; `site/` holds what they share.
 - `src/i18n/` – `en.json` and `nl.json`. Every user-facing string goes through i18n, added to **both** files.
@@ -28,7 +28,7 @@ A hook formats every file you edit with Biome and reports lint errors it can't f
 Layer rules are lint errors (`overrides` in `biome.json`), so `npm run lint` and the edit hook catch them:
 - `domain/` imports only `domain/` and `date-fns`.
 - `lib/` may import `domain/`, never app state, storage, integrations or UI.
-- `data/` may import `domain/` and `lib/`; no React and no `integrations/`. One known exception: `data/sync/` uses `integrations/settings`.
+- `data/` may import `domain/` and `lib/`; no React and no `integrations/`.
 - `components/` must not import `features/`, `integrations/` or `notifications/`.
 - `integrations/` and `notifications/` must not import `features/`; `notifications/` also not `components/` or `integrations/`.
 - The public pages (`about/`, `download/`, `forit/`, `site/`) must not import the app (`data/`, `features/`, `components/`, `integrations/`, `notifications/`).

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Modal } from '../../components/ui';
+import { type MicrosoftSettings, patchMicrosoft, useIntegrations } from '../../data/integrationSettings';
 import { repo } from '../../data/repo';
 import { actions } from '../../data/store';
 import { MS_REVOKE_URL, MS_SCOPES, msConfigured, msSignIn, msSignOut } from '../../integrations/microsoft/auth';
@@ -11,7 +12,6 @@ import {
   pushMicrosoftSessions,
   removeMicrosoftEvents,
 } from '../../integrations/microsoft/sync';
-import { type MicrosoftSettings, patchMicrosoft, useIntegrations } from '../../integrations/settings';
 import { useFormat } from '../../lib/format';
 import { Toggle } from './Toggle';
 

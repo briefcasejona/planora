@@ -159,8 +159,7 @@
                       "../integrations",
                       "../integrations/**",
                       "../../integrations",
-                      "../../integrations/**",
-                      "!../../integrations/settings"
+                      "../../integrations/**"
                     ],
                     "message": "src/data is storage and app state: it may import src/domain and src/lib, not UI or integrations. Have the feature or integration call src/data instead."
                   }

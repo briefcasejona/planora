@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from 'react';
 import { Banner, Chips } from '../../components/ui';
+import { patchGoogle, saveIntegrations, useIntegrations } from '../../data/integrationSettings';
 import { repo } from '../../data/repo';
 import { actions, useStore } from '../../data/store';
 import { EVENT_CATEGORIES, type EventCategory } from '../../domain/types';
@@ -17,7 +18,6 @@ import {
   pullGoogleBusy,
 } from '../../integrations/google';
 import { importIdFor } from '../../integrations/ics';
-import { patchGoogle, saveIntegrations, useIntegrations } from '../../integrations/settings';
 import { useFormat } from '../../lib/format';
 import { platform } from '../../lib/platform';
 import { Toggle } from './Toggle';

@@ -1,8 +1,8 @@
 import 'fake-indexeddb/auto';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { DEFAULT_PREFERENCES } from '../../domain/types';
-import { loadIntegrations } from '../../integrations/settings';
 import { PlanoraDB } from '../db';
+import { loadIntegrations, patchMicrosoft, saveIntegrations, useIntegrations } from '../integrationSettings';
 import { useDatabase } from '../repo';
 import { actions, useStore } from '../store';
 import { enableSync, loadSyncState, resetSyncMemory, syncNow, useSync } from './engine';
@@ -120,6 +120,36 @@ describe('sync between two devices through OneDrive', () => {
     const done = useStore.getState().sessions.filter((s) => s.status === 'done');
     expect(done.length).toBe(past.length);
     expect(open).toEqual([]);
+  });
+
+  it('timetable files, dismissed tests and the Outlook writer reach the other device and survive a restart', async () => {
+    vi.setSystemTime(new Date(2026, 9, 13, 9, 0));
+    const at = new Date().toISOString();
+    await on('laptop');
+    await patchMicrosoft({ writeSessions: true });
+    await on('phone');
+    await patchMicrosoft({ connected: true, accountLabel: 'phone account' });
+    await saveIntegrations({
+      icsImports: [
+        { id: 'ics-1', name: 'Rooster blok 2', importedAt: at, count: 42, category: 'lesson', updatedAt: at },
+      ],
+      dismissedTests: ['toets-1'],
+      outlookWriter: { device: 'phone-device', at },
+    });
+    await syncNow(cloud);
+    await on('laptop');
+    await syncNow(cloud);
+    await on('laptop'); // reopen Planora: the synced settings must have been saved, not only held in memory
+    const s = useIntegrations.getState();
+    expect(s.icsImports.map((i) => [i.id, i.name, i.count, i.category])).toEqual([
+      ['ics-1', 'Rooster blok 2', 42, 'lesson'],
+    ]);
+    expect(s.dismissedTests).toEqual(['toets-1']);
+    expect(s.outlookWriter?.device).toBe('phone-device');
+    // The phone writes to Outlook now, so the laptop stops, and sign-ins stay on their own device.
+    expect(s.microsoft.writeSessions).toBe(false);
+    expect(s.microsoft.connected).toBe(false);
+    expect(s.microsoft.accountLabel).toBeUndefined();
   });
 
   it('does not touch data when sync is off', async () => {

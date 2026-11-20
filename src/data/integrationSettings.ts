@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { repo } from '../data/repo';
 import type { EventCategory } from '../domain/types';
+import { repo } from './repo';
 
 export interface MicrosoftSettings {
   connected: boolean;

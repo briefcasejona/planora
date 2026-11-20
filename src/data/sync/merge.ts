@@ -3,7 +3,7 @@
 // the newest version wins. Deletions are kept as tombstones so a record removed
 // on one device is not brought back by another.
 import type { BusyBlock, FeedbackRecord, Preferences, Task, WeekReport, WorkSession } from '../../domain/types';
-import type { IcsImport } from '../../integrations/settings';
+import type { IcsImport } from '../integrationSettings';
 
 export const SYNC_TABLES = ['tasks', 'sessions', 'busy', 'feedback', 'reports'] as const;
 export type SyncTable = (typeof SYNC_TABLES)[number];

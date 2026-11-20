@@ -3,8 +3,8 @@
 // The passphrase never leaves the device; only the key derived from it is
 // kept (non-extractable) so syncing can run in the background.
 import { create } from 'zustand';
-import { patchMicrosoft, saveIntegrations, useIntegrations } from '../../integrations/settings';
 import { createCryptoConfig, decryptJSON, deriveKey, type EncryptedBlob, encryptJSON } from '../crypto';
+import { patchMicrosoft, saveIntegrations, useIntegrations } from '../integrationSettings';
 import { repo } from '../repo';
 import { actions, useStore } from '../store';
 import {
