@@ -2,6 +2,11 @@ import { Directory, Encoding, Filesystem } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { platform } from './platform';
 
+async function shareCachedFile(name: string, data: string, encoding?: Encoding): Promise<void> {
+  const written = await Filesystem.writeFile({ path: name, data, directory: Directory.Cache, encoding });
+  await Share.share({ title: name, url: written.uri, dialogTitle: name });
+}
+
 /**
  * Hand a generated file to the user in the way each platform supports:
  * a save dialog on desktop, the share sheet on Android/iOS (e.g. straight
@@ -14,21 +19,10 @@ export async function exportFile(name: string, content: string, mime: string): P
     return;
   }
   if (p === 'android' || p === 'ios') {
-    const written = await Filesystem.writeFile({
-      path: name,
-      data: content,
-      directory: Directory.Cache,
-      encoding: Encoding.UTF8,
-    });
-    await Share.share({ title: name, url: written.uri, dialogTitle: name });
+    await shareCachedFile(name, content, Encoding.UTF8);
     return;
   }
-  const url = URL.createObjectURL(new Blob([content], { type: mime }));
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = name;
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  downloadBlob(name, new Blob([content], { type: mime }));
 }
 
 function downloadBlob(name: string, blob: Blob): void {
@@ -57,12 +51,7 @@ function blobToBase64(blob: Blob): Promise<string> {
 export async function exportBlob(name: string, blob: Blob): Promise<void> {
   const p = platform();
   if (p === 'android' || p === 'ios') {
-    const written = await Filesystem.writeFile({
-      path: name,
-      data: await blobToBase64(blob),
-      directory: Directory.Cache,
-    });
-    await Share.share({ title: name, url: written.uri, dialogTitle: name });
+    await shareCachedFile(name, await blobToBase64(blob));
     return;
   }
   if (p !== 'desktop') {

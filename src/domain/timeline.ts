@@ -2,13 +2,13 @@ import { addDays, getISOWeek, startOfDay, startOfWeek } from 'date-fns';
 import { expandBusy } from './busy';
 import type { BusyBlock, Task, WorkSession } from './types';
 
-export interface TimelineWeek {
+interface TimelineWeek {
   start: Date;
   /** ISO week number, for the header ("wk 49"). */
   week: number;
 }
 
-export interface TimelineRow {
+interface TimelineRow {
   stepId: string;
   title: string;
   who?: string;

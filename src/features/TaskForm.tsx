@@ -5,7 +5,7 @@ import { Chips, DurationInput, Field, Modal, toLocalInput } from '../components/
 import { actions, type NewTaskInput, type SeriesScope, useStore } from '../data/store';
 import { courseList, findCourse, weeklyDeadlines } from '../domain/courses';
 import { locationSuggestions } from '../domain/locations';
-import { type StepDraft, toSavedSteps } from '../domain/stepDue';
+import { type StepDraft, toSavedSteps } from '../domain/stepDraft';
 import { STUDENT_TYPES, type Task, type TaskType, TEACHER_TYPES } from '../domain/types';
 import { useFormat } from '../lib/format';
 import { StepsEditor } from './StepsEditor';
@@ -89,6 +89,7 @@ function TaskFormInner({ onClose, initial, task }: { onClose: () => void; initia
       : hasSuggestion && useSuggestion
         ? suggestion.suggestedMin
         : userEstimate;
+    const savedSteps = isProject ? toSavedSteps(validSteps, () => crypto.randomUUID()) : undefined;
     if (task) {
       await actions.updateTask(
         {
@@ -102,7 +103,7 @@ function TaskFormInner({ onClose, initial, task }: { onClose: () => void; initia
           difficulty: difficulty as Task['difficulty'],
           notes: notes.trim() || undefined,
           location: location.trim() || undefined,
-          steps: isProject ? toSavedSteps(validSteps, () => crypto.randomUUID()) : undefined,
+          steps: savedSteps,
         },
         scope,
       );
@@ -117,7 +118,7 @@ function TaskFormInner({ onClose, initial, task }: { onClose: () => void; initia
         difficulty: difficulty as Task['difficulty'],
         notes: notes.trim() || undefined,
         location: location.trim() || undefined,
-        steps: isProject ? toSavedSteps(validSteps, () => crypto.randomUUID()) : undefined,
+        steps: savedSteps,
         source: initial.source,
         externalId: initial.externalId,
         repeatUntil: weeks > 1 ? until : undefined,

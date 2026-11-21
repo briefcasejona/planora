@@ -1,9 +1,7 @@
 import { Icon } from '../components/Icon';
 import { DurationInput } from '../components/ui';
-import { draftStepIssues, dueFromDateInput, dueToDateInput, STEP_WHO_MAX, type StepDraft } from '../domain/stepDue';
+import { draftStepIssues, dueFromDateInput, dueToDateInput, STEP_WHO_MAX, type StepDraft } from '../domain/stepDraft';
 import { useFormat } from '../lib/format';
-
-export type { StepDraft };
 
 /** The step list of a project: title, estimate, optional due date and "who", with date hints underneath. */
 export function StepsEditor({
