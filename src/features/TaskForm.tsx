@@ -5,15 +5,10 @@ import { Chips, DurationInput, Field, Modal, toLocalInput } from '../components/
 import { actions, type NewTaskInput, type SeriesScope, useStore } from '../data/store';
 import { courseList, findCourse, weeklyDeadlines } from '../domain/courses';
 import { locationSuggestions } from '../domain/locations';
+import { type StepDraft, toSavedSteps } from '../domain/stepDue';
 import { STUDENT_TYPES, type Task, type TaskType, TEACHER_TYPES } from '../domain/types';
 import { useFormat } from '../lib/format';
-
-interface StepDraft {
-  id?: string;
-  title: string;
-  estimateMin: number;
-  done?: boolean;
-}
+import { StepsEditor } from './StepsEditor';
 
 /** Values to start a new task with, e.g. a test found in the timetable. */
 export type TaskPrefill = Partial<Pick<Task, 'title' | 'type' | 'deadline' | 'subject' | 'source' | 'externalId'>>;
@@ -107,15 +102,7 @@ function TaskFormInner({ onClose, initial, task }: { onClose: () => void; initia
           difficulty: difficulty as Task['difficulty'],
           notes: notes.trim() || undefined,
           location: location.trim() || undefined,
-          steps: isProject
-            ? validSteps.map((s, i) => ({
-                id: s.id ?? crypto.randomUUID(),
-                title: s.title.trim(),
-                estimateMin: s.estimateMin,
-                order: i,
-                done: !!s.done,
-              }))
-            : undefined,
+          steps: isProject ? toSavedSteps(validSteps, () => crypto.randomUUID()) : undefined,
         },
         scope,
       );
@@ -130,7 +117,7 @@ function TaskFormInner({ onClose, initial, task }: { onClose: () => void; initia
         difficulty: difficulty as Task['difficulty'],
         notes: notes.trim() || undefined,
         location: location.trim() || undefined,
-        steps: isProject ? validSteps.map((s) => ({ title: s.title.trim(), estimateMin: s.estimateMin })) : undefined,
+        steps: isProject ? toSavedSteps(validSteps, () => crypto.randomUUID()) : undefined,
         source: initial.source,
         externalId: initial.externalId,
         repeatUntil: weeks > 1 ? until : undefined,
@@ -138,14 +125,6 @@ function TaskFormInner({ onClose, initial, task }: { onClose: () => void; initia
       await actions.addTask(input);
     }
     onClose();
-  };
-
-  const moveStep = (i: number, dir: -1 | 1) => {
-    const j = i + dir;
-    if (j < 0 || j >= steps.length) return;
-    const next = [...steps];
-    [next[i], next[j]] = [next[j], next[i]];
-    setSteps(next);
   };
 
   return (
@@ -245,67 +224,7 @@ function TaskFormInner({ onClose, initial, task }: { onClose: () => void; initia
       )}
 
       {isProject ? (
-        <div className="mb-3">
-          <span className="label">{t('form.steps')}</span>
-          <p className="mb-2 text-xs text-slate-500 dark:text-slate-400">{t('form.stepsHint')}</p>
-          <ol className="space-y-2">
-            {steps.map((s, i) => (
-              // biome-ignore lint/suspicious/noArrayIndexKey: drafts have no id yet; the inputs are controlled
-              <li key={i} className="rounded-xl border border-slate-200 p-2 dark:border-slate-800">
-                <div className="flex items-center gap-2">
-                  <span className="w-5 text-center text-sm text-slate-400">{i + 1}</span>
-                  <input
-                    className="input"
-                    value={s.title}
-                    placeholder={t('form.stepPlaceholder')}
-                    aria-label={t('form.stepTitle', { n: i + 1 })}
-                    onChange={(e) => setSteps(steps.map((x, j) => (j === i ? { ...x, title: e.target.value } : x)))}
-                  />
-                  <button
-                    type="button"
-                    className="btn-ghost p-1.5"
-                    onClick={() => moveStep(i, -1)}
-                    aria-label={t('form.moveUp')}
-                  >
-                    <Icon name="up" className="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    className="btn-ghost p-1.5"
-                    onClick={() => moveStep(i, 1)}
-                    aria-label={t('form.moveDown')}
-                  >
-                    <Icon name="down" className="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    className="btn-ghost p-1.5"
-                    onClick={() => setSteps(steps.filter((_, j) => j !== i))}
-                    aria-label={t('common.remove')}
-                  >
-                    <Icon name="trash" className="h-4 w-4" />
-                  </button>
-                </div>
-                <div className="mt-2 pl-7">
-                  <DurationInput
-                    value={s.estimateMin}
-                    onChange={(v) => setSteps(steps.map((x, j) => (j === i ? { ...x, estimateMin: v } : x)))}
-                  />
-                </div>
-              </li>
-            ))}
-          </ol>
-          <button
-            type="button"
-            className="btn-secondary mt-2"
-            onClick={() => setSteps([...steps, { title: '', estimateMin: 60 }])}
-          >
-            <Icon name="plus" className="h-4 w-4" /> {t('form.addStep')}
-          </button>
-          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-            {t('form.stepsTotal', { d: duration(userEstimate) })}
-          </p>
-        </div>
+        <StepsEditor steps={steps} onChange={setSteps} deadline={new Date(deadline)} total={userEstimate} />
       ) : (
         <div className="mb-3">
           <span className="label">{t('form.estimate')}</span>

@@ -34,6 +34,10 @@ export function TaskDetail({ taskId, onClose }: { taskId: string; onClose: () =>
   const open = task.status === 'open';
   const unplanned = open ? remainingMinutes(task, sessions) : 0;
 
+  const lateStepInfo = (stepId?: string) => {
+    const step = task.steps?.find((x) => x.id === stepId);
+    return step?.due ? { step: step.title, date: date(step.due, 'EEE d MMM') } : {};
+  };
   const toggleStep = (stepId: string) =>
     actions.updateTask({ ...task, steps: task.steps?.map((s) => (s.id === stepId ? { ...s, done: !s.done } : s)) });
   const complete = async () => {
@@ -132,7 +136,7 @@ export function TaskDetail({ taskId, onClose }: { taskId: string; onClose: () =>
       </div>
 
       {warnings.map((w) => (
-        <div className="mb-3" key={w.kind}>
+        <div className="mb-3" key={w.kind + (w.stepId ?? '')}>
           <Banner
             tone="warn"
             icon="alert"
@@ -150,7 +154,10 @@ export function TaskDetail({ taskId, onClose }: { taskId: string; onClose: () =>
               ) : undefined
             }
           >
-            {t('warning.' + w.kind, { d: duration(w.unplacedMin ?? 0) })}
+            {t('warning.' + w.kind, {
+              d: duration(w.unplacedMin ?? 0),
+              ...lateStepInfo(w.stepId),
+            })}
           </Banner>
         </div>
       ))}
@@ -184,6 +191,11 @@ export function TaskDetail({ taskId, onClose }: { taskId: string; onClose: () =>
                 <li key={s.id} className="flex items-center gap-2 text-sm">
                   <input type="checkbox" checked={s.done} onChange={() => toggleStep(s.id)} aria-label={s.title} />
                   <span className={s.done ? 'text-slate-400 line-through' : ''}>{s.title}</span>
+                  {(s.due || s.who) && (
+                    <span className="text-xs text-slate-500 dark:text-slate-400">
+                      {[s.due && date(s.due, 'EEE d MMM'), s.who].filter(Boolean).join(' · ')}
+                    </span>
+                  )}
                   <span className="ml-auto text-slate-500">
                     {duration(Math.round(s.estimateMin * stepScale(task)))}
                   </span>

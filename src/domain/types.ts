@@ -18,6 +18,10 @@ export interface ProjectStep {
   estimateMin: number;
   order: number;
   done: boolean;
+  /** Optional milestone: ISO date-time, the end of the chosen local day (like Task.deadline). */
+  due?: string;
+  /** Free text: who does this step, e.g. "Sanne" or "everyone". Encrypted with the rest of the task. */
+  who?: string;
 }
 
 export interface Task {
@@ -227,11 +231,13 @@ export interface Message {
   params?: Record<string, string | number>;
 }
 
-export type WarningKind = 'infeasible' | 'buffer-squeezed' | 'deadline-passed';
+export type WarningKind = 'infeasible' | 'buffer-squeezed' | 'deadline-passed' | 'step-late';
 
 export interface ScheduleWarning {
   taskId: string;
   kind: WarningKind;
+  /** Set for 'step-late': the project step that misses its due date. */
+  stepId?: string;
   unplacedMin?: number;
 }
 

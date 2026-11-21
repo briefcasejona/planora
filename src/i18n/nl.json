@@ -113,6 +113,7 @@
     "infeasible": "Er past nog {{d}} niet in je beschikbare tijd vóór de deadline.",
     "buffer-squeezed": "Dit lukt alleen door ook vlak voor de deadline te werken.",
     "deadline-passed": "De deadline is verstreken terwijl er nog werk openstaat.",
+    "step-late": "Stap \"{{step}}\" is niet klaar op de gekozen datum ({{date}}).",
     "adjustAvailability": "Beschikbaarheid aanpassen"
   },
   "today": {
@@ -194,6 +195,13 @@
     "stepsHint": "Zet alle stappen in de juiste volgorde, met per stap je schatting. Planora plant ze na elkaar vóór de deadline.",
     "stepPlaceholder": "Bijv. Bronnen zoeken",
     "stepTitle": "Stap {{n}}",
+    "stepDue": "Klaar op",
+    "stepWho": "Wie",
+    "stepIssue": {
+      "before-previous": "Stap {{n}} moet eerder klaar zijn dan een eerdere stap",
+      "after-deadline": "Stap {{n}} moet klaar zijn na de deadline van het project",
+      "in-past": "De datum van stap {{n}} is al voorbij"
+    },
     "addStep": "Stap toevoegen",
     "stepsTotal": "Totaal: {{d}}",
     "moveUp": "Omhoog",
