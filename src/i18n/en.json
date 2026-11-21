@@ -113,6 +113,7 @@
     "infeasible": "{{d}} does not fit in your available time before the deadline.",
     "buffer-squeezed": "This only fits by working right up to the deadline.",
     "deadline-passed": "The deadline has passed while work is still open.",
+    "step-late": "Step \"{{step}}\" won't be finished by its date ({{date}}).",
     "adjustAvailability": "Adjust availability"
   },
   "today": {
@@ -194,6 +195,13 @@
     "stepsHint": "List every step in order with your estimate. Planora schedules them one after another before the deadline.",
     "stepPlaceholder": "E.g. Find sources",
     "stepTitle": "Step {{n}}",
+    "stepDue": "Due",
+    "stepWho": "Who",
+    "stepIssue": {
+      "before-previous": "Step {{n}} is due before an earlier step",
+      "after-deadline": "Step {{n}} is due after the project deadline",
+      "in-past": "Step {{n}}'s date has passed"
+    },
     "addStep": "Add step",
     "stepsTotal": "Total: {{d}}",
     "moveUp": "Move up",
@@ -211,6 +219,19 @@
     "errEstimate": "Enter an estimate of at least 5 minutes."
   },
   "detail": {
+    "timeline": {
+      "heading": "Timeline",
+      "save": "Save as image",
+      "saveFailed": "Couldn't save the image. Try again.",
+      "today": "Today",
+      "deadline": "Deadline",
+      "meeting": "Meeting",
+      "due": "Due",
+      "done": "Done",
+      "late": "Late",
+      "week": "wk {{n}}",
+      "help": "A bar shows the period a step runs, up to its due date."
+    },
     "deadline": "Deadline",
     "estimate": "Planned total",
     "yourEstimate": "you estimated {{d}}",

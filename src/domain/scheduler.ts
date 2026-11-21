@@ -3,6 +3,7 @@ import { expandBusy } from './busy';
 import { isNamedDeadline, SCHOOL_CATEGORIES } from './categories';
 import { suggestSessionCount } from './estimator';
 import { evenDayOffsets, spacedDayOffsets, splitMinutes } from './spacing';
+import { stepLateWarnings, stepWindows } from './stepDue';
 import { atMinutes, type Interval, minutesBetween, parseHM, roundUpToSlot, subtractIntervals } from './time';
 import type {
   BusyBlock,
@@ -115,16 +116,12 @@ function buildChunks(task: Task, kept: WorkSession[], input: ScheduleInput, earl
     const remaining = steps.map((s) => remainingMinutes(task, kept, s.id));
     const total = remaining.reduce((a, b) => a + b, 0);
     if (total === 0) return [];
-    const span = latest.getTime() - earliest.getTime();
-    let cumulative = 0;
+    const items = steps.map((s, i) => ({ due: s.due, remainingMin: remaining[i] }));
+    const windows = stepWindows(items, earliest, latest);
     steps.forEach((step, i) => {
       const rem = remaining[i];
       if (rem <= 0) return;
-      const startShare = cumulative / total;
-      cumulative += rem;
-      const endShare = cumulative / total;
-      const stepEarliest = new Date(earliest.getTime() + span * startShare);
-      const stepLatest = new Date(earliest.getTime() + span * endShare);
+      const { earliest: stepEarliest, latest: stepLatest } = windows[i];
       const firstDay = Math.max(0, differenceInCalendarDays(stepEarliest, today));
       const lastDay = Math.max(firstDay, differenceInCalendarDays(new Date(stepLatest.getTime() - 1), today));
       const blocks = splitMinutes(rem, Math.ceil(rem / prefs.maxBlockMin), prefs.minBlockMin, prefs.maxBlockMin);
@@ -363,11 +360,13 @@ export function schedule(input: ScheduleInput): ScheduleResult {
     if (rest > 0) leftovers.push({ ...chunk, minutes: rest });
   }
   const unplaced = new Map<string, number>();
+  const unplacedSteps = new Map<string, number>();
   const squeezed = new Set<string>();
   for (const chunk of leftovers) {
     const rest = place(chunk, chunk.hardLatest);
     if (rest < chunk.minutes) squeezed.add(chunk.taskId);
     if (rest > 0) unplaced.set(chunk.taskId, (unplaced.get(chunk.taskId) ?? 0) + rest);
+    if (rest > 0 && chunk.stepId) unplacedSteps.set(chunk.stepId, (unplacedSteps.get(chunk.stepId) ?? 0) + rest);
   }
 
   for (const [taskId, min] of unplaced) warnings.push({ taskId, kind: 'infeasible', unplacedMin: min });
@@ -380,6 +379,7 @@ export function schedule(input: ScheduleInput): ScheduleResult {
     created,
   );
   ordered.sort((a, b) => a.start.localeCompare(b.start));
+  warnings.push(...stepLateWarnings(plannable, [...keep, ...ordered], unplacedSteps));
   return { keep, created: ordered, removedIds, warnings };
 }
 
