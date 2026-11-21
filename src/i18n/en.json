@@ -219,6 +219,19 @@
     "errEstimate": "Enter an estimate of at least 5 minutes."
   },
   "detail": {
+    "timeline": {
+      "heading": "Timeline",
+      "save": "Save as image",
+      "saveFailed": "Couldn't save the image. Try again.",
+      "today": "Today",
+      "deadline": "Deadline",
+      "meeting": "Meeting",
+      "due": "Due",
+      "done": "Done",
+      "late": "Late",
+      "week": "wk {{n}}",
+      "help": "A bar runs from the first to the last planned block of a step."
+    },
     "deadline": "Deadline",
     "estimate": "Planned total",
     "yourEstimate": "you estimated {{d}}",

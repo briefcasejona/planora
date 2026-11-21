@@ -1,12 +1,16 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from '../components/Icon';
-import { Banner, Modal, Progress, TypeBadge } from '../components/ui';
+import { Banner, Modal, Progress, Section, TypeBadge } from '../components/ui';
 import { actions, type SeriesScope, useStore } from '../data/store';
 import { remainingMinutes, sessionMinutes, stepScale, workedMinutes } from '../domain/scheduler';
+import { buildTimeline, timelineFileName } from '../domain/timeline';
 import { canUndo as undoable } from '../domain/undo';
+import { exportBlob } from '../lib/files';
 import { useFormat } from '../lib/format';
+import { svgToPngBlob } from '../lib/svgImage';
 import { FeedbackDialog } from './FeedbackDialog';
+import { ProjectTimeline } from './ProjectTimeline';
 import { ReopenDialog } from './ReopenDialog';
 import { TaskForm } from './TaskForm';
 
@@ -18,10 +22,13 @@ export function TaskDetail({ taskId, onClose }: { taskId: string; onClose: () =>
   const task = useStore((s) => s.tasks.find((x) => x.id === taskId));
   const allSessions = useStore((s) => s.sessions);
   const allWarnings = useStore((s) => s.warnings);
+  const busy = useStore((s) => s.busy);
   const canUndo = useStore(
     (s) => (s.undo?.kind === 'complete' || s.undo?.kind === 'drop') && s.undo.taskId === taskId && undoable(s.undo, s),
   );
   const [mode, setMode] = useState<Mode>('view');
+  const [saveFailed, setSaveFailed] = useState(false);
+  const timelineSvg = useRef<SVGSVGElement>(null);
   if (!task) return null;
   if (mode === 'edit') return <TaskForm open task={task} onClose={() => setMode('view')} />;
   if (mode === 'reopen') return <ReopenDialog taskId={task.id} onClose={() => setMode('view')} />;
@@ -114,6 +121,16 @@ export function TaskDetail({ taskId, onClose }: { taskId: string; onClose: () =>
       </>
     );
 
+  const saveTimeline = async () => {
+    setSaveFailed(false);
+    try {
+      if (!timelineSvg.current) return;
+      await exportBlob(timelineFileName(task.title), await svgToPngBlob(timelineSvg.current));
+    } catch {
+      setSaveFailed(true);
+    }
+  };
+
   const statusLabel = {
     planned: t('session.planned'),
     done: t('session.done'),
@@ -202,6 +219,32 @@ export function TaskDetail({ taskId, onClose }: { taskId: string; onClose: () =>
                 </li>
               ))}
           </ul>
+        </div>
+      )}
+
+      {task.type === 'project' && task.steps && task.steps.length > 0 && (
+        <div className="mt-5">
+          <Section
+            title={t('detail.timeline.heading')}
+            action={
+              <button className="btn-secondary" onClick={() => void saveTimeline()}>
+                {t('detail.timeline.save')}
+              </button>
+            }
+          >
+            {saveFailed && (
+              <div className="mb-2">
+                <Banner tone="warn" icon="alert">
+                  {t('detail.timeline.saveFailed')}
+                </Banner>
+              </div>
+            )}
+            <ProjectTimeline
+              svgRef={timelineSvg}
+              title={task.title}
+              timeline={buildTimeline(task, sessions, busy, new Date())}
+            />
+          </Section>
         </div>
       )}
 
