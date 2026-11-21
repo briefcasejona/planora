@@ -14,7 +14,11 @@ interface TimelineRow {
   who?: string;
   done: boolean;
   due?: Date;
-  /** First start and last end of the step's planned or done blocks. Missing when the step has none. */
+  /**
+   * The period the step runs: from the earlier of its first block and its phase start (the previous
+   * step's due date, else the previous bar's end, else today) to the later of its last block and its
+   * due date. Missing when the step has neither blocks nor a due date.
+   */
   barStart?: Date;
   barEnd?: Date;
   /** The bar ends after the due date, or the due date has passed while the step is not done. */
@@ -35,8 +39,8 @@ export interface Timeline {
 const inRange = (d: Date, start: Date, end: Date) => d >= start && d <= end;
 
 /**
- * The read-only plan of a project: one row per step with a bar from its first to its last
- * block, a week grid from the Monday of the earliest relevant day to the deadline (at least a week).
+ * The read-only plan of a project: one row per step with a bar over the period the step runs
+ * (see `TimelineRow.barStart`), a week grid from the Monday of the earliest relevant day to the deadline (at least a week).
  */
 export function buildTimeline(task: Task, sessions: WorkSession[], busy: BusyBlock[], now: Date): Timeline {
   const mine = sessions.filter((s) => s.taskId === task.id);
@@ -52,14 +56,22 @@ export function buildTimeline(task: Task, sessions: WorkSession[], busy: BusyBlo
   const weeks: TimelineWeek[] = [];
   for (let w = start; w < end; w = addDays(w, 7)) weeks.push({ start: w, week: getISOWeek(w) });
 
+  const base = startOfDay(now) > start ? startOfDay(now) : start;
+  let prevDue: Date | undefined;
+  let prevEnd: Date | undefined;
   const rows = [...(task.steps ?? [])]
     .sort((a, b) => a.order - b.order)
     .map((step): TimelineRow => {
       const blocks = live.filter((s) => s.stepId === step.id);
-      const barStart = blocks.length ? new Date(Math.min(...blocks.map((s) => +new Date(s.start)))) : undefined;
-      const barEnd = blocks.length ? new Date(Math.max(...blocks.map((s) => +new Date(s.end)))) : undefined;
       const due = step.due ? new Date(step.due) : undefined;
-      const late = !!due && ((!!barEnd && barEnd > due) || (!step.done && due < now));
+      const phase = [prevDue ?? prevEnd ?? base, start].reduce((a, b) => (b > a ? b : a));
+      const first = blocks.length ? new Date(Math.min(...blocks.map((s) => +new Date(s.start)))) : undefined;
+      const last = blocks.length ? new Date(Math.max(...blocks.map((s) => +new Date(s.end)))) : undefined;
+      const barEnd = last && due ? (last > due ? last : due) : (last ?? due);
+      const barStart = barEnd && (first && first < phase ? first : phase < barEnd ? phase : barEnd);
+      const late = !!due && ((!!last && last > due) || (!step.done && due < now));
+      prevDue = due;
+      prevEnd = barEnd ?? prevEnd;
       return { stepId: step.id, title: step.title, who: step.who, done: step.done, due, barStart, barEnd, late };
     });
 

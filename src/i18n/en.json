@@ -230,7 +230,7 @@
       "done": "Done",
       "late": "Late",
       "week": "wk {{n}}",
-      "help": "A bar runs from the first to the last planned block of a step."
+      "help": "A bar shows the period a step runs, up to its due date."
     },
     "deadline": "Deadline",
     "estimate": "Planned total",

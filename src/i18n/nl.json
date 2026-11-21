@@ -230,7 +230,7 @@
       "done": "Klaar",
       "late": "Te laat",
       "week": "wk {{n}}",
-      "help": "Een balk loopt van het eerste tot het laatste geplande blok van een stap."
+      "help": "Een balk toont de periode waarin een stap loopt, tot de einddatum."
     },
     "deadline": "Deadline",
     "estimate": "Gepland totaal",

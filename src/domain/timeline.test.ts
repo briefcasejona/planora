@@ -62,7 +62,7 @@ describe('buildTimeline range', () => {
 });
 
 describe('buildTimeline rows', () => {
-  it('orders by step order and spans first to last live session', () => {
+  it('orders by step order; the bar covers the live blocks and runs to the due date', () => {
     const sessions = [
       session('1', 'a', 3, 9),
       session('2', 'a', 7, 14),
@@ -71,10 +71,29 @@ describe('buildTimeline rows', () => {
     ];
     const rows = buildTimeline(task, sessions, [], now).rows;
     expect(rows.map((r) => r.stepId)).toEqual(['a', 'b']);
-    expect(rows[0].barStart).toEqual(new Date(2026, 11, 3, 9));
-    expect(rows[0].barEnd).toEqual(new Date(2026, 11, 7, 15));
+    expect(rows[0].barStart).toEqual(new Date(2026, 11, 2)); // first step starts today
+    expect(rows[0].barEnd).toEqual(new Date(2026, 11, 8, 23, 59)); // its due date
     expect(rows[0].who).toBe('Sanne');
+  });
+  it('starts a step at the previous due date and ends at its last block without a due date', () => {
+    const rows = buildTimeline(task, [session('1', 'b', 15, 9)], [], now).rows;
+    expect(rows[1].barStart).toEqual(new Date(2026, 11, 8, 23, 59));
+    expect(rows[1].barEnd).toEqual(new Date(2026, 11, 15, 10));
+  });
+  it('starts at the first block when that is earlier than the phase start', () => {
+    const rows = buildTimeline(task, [session('1', 'b', 4, 9)], [], now).rows;
+    expect(rows[1].barStart).toEqual(new Date(2026, 11, 4, 9));
+  });
+  it('chains from the previous bar end when the previous step has no due date', () => {
+    const chained = { ...task, steps: task.steps?.map((s) => ({ ...s, due: undefined })) } as Task;
+    const rows = buildTimeline(chained, [session('1', 'a', 5, 9), session('2', 'b', 9, 9)], [], now).rows;
+    expect(rows[1].barStart).toEqual(new Date(2026, 11, 5, 10));
+  });
+  it('has no bar without blocks and due date, and never starts before the range', () => {
+    const rows = buildTimeline(task, [], [], new Date(2026, 10, 20)).rows;
+    expect(rows[0].barStart).toEqual(new Date(2026, 10, 20));
     expect(rows[1].barStart).toBeUndefined();
+    expect(rows[1].barEnd).toBeUndefined();
   });
   it('flags late when the bar ends after the due date', () => {
     const rows = buildTimeline(task, [session('1', 'a', 10, 9)], [], now).rows;

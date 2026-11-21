@@ -23,6 +23,7 @@ const W = 360;
 const PAD = 16;
 const GRID_W = W - 2 * PAD;
 const ROW_H = 40;
+const HALO = { stroke: C.paper, strokeWidth: 3, paintOrder: 'stroke', strokeLinejoin: 'round' } as const;
 const clip = (s: string, n: number) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
 
 function wrap(text: string, max: number): string[] {
@@ -36,7 +37,7 @@ function wrap(text: string, max: number): string[] {
 }
 
 function Diamond({ x, y, color }: { x: number; y: number; color: string }) {
-  return <path d={`M${x} ${y - 6}L${x + 6} ${y}L${x} ${y + 6}L${x - 6} ${y}Z`} fill={color} stroke={C.paper} />;
+  return <path d={`M${x} ${y - 5}L${x + 5} ${y}L${x} ${y + 5}L${x - 5} ${y}Z`} fill={color} stroke={C.paper} />;
 }
 
 export function ProjectTimeline({
@@ -52,6 +53,7 @@ export function ProjectTimeline({
   const { range, weeks, rows, meetings, today, deadline } = timeline;
   const days = differenceInCalendarDays(range.end, range.start) + 1;
   const x = (d: Date) => PAD + (Math.max(0, (+d - +range.start) / 86400000) / days) * GRID_W;
+  const dayW = GRID_W / days;
   const dayX = (d: Date) => x(new Date(+d + 43200000));
 
   const gridTop = 78;
@@ -123,42 +125,49 @@ export function ProjectTimeline({
         <circle key={+m} cx={dayX(m)} cy={gridTop + 6} r="3" fill={C.meeting} />
       ))}
 
+      {today && <line x1={x(today)} y1={gridTop - 4} x2={x(today)} y2={bottom} stroke={C.today} strokeWidth="1.5" />}
+      <line x1={dayX(deadline)} y1={gridTop - 4} x2={dayX(deadline)} y2={bottom} stroke={C.late} strokeWidth="1.5" />
+
       {rows.map((r, i) => {
-        const top = rowsTop + i * ROW_H;
-        const barY = top + 20;
+        const barY = rowsTop + i * ROW_H + 20;
         const color = r.late ? C.late : r.done ? C.done : C.bar;
-        const bx = r.barStart && x(r.barStart);
-        const bw = r.barStart && r.barEnd ? Math.max(6, x(r.barEnd) - x(r.barStart)) : 0;
+        if (!r.barStart || !r.barEnd) return null;
         return (
           <g key={r.stepId}>
-            <text x={PAD} y={top + 12} fontSize="10.5" fontWeight="600" fill={r.done ? C.soft : C.ink}>
-              {r.done ? '✓ ' : ''}
-              {clip(r.title, r.who ? 30 : 44)}
-            </text>
-            {r.who && (
-              <text x={W - PAD} y={top + 12} fontSize="9" fill={C.soft} textAnchor="end">
-                {clip(r.who, 14)}
-              </text>
-            )}
-            {bx !== undefined && (
-              <rect
-                x={bx}
-                y={barY - 5}
-                width={bw}
-                height="10"
-                rx="5"
-                fill={r.late ? C.lateFill : color}
-                stroke={r.late ? C.late : 'none'}
-                strokeWidth="1.2"
-              />
-            )}
+            <rect
+              x={x(r.barStart)}
+              y={barY - 5}
+              width={Math.max(6, dayW, x(r.barEnd) - x(r.barStart))}
+              height="10"
+              rx="5"
+              fill={r.late ? C.lateFill : color}
+              stroke={r.late ? C.late : 'none'}
+              strokeWidth="1.2"
+            />
             {r.due && <Diamond x={dayX(r.due)} y={barY} color={color} />}
           </g>
         );
       })}
 
-      {today && <line x1={x(today)} y1={gridTop - 4} x2={x(today)} y2={bottom} stroke={C.today} strokeWidth="1.5" />}
-      <line x1={dayX(deadline)} y1={gridTop - 4} x2={dayX(deadline)} y2={bottom} stroke={C.late} strokeWidth="1.5" />
+      {rows.map((r, i) => (
+        <text
+          key={r.stepId}
+          x={PAD}
+          y={rowsTop + i * ROW_H + 12}
+          fontSize="10.5"
+          fontWeight="600"
+          fill={r.done ? C.soft : C.ink}
+          {...HALO}
+        >
+          {r.done ? '✓ ' : ''}
+          {clip(r.title, r.who ? 30 : 44)}
+          {r.who && (
+            <tspan dx="6" fontSize="9" fontWeight="400" fill={C.soft}>
+              {clip(r.who, 14)}
+            </tspan>
+          )}
+        </text>
+      ))}
 
       {legend.map((item, i) => {
         const lx = PAD + (i % 3) * 112;
