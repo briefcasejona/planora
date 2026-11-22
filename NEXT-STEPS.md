@@ -234,7 +234,7 @@ The spec:
 - Flaky test (also on `main`): "about page works…" sometimes can't find the "Microsoft Graph permissions"
   heading on the For IT page (about 1 in 6 runs).
 
-## Strokenplanning for projects (21 November 2026, not merged yet)
+## Strokenplanning for projects (merged in pull request #44, released in v0.4.9, 22 November 2026)
 - Council verdict (in the project's council folder, `project-timeline-2026-11-21.md`): a timeline inside the
   project task, only for you. No group or online features (your wish, 21 November 2026).
 - Each project step can get a "Klaar op" date and a "Wie" label (both optional). Planora plans each step's
