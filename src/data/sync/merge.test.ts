@@ -134,6 +134,32 @@ describe('devices on an older version', () => {
     expect(merged.tables.tasks[0]).toMatchObject({ title: 'Renamed', location: 'Library' });
   });
 
+  it('keeps step due dates and who labels when the newer copy has them', () => {
+    const steps = [{ id: 's1', title: 'Draft', estimateMin: 60, order: 0, done: false, due: at(5), who: 'Sanne' }];
+    const newer = makeTask({ id: 't1', type: 'project', steps, updatedAt: at(2) });
+    const older = makeTask({
+      id: 't1',
+      type: 'project',
+      steps: [{ ...steps[0], due: undefined, who: undefined }],
+      updatedAt: at(1),
+    });
+    for (const [a, b] of [
+      [newer, older],
+      [older, newer],
+    ]) {
+      const merged = mergeSnapshots(snap({ tasks: [a] }), snap({ tasks: [b] }), NOW);
+      expect(merged.tables.tasks[0].steps?.[0]).toMatchObject({ due: at(5), who: 'Sanne' });
+    }
+  });
+
+  it('keeps a step field from a future version', () => {
+    const step = { id: 's1', title: 'Draft', estimateMin: 60, order: 0, done: false, color: 'red' };
+    const newer = makeTask({ id: 't1', type: 'project', steps: [step], updatedAt: at(2) });
+    const older = makeTask({ id: 't1', type: 'project', updatedAt: at(1) });
+    const merged = mergeSnapshots(snap({ tasks: [newer] }), snap({ tasks: [older] }), NOW);
+    expect(merged.tables.tasks[0].steps?.[0]).toHaveProperty('color', 'red');
+  });
+
   it('drops parts of the sync file it does not know, so new data must live in tasks or settings', () => {
     const withExtra = { ...snap(), courses: [{ name: 'Biology' }] } as SyncSnapshot;
     expect(mergeSnapshots(withExtra, snap(), NOW)).not.toHaveProperty('courses');

@@ -233,3 +233,19 @@ The spec:
   survive a restart, and that settings saved by older versions still load.
 - Flaky test (also on `main`): "about page works…" sometimes can't find the "Microsoft Graph permissions"
   heading on the For IT page (about 1 in 6 runs).
+
+## Strokenplanning for projects (merged in pull request #44, released in v0.4.9, 22 November 2026)
+- Council verdict (in the project's council folder, `project-timeline-2026-11-21.md`): a timeline inside the
+  project task, only for you. No group or online features (your wish, 21 November 2026).
+- Each project step can get a "Klaar op" date and a "Wie" label (both optional). Planora plans each step's
+  work before its date and warns when a step won't make it, or when dates are out of order, after the
+  deadline or already passed.
+- A project with steps shows a "Strokenplanning": one bar per step, weeks along the top, today and the
+  deadline as lines, meetings as dots. "Opslaan als afbeelding" saves it as a picture (on the iPhone via the
+  share sheet, e.g. to Photos) so you can show it to your project leader. Nothing is uploaded.
+- How it is stored: the new step fields live inside the (encrypted) task, so no database upgrade was needed.
+  A test checks they survive sync.
+- Good to know: an installed desktop or Android app still on v0.4.8 or older drops the dates and "who"
+  labels if you edit that project's steps there. The website and iPhone app update themselves. After a
+  release, update the installed apps before editing projects on them.
+- **Needs you:** try "Opslaan als afbeelding" on your iPhone. I could only test it in a desktop browser.
